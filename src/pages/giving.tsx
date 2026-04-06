@@ -1,17 +1,12 @@
-import Header from '@/components/givingPage/Header';
-import OfflineChannels from '@/components/givingPage/OfflineChannels';
-import AppLayout from '@/components/layout/AppLayout';
-import React from 'react';
+import { GetServerSideProps } from 'next';
 
-const GivingPage = () => {
-  return (
-    <AppLayout>
-      <Header />
-      <div className='giving-bg'>
-        <OfflineChannels />
-      </div>
-    </AppLayout>
-  );
+// Redirect /giving to /give
+export const getServerSideProps: GetServerSideProps = async () => {
+  return {
+    redirect: { destination: '/give', permanent: true },
+  };
 };
 
-export default GivingPage;
+export default function GivingRedirect() {
+  return null;
+}

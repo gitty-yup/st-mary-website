@@ -12,18 +12,18 @@ interface Info {
 const contactInfo: Info[] = [
   {
     icon: Location,
-    text: '90, Ojodu Akute Road, Ajayi Farms Bus-Stop.',
+    text: '148 E. 22nd Street, Costa Mesa, CA 92627',
     alt: 'Address',
   },
   {
     icon: Email,
-    text: 'churchadmin@tfhconline.net',
+    text: 'info@stmaryarmenianchurch.com',
     type: 'email',
     alt: 'Email',
   },
   {
     icon: Phone,
-    text: '+234 805 669 9920',
+    text: '(949) 650-8367',
     type: 'phone',
     alt: 'Phone',
   },

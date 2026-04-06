@@ -1,16 +1,15 @@
 import React from 'react';
-import Logo from '@/assets/brand/logo.png';
-import Image from 'next/image';
 import NavLinks from './NavLinks';
 import Link from 'next/link';
 import MobileMenu from './MobileMenu';
 
 function Navbar() {
   return (
-    <nav className='pl-primary pr-primary h-24'>
-      <div className='flex justify-between items-center'>
-        <Link href='/'>
-          <Image src={Logo} alt="The Father's House" className='h-[90px] w-auto' />
+    <nav className='pl-primary pr-primary h-24 bg-white shadow-sm'>
+      <div className='flex justify-between items-center h-full'>
+        <Link href='/' className='flex flex-col'>
+          <span className='font-secondary font-bold text-primary text-xl leading-tight'>St. Mary</span>
+          <span className='font-secondary text-sm text-secondary leading-tight'>Armenian Apostolic Church</span>
         </Link>
         <div className='hidden lg:block'>
           <NavLinks />

@@ -1,6 +1,5 @@
-import InstagramIcon from '@/assets/svgs/social/instagram.svg';
 import FacebookIcon from '@/assets/svgs/social/facebook.svg';
-import YoutubeIcon from '@/assets/svgs/social/youtube.svg';
+import InstagramIcon from '@/assets/svgs/social/instagram.svg';
 
 interface Link {
   alt: string;
@@ -10,19 +9,14 @@ interface Link {
 
 const socialLinks: Link[] = [
   {
-    alt: 'Youtube Channel',
-    src: YoutubeIcon,
-    destination: 'https://www.youtube.com/@TFHCOnlineTv',
-  },
-  {
-    alt: 'Facebook Profile',
+    alt: 'Facebook Page',
     src: FacebookIcon,
-    destination: 'https://www.facebook.com/tfhcng',
+    destination: 'https://m.facebook.com/profile.php?id=100064722127342',
   },
   {
     alt: 'Instagram Profile',
     src: InstagramIcon,
-    destination: 'https://www.instagram.com/tfhcng/',
+    destination: 'https://www.instagram.com/stmaryarmenianchurch/',
   },
 ];
 

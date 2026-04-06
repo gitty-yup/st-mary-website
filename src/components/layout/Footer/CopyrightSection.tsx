@@ -3,7 +3,7 @@ import React from 'react';
 function CopyrightSection() {
   return (
     <div className='bg-[#272727] p-5 text-center text-white text-sm font-normal mt-[71px]'>
-      &copy; 2023 The Father's House Church
+      &copy; {new Date().getFullYear()} St. Mary Armenian Apostolic Church &mdash; Costa Mesa, CA
     </div>
   );
 }

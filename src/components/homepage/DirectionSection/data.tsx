@@ -2,25 +2,25 @@ import React from 'react';
 
 const timelines: { title: string; time: string }[] = [
   {
-    title: 'Worship with Us Every Sunday',
-    time: 'Sundays - 8:30am to 10:00am, 10:30am to 12pm',
+    title: 'Sunday Badarak (Divine Liturgy)',
+    time: 'Every Sunday at 10:30 AM',
   },
   {
-    title: 'Join Us Every Tuesday for Bible Study',
-    time: 'Tuesdays - 6:45pm to 8:15pm',
+    title: 'Armenian Apostolic Faith Since 1985',
+    time: '148 E. 22nd Street, Costa Mesa, CA 92627',
   },
   {
-    title: 'Join Us Every Thursday for Yoke Breaking Prayer',
-    time: 'Thursdays - 8am to 10am',
+    title: 'All Are Welcome',
+    time: 'Fellowship hour follows every service',
   },
 ];
 
 export const serviceTimelines = timelines.map((timeline) => (
   <div key={timeline.title} className='h-[calc(8rem)] overflow-y-hidden'>
-    <h2 className='text-[30px] md:text-[40px] lg:text-[50px] mb-[19px] font-normal font-secondary leading-4'>
+    <h2 className='text-[26px] md:text-[36px] lg:text-[46px] mb-[19px] font-normal font-secondary leading-tight'>
       {timeline.title}
     </h2>
-    <p className='font-secondary text-lg md:text-xl lg:text-[28px] leading-4'>
+    <p className='font-secondary text-lg md:text-xl lg:text-[26px] leading-4'>
       {timeline.time}
     </p>
   </div>

@@ -4,34 +4,14 @@ type Link = {
 };
 
 const links: Link[] = [
-  {
-    title: 'Home',
-    destination: '/',
-  },
-  {
-    title: 'About Us',
-    destination: '/about',
-  },
-  {
-    title: 'Giving',
-    destination: '/giving',
-  },
-  {
-    title: 'Events',
-    destination: '/events',
-  },
-  {
-    title: 'Resources',
-    destination: '/resources',
-  },
-  {
-    title: 'Find A Church',
-    destination: '/church-locations',
-  },
-  {
-    title: 'Contact Us',
-    destination: '/contact',
-  },
+  { title: 'Home', destination: '/' },
+  { title: 'About', destination: '/about' },
+  { title: 'Worship', destination: '/worship' },
+  { title: 'Parish Life', destination: '/parish-life' },
+  { title: 'Events', destination: '/events' },
+  { title: 'Facilities', destination: '/facilities' },
+  { title: 'Give', destination: '/give' },
+  { title: 'Contact', destination: '/contact' },
 ];
 
 export default links;

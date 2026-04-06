@@ -1,17 +1,13 @@
-import { localStorageVariables } from '@/functions/variables';
 import { createSlice } from '@reduxjs/toolkit';
 
-// Define a type for the slice state
 interface MobileBarState {
   open: boolean;
 }
 
-// Define the initial state using that type
 const initialState: MobileBarState = {
   open: false,
 };
 
-// Actual Slice
 export const mobileBarSlice = createSlice({
   name: 'mobileBar',
   initialState,
@@ -21,7 +17,6 @@ export const mobileBarSlice = createSlice({
     },
     closeMobileBar(state) {
       state.open = false;
-      localStorage.setItem(localStorageVariables.hideMobileBar, 'true');
     },
   },
 });
