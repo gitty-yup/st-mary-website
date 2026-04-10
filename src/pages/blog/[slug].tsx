@@ -2,6 +2,7 @@ import AppLayout from '@/components/layout/AppLayout';
 import Button from '@/common/Button';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import matter from 'gray-matter';
+import { marked } from 'marked';
 import fs from 'fs';
 import path from 'path';
 import Link from 'next/link';
@@ -89,13 +90,16 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const filePath = path.join(process.cwd(), 'content', 'blog', `${slug}.md`);
   const raw = fs.readFileSync(filePath, 'utf-8');
   const { data, content } = matter(raw);
+  // If content looks like markdown (not HTML), run it through marked
+  const isHtml = content.trimStart().startsWith('<');
+  const renderedContent = isHtml ? content : await marked(content);
 
   return {
     props: {
       title: data.title || slug,
       date: data.date || '',
       author: data.author || '',
-      content,
+      content: renderedContent,
     },
   };
 };
