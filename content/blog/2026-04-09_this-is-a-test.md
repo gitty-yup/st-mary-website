@@ -13,8 +13,9 @@ While we no longer light oil-burning lanterns in our church, the spirit of Yugha
 This Easter, we invite you to participate in this meaningful tradition by offering your **Easter Yughakin** as a gift of love. You may donate in memory of a departed loved one or in honor of family and friends. Your contribution is a beautiful way to honor the Resurrection while supporting the life and mission of our church.
  
 ## Ways to Give Your Easter Yughakin:
-- Online: Click Here to Give Online!  
-- In person: Drop off a check at the church during Holy Week!  
-- By mail: St. Mary Armenian Apostolic Church, 148 22nd Street, Costa Mesa, CA 92627
- 
+<bl>
+<li> Online: Click Here to Give Online!  
+<li> In person: Drop off a check at the church during Holy Week!  
+<li> By mail: St. Mary Armenian Apostolic Church, 148 22nd Street, Costa Mesa, CA 92627
+
 May the light of the Risen Christ continue to shine through our beloved St. Mary Church, thanks to your faithful generosity.
