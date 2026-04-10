@@ -1,5 +1,5 @@
 ---
-title: This is a test!
+title: This is a test - Hello World!
 date: 2026-04-09
 author: St. Mary
 category: Parish News
