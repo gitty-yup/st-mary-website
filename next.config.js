@@ -1,9 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  outputFileTracingExcludes: {
-    '*': ['public/media/**/*'],
-  },
   env: {
     SESSION_NAME: 'TFH Web',
     SESSION_KEY: 'TFH_WEB_USER',

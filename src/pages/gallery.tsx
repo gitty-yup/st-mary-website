@@ -2,7 +2,6 @@ import AppLayout from '@/components/layout/AppLayout';
 import { GetStaticProps } from 'next';
 import fs from 'fs';
 import path from 'path';
-import Image from 'next/image';
 import React, { useState } from 'react';
 
 interface GalleryProps {
@@ -72,12 +71,11 @@ export default function Gallery({ years }: GalleryProps) {
                     onClick={() => setLightbox(src)}
                     className='relative aspect-square overflow-hidden rounded-lg bg-gray-100 hover:opacity-90 transition focus:outline-none focus:ring-2 focus:ring-secondary'
                   >
-                    <Image
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
                       src={src}
                       alt=''
-                      fill
-                      sizes='(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw'
-                      className='object-cover'
+                      className='object-cover w-full h-full'
                       loading='lazy'
                     />
                   </button>
@@ -123,41 +121,7 @@ export default function Gallery({ years }: GalleryProps) {
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  const mediaRoot = path.join(process.cwd(), 'public', 'media');
-  const IMAGE_EXT = new Set(['.jpg', '.jpeg', '.png', '.gif', '.webp']);
-
-  // Only include YYYY/MM folders (4-digit year directories)
-  const yearDirs = fs
-    .readdirSync(mediaRoot)
-    .filter((d) => /^\d{4}$/.test(d))
-    .sort()
-    .reverse(); // newest first
-
-  const years: GalleryProps['years'] = [];
-
-  for (const yr of yearDirs) {
-    const yearPath = path.join(mediaRoot, yr);
-    if (!fs.statSync(yearPath).isDirectory()) continue;
-
-    const images: string[] = [];
-    const monthDirs = fs.readdirSync(yearPath).sort();
-
-    for (const mo of monthDirs) {
-      const moPath = path.join(yearPath, mo);
-      if (!fs.statSync(moPath).isDirectory()) continue;
-
-      const files = fs.readdirSync(moPath).filter((f) =>
-        IMAGE_EXT.has(path.extname(f).toLowerCase())
-      );
-      for (const f of files) {
-        images.push(`/media/${yr}/${mo}/${f}`);
-      }
-    }
-
-    if (images.length > 0) {
-      years.push({ year: yr, images });
-    }
-  }
-
+  const manifestPath = path.join(process.cwd(), 'public', 'gallery-manifest.json');
+  const years = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
   return { props: { years } };
 };
