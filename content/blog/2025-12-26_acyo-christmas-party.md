@@ -5,6 +5,8 @@ author: St. Mary
 category: Events
 ---
 
+![](/media/uploads/newsletters/acyo-christmas-party_1.png)
+
 Dear Parishioners and Friends,
 
 We are excited to invite you to our **ACYO Christmas Party** on **Saturday, January 3, 2026, at 5:00 PM** in **Barsam Hall** at St. Mary Armenian Church!

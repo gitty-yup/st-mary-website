@@ -5,6 +5,8 @@ author: Fr. Eremia Abgaryan
 category: Parish News
 ---
 
+![](/media/uploads/newsletters/happy-new-year-from-hayr-eremia_1.png)
+
 Dear Believers,
 
 We extend our heartfelt congratulations to you and all the members of your families on the joyful occasion of the New Year.

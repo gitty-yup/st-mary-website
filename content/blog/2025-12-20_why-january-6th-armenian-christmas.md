@@ -5,6 +5,8 @@ author: St. Mary
 category: Parish News
 ---
 
+![](/media/uploads/newsletters/why-january-6th-armenian-christmas_1.png)
+
 As the world winds down from the festive lights and carols of December 25th, many in the Armenian community are just beginning their preparations for a sacred celebration. If you've ever wondered why the Armenian Apostolic Church observes Christmas on January 6th—while much of the Western world does so on December 25th—you're not alone. This date isn't a mere calendrical quirk; it's a window into the ancient roots of Christianity itself.
 
 ---

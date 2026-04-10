@@ -5,6 +5,8 @@ author: St. Mary
 category: Events
 ---
 
+![](/media/uploads/newsletters/armenian-christmas-services_1.jpg)
+
 **Krisdos dzunav yev haydnetsav!** (Christ is born and revealed!)
 **Orhnyal e haytnutyunn Krisdosi!** (Blessed is the Revelation of Christ!)
 
@@ -15,6 +17,8 @@ As we approach the sacred celebration of the Nativity and Theophany of our Lord 
 Please mark your calendars and come together in prayer and fellowship as we commemorate this holy occasion.
 
 ---
+
+![](/media/uploads/newsletters/armenian-christmas-services_2.jpg)
 
 ### St. Mary's Armenian Christmas Services Schedule
 

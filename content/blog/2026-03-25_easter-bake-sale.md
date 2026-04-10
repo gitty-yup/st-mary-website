@@ -5,6 +5,8 @@ author: St. Mary
 category: Events
 ---
 
+![](/media/uploads/newsletters/easter-bake-sale_1.jpg)
+
 The **St. Mary Ladies Society** invites you to the annual **Easter Bake Sale**, held on **Palm Sunday, March 29th** and **Easter Sunday, April 5**, immediately following church services.
 
 - **Time:** After Divine Liturgy (approximately 12:30 PM)
@@ -30,6 +32,8 @@ All proceeds support St. Mary Armenian Church and its Apostolic ministries.
 **Pre-orders encouraged:** Call Vera Kabaklian at (949) 293-5991
 
 ---
+
+![](/media/uploads/newsletters/easter-bake-sale_2.jpg)
 
 ### Holy Week & Easter Schedule
 

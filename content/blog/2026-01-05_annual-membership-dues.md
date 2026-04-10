@@ -5,6 +5,8 @@ author: St. Mary
 category: Announcements
 ---
 
+![](/media/uploads/newsletters/annual-membership-dues_1.jpg)
+
 Dear St. Mary Parishioners,
 
 As we begin the new year, I write to invite you to renew your annual parish membership and to encourage your continued participation in the life and governance of our church.

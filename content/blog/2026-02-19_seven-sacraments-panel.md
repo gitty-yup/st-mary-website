@@ -5,6 +5,8 @@ author: St. Mary
 category: Events
 ---
 
+![](/media/uploads/newsletters/seven-sacraments-panel_1.png)
+
 Dear St. Mary Parishioners,
 
 The **Cultural Committee** cordially invites you to the first session of a new Question & Answer Panel Series focused on the **Seven Sacraments of the Armenian Church**.

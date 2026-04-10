@@ -5,6 +5,8 @@ author: St. Mary
 category: Events
 ---
 
+![](/media/uploads/newsletters/lenten-holy-week-schedule-reminder_1.jpg)
+
 Dear St. Mary Parish Family,
 
 As we continue our Lenten journey of prayer, repentance, and renewal — with just one Wednesday remaining — we are excited to share the complete schedule for the remainder of Great Lent, Holy Week, and Easter 2026.
@@ -18,6 +20,8 @@ Great Lent is a beautiful time of sincerity, reflection, and return to God. The 
 - 7:00 PM — Lenten Dinner, hosted by the Entertainment Committee
 
 ---
+
+![](/media/uploads/newsletters/lenten-holy-week-schedule-reminder_2.jpg)
 
 ### Holy Week & Easter Services
 

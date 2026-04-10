@@ -17,6 +17,8 @@ Your presence would mean a great deal to the family.
 
 ---
 
+![](/media/uploads/newsletters/celebration-of-life-vatche-baghdikian_1.jpg)
+
 ### Vatche Hagop Baghdikian
 **August 7, 1949 – March 13, 2026**
 

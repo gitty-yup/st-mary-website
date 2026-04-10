@@ -5,6 +5,8 @@ author: Fr. Eremia Abgaryan
 category: Parish News
 ---
 
+![](/media/uploads/newsletters/spiritual-message-success-begins-with-faith_1.jpg)
+
 Dear faithful,
 
 Success begins with faith — not only in yourself, but first in God who created you. When you trust God and believe in His plan for your life, He gives you strength to overcome every difficulty.

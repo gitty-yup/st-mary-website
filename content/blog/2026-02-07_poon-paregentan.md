@@ -5,6 +5,8 @@ author: St. Mary
 category: Events
 ---
 
+![](/media/uploads/newsletters/poon-paregentan_1.jpg)
+
 Dear St. Mary Parish Family,
 
 After a long pause, we're excited to bring back our cherished **Poon Paregentan** celebration — the perfect way to enjoy "good living" together before Great Lent begins!

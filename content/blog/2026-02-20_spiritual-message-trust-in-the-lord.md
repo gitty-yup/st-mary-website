@@ -5,6 +5,8 @@ author: Fr. Eremia Abgaryan
 category: Parish News
 ---
 
+![](/media/uploads/newsletters/spiritual-message-trust-in-the-lord_1.jpg)
+
 *"Trust in the Lord with all your heart and lean not on your own understanding; in all your ways submit to Him, and He will make your paths straight."*
 *(Proverbs 3:5–6)*
 

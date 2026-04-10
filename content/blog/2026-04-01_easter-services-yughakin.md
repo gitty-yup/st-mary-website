@@ -5,6 +5,8 @@ author: St. Mary
 category: Parish News
 ---
 
+![](/media/uploads/newsletters/easter-services-yughakin_1.jpg)
+
 ### Easter Yughakin Donation Appeal
 
 Join St. Mary Armenian Apostolic Church for an Easter celebration centered on the ancient tradition of **Yughakin** — a practice rooted in Old Testament times when believers brought oil to temples to maintain sanctuary lamps.
@@ -20,6 +22,8 @@ This Easter, we invite you to participate in this meaningful tradition by offeri
 
 ---
 
+![](/media/uploads/newsletters/easter-services-yughakin_2.jpg)
+
 ### Holy Week & Easter Services Schedule
 
 **Holy Saturday, April 4**
@@ -33,6 +37,8 @@ This Easter, we invite you to participate in this meaningful tradition by offeri
 - Easter Bake Sale — Following Services
 
 ---
+
+![](/media/uploads/newsletters/easter-services-yughakin_3.jpg)
 
 ### Easter Bake Sale
 

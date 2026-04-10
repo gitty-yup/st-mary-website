@@ -5,6 +5,8 @@ author: St. Mary
 category: Announcements
 ---
 
+![](/media/uploads/newsletters/funeral-services-deacon-rupen_1.png)
+
 Dear Parishioners and Friends of St. Mary Armenian Apostolic Church,
 
 Following our previous announcement of the passing of our beloved Deacon and Choir Master (Դպրապետ) **Rupen Ozsogomonyan**, we now have details to share for his funeral services.

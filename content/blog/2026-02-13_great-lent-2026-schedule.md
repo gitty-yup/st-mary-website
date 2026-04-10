@@ -5,6 +5,8 @@ author: St. Mary
 category: Events
 ---
 
+![](/media/uploads/newsletters/great-lent-2026-schedule_1.png)
+
 Dear St. Mary Parishioners,
 
 Great Lent is one of the most meaningful seasons in the life of our Church — a period dedicated to prayer, repentance, renewal, and preparation for the Resurrection. Lent involves a deeply personal spiritual journey requiring sincerity, reflection, and recommitment to faith through worship, charity, and self-discipline. Fasting extends beyond dietary restrictions to include cleansing the heart, strengthening prayer, and growing in love.
