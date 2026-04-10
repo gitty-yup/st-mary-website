@@ -1,12 +1,34 @@
+'use client';
 import AppLayout from '@/components/layout/AppLayout';
 import Button from '@/common/Button';
-import Link from 'next/link';
-import React from 'react';
+import React, { useState } from 'react';
+
+const ACCESS_KEY = 'e00f3f7e-62c3-4973-8962-8e38501c9936';
 
 export default function Facilities() {
+  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setStatus('sending');
+    const form = e.currentTarget;
+    const data = Object.fromEntries(new FormData(form));
+    const res = await fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ access_key: ACCESS_KEY, subject: 'St. Mary Website — Rental Inquiry', ...data }),
+    });
+    if (res.ok) {
+      setStatus('success');
+      form.reset();
+    } else {
+      setStatus('error');
+    }
+  }
+
   return (
     <AppLayout>
-      <header className='about-header-bg px-primary h-[205px] md:h-[305px] flex flex-col items-center justify-center text-center gap-3 text-white'>
+      <header className='facilities-header-bg px-primary h-[205px] md:h-[305px] flex flex-col items-center justify-center text-center gap-3 text-white'>
         <p className='font-cursive text-secondary text-2xl'>Host Your Event Here</p>
         <h1 className='font-secondary font-bold text-2xl md:text-[32px] lg:text-[40px]'>
           Our Facilities
@@ -142,89 +164,97 @@ export default function Facilities() {
           <p className='text-gray-600 text-center mb-8'>
             Fill out the form below and our office will be in touch within 2 business days.
           </p>
-          <form
-            name='rental-inquiry'
-            method='POST'
-            action='/contact?submitted=true'
-            className='bg-white rounded-2xl p-8 shadow-sm space-y-4'
-          >
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-1'>Full Name *</label>
-                <input
-                  type='text'
-                  name='name'
-                  required
-                  className='w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary'
-                />
-              </div>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-1'>Email *</label>
-                <input
-                  type='email'
-                  name='email'
-                  required
-                  className='w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary'
-                />
-              </div>
+
+          {status === 'success' ? (
+            <div className='bg-green-50 border border-green-200 rounded-2xl p-10 text-center'>
+              <p className='text-green-700 font-semibold text-lg mb-2'>Inquiry Sent!</p>
+              <p className='text-green-600 text-sm'>Thank you for your interest. Our office will be in touch within 2 business days.</p>
             </div>
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+          ) : (
+            <form onSubmit={handleSubmit} className='bg-white rounded-2xl p-8 shadow-sm space-y-4'>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <div>
+                  <label className='block text-sm font-medium text-gray-700 mb-1'>Full Name *</label>
+                  <input
+                    type='text'
+                    name='name'
+                    required
+                    className='w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary'
+                  />
+                </div>
+                <div>
+                  <label className='block text-sm font-medium text-gray-700 mb-1'>Email *</label>
+                  <input
+                    type='email'
+                    name='email'
+                    required
+                    className='w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary'
+                  />
+                </div>
+              </div>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <div>
+                  <label className='block text-sm font-medium text-gray-700 mb-1'>Phone</label>
+                  <input
+                    type='tel'
+                    name='phone'
+                    className='w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary'
+                  />
+                </div>
+                <div>
+                  <label className='block text-sm font-medium text-gray-700 mb-1'>Event Type *</label>
+                  <select
+                    name='event_type'
+                    required
+                    className='w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary'
+                  >
+                    <option value=''>Select...</option>
+                    <option>Wedding Reception</option>
+                    <option>Baptism Celebration</option>
+                    <option>Anniversary / Birthday</option>
+                    <option>Memorial / Tribute</option>
+                    <option>Corporate Event</option>
+                    <option>Community / Fundraiser</option>
+                    <option>Meeting / Workshop</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+              </div>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <div>
+                  <label className='block text-sm font-medium text-gray-700 mb-1'>Preferred Date</label>
+                  <input
+                    type='date'
+                    name='date'
+                    className='w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary'
+                  />
+                </div>
+                <div>
+                  <label className='block text-sm font-medium text-gray-700 mb-1'>Estimated Guest Count</label>
+                  <input
+                    type='number'
+                    name='guest_count'
+                    placeholder='e.g. 150'
+                    className='w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary'
+                  />
+                </div>
+              </div>
               <div>
-                <label className='block text-sm font-medium text-gray-700 mb-1'>Phone</label>
-                <input
-                  type='tel'
-                  name='phone'
+                <label className='block text-sm font-medium text-gray-700 mb-1'>Additional Notes</label>
+                <textarea
+                  name='notes'
+                  rows={4}
                   className='w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary'
                 />
               </div>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-1'>Event Type *</label>
-                <select
-                  name='event_type'
-                  required
-                  className='w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary'
-                >
-                  <option value=''>Select...</option>
-                  <option>Wedding Reception</option>
-                  <option>Baptism Celebration</option>
-                  <option>Anniversary / Birthday</option>
-                  <option>Memorial / Tribute</option>
-                  <option>Corporate Event</option>
-                  <option>Community / Fundraiser</option>
-                  <option>Meeting / Workshop</option>
-                  <option>Other</option>
-                </select>
-              </div>
-            </div>
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-1'>Preferred Date</label>
-                <input
-                  type='date'
-                  name='date'
-                  className='w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary'
-                />
-              </div>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-1'>Estimated Guest Count</label>
-                <input
-                  type='number'
-                  name='guest_count'
-                  placeholder='e.g. 150'
-                  className='w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary'
-                />
-              </div>
-            </div>
-            <div>
-              <label className='block text-sm font-medium text-gray-700 mb-1'>Additional Notes</label>
-              <textarea
-                name='notes'
-                rows={4}
-                className='w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary'
-              />
-            </div>
-            <Button type='submit' className='!w-full'>Submit Inquiry</Button>
-          </form>
+              {status === 'error' && (
+                <p className='text-red-600 text-sm'>Something went wrong. Please try again or call us at (949) 650-8367.</p>
+              )}
+              <Button type='submit' className='!w-full' disabled={status === 'sending'}>
+                {status === 'sending' ? 'Sending…' : 'Submit Inquiry'}
+              </Button>
+            </form>
+          )}
         </div>
       </section>
     </AppLayout>

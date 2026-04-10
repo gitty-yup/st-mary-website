@@ -165,6 +165,13 @@
   resolved "https://registry.npmjs.org/@formkit/auto-animate/-/auto-animate-0.8.0.tgz"
   integrity sha512-G8f7489ka0mWyi+1IEZT+xgIwcpWtRMmE2x+IrVoQ+KM1cP6VDj/TbujZjwxdb0P8w8b16/qBfViRmydbYHwMw==
 
+"@js-temporal/polyfill@^0.5.1":
+  version "0.5.1"
+  resolved "https://registry.npmjs.org/@js-temporal/polyfill/-/polyfill-0.5.1.tgz"
+  integrity sha512-hloP58zRVCRSpgDxmqCWJNlizAlUgJFqG2ypq79DCvyv9tHjRYMDOcPFjzfl/A1/YxDvRCZz8wvZvmapQnKwFQ==
+  dependencies:
+    jsbi "^4.3.0"
+
 "@next/env@13.3.0":
   version "13.3.0"
   resolved "https://registry.npmjs.org/@next/env/-/env-13.3.0.tgz"
@@ -807,6 +814,11 @@ js-yaml@^3.13.1:
     argparse "^1.0.7"
     esprima "^4.0.0"
 
+jsbi@^4.3.0:
+  version "4.3.2"
+  resolved "https://registry.npmjs.org/jsbi/-/jsbi-4.3.2.tgz"
+  integrity sha512-9fqMSQbhJykSeii05nxKl4m6Eqn2P6rOlYiS+C5Dr/HPIU/7yZxu5qzbs40tgaFORiw2Amd0mirjxatXYMkIew==
+
 json-parse-even-better-errors@^2.3.0:
   version "2.3.1"
   resolved "https://registry.npmjs.org/json-parse-even-better-errors/-/json-parse-even-better-errors-2.3.1.tgz"
@@ -916,6 +928,14 @@ next@13.3.0:
     "@next/swc-win32-arm64-msvc" "13.3.0"
     "@next/swc-win32-ia32-msvc" "13.3.0"
     "@next/swc-win32-x64-msvc" "13.3.0"
+
+node-ical@^0.26.0:
+  version "0.26.0"
+  resolved "https://registry.npmjs.org/node-ical/-/node-ical-0.26.0.tgz"
+  integrity sha512-tJZY2fMb38Gbj0P05zHMWBr90MslhGZ1qEbOWYnokBYPPX/lYskL/0NnWoeiXTBNod+kRRcTOjxAeB20kfvKyw==
+  dependencies:
+    rrule-temporal "^1.5.1"
+    temporal-polyfill "^0.3.2"
 
 node-releases@^2.0.8:
   version "2.0.10"
@@ -1246,6 +1266,13 @@ reusify@^1.0.4:
   resolved "https://registry.npmjs.org/reusify/-/reusify-1.0.4.tgz"
   integrity sha512-U9nH88a3fc/ekCF1l0/UP1IosiuIjyTh7hBvXVMHYgVcfGvt897Xguj2UOLDeI5BG2m7/uwyaLVT6fbtCwTyzw==
 
+rrule-temporal@^1.5.1:
+  version "1.5.2"
+  resolved "https://registry.npmjs.org/rrule-temporal/-/rrule-temporal-1.5.2.tgz"
+  integrity sha512-I5rAiZfRlMh0vuG23HrGBMLZOSiQO7H1Uq8l9qyfA6oTD5j+UMRwpRs4aVU4XdaFhgN1p3K+cHelG8KvLTTm+g==
+  dependencies:
+    "@js-temporal/polyfill" "^0.5.1"
+
 run-parallel@^1.1.9:
   version "1.2.0"
   resolved "https://registry.npmjs.org/run-parallel/-/run-parallel-1.2.0.tgz"
@@ -1358,6 +1385,18 @@ tailwindcss@3.3.1:
     quick-lru "^5.1.1"
     resolve "^1.22.1"
     sucrase "^3.29.0"
+
+temporal-polyfill@^0.3.2:
+  version "0.3.2"
+  resolved "https://registry.npmjs.org/temporal-polyfill/-/temporal-polyfill-0.3.2.tgz"
+  integrity sha512-TzHthD/heRK947GNiSu3Y5gSPpeUDH34+LESnfsq8bqpFhsB79HFBX8+Z834IVX68P3EUyRPZK5bL/1fh437Eg==
+  dependencies:
+    temporal-spec "0.3.1"
+
+temporal-spec@0.3.1:
+  version "0.3.1"
+  resolved "https://registry.npmjs.org/temporal-spec/-/temporal-spec-0.3.1.tgz"
+  integrity sha512-B4TUhezh9knfSIMwt7RVggApDRJZo73uZdj8AacL2mZ8RP5KtLianh2MXxL06GN9ESYiIsiuoLQhgVfwe55Yhw==
 
 thenify-all@^1.0.0:
   version "1.6.0"

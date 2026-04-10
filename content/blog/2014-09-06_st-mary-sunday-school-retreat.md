@@ -1,24 +1,20 @@
 ---
-title: 'St. Mary Sunday School Retreat'
+title: 'St. Mary Sunday School Retreat — Miracles of Jesus'
 date: '2014-09-06'
 author: 'admin'
 category: 'Parish News'
 ---
 
-Last month, from noon on Saturday August 2nd until noon on Sunday, August 3rd, St. Mary’s Sunday School students joined together and attended a retreat at the church. This year’s theme was dedicated to “The Miracles of Jesus”. There were approximately 30 youngsters who came and enjoyed the full schedule of activities that the out-going school Superintendent, Rosie Gharadagian and her staff put together.
+<p>From noon on Saturday, August 2nd until noon on Sunday, August 3rd, St. Mary's Sunday School students joined together for a retreat at the church. This year's theme was dedicated to "The Miracles of Jesus." Approximately 30 youngsters came and enjoyed the full schedule of activities prepared by outgoing Superintendent Rosie Gharadagian and her staff.</p>
 
-The children started out by making Get Well Cards for the church to send out to any of our parishioners who are feeling poorly. Activities through the weekend included lessons on Jesus’ healing the blind, the 10 lepers, the paralyzed man, and crafts and games to go along with each lesson.  The students went through an obstacle course, made Thank You Journals that they can fill out through the year, and bookmarks. They even performed a skit on the 7 Deadly Sins and Virtues.
+<p>The children began by making Get Well Cards for parishioners who were feeling poorly. Activities through the weekend included lessons on Jesus healing the blind, the ten lepers, and the paralyzed man, with crafts and games tied to each lesson. The students completed an obstacle course, made Thank You Journals and bookmarks, and even performed a skit on the Seven Deadly Sins and Virtues.</p>
 
-Der Moushegh took them into the sanctuary for a lesson on Anointing the Sick, and the Raising of Lazarus, as well as a tour of the altar and all the holy items associated with that. They were each able to touch and feel things like the poorvar, kushotz, the banner, the crosses, etc.  He even blessed each child by anointing them with the holy muron!
+<p>Der Moushegh took them into the sanctuary for a lesson on Anointing the Sick and the Raising of Lazarus, as well as a tour of the altar and its sacred items. Each child was able to touch things like the poorvar, kushotz, the banner, and the crosses — and Der Moushegh blessed each child by anointing them with the holy muron.</p>
 
-Let’s not forget, if there are children, there must be food. We started them out with a lunch on Saturday, snacks through the day, then a delicious chicken &amp; pilaf dinner, which was made &amp; donated by Mrs. Roxy Musurlian.  They also got a chance to make ghourabia and eat their fill of them.
+<p>Food was naturally part of the fun — lunch on Saturday, snacks throughout the day, and a delicious chicken and pilaf dinner made and donated by Mrs. Roxy Musurlian. The children also got to make and eat their fill of ghourabia. After some Armenian line dances — the galor bar and the tamzara — and a round of freeze dance, they were finally tired enough to settle in with popcorn and a movie: <em>The Miracles of Jesus</em>.</p>
 
-Besides going to the playground, we also taught the children some simple Armenian line dances, the easiest being the galor bar that we all know, and also the tamzara. After that it was free style, then freeze dance, then they were finally tired out enough for them to sit around and enjoy some popcorn and a movie, appropriately entitled “The Miracles of Jesus”.
+<p>Bedtime was in the sanctuary, where Der Moushegh led the children in a bedtime prayer. Sunday morning began with breakfast, a nature walk to the Back Bay Nature Center, then back to church for confession and communion.</p>
 
-Finally it was bedtime. The children gathered up their sleeping bags and took them into the sanctuary where Der Moushegh led them in a bedtime prayer, and they finally drifted off to sleep. Sunday morning began with a nice breakfast, a nature walk to the Back Bay where we went to the Nature Center and saw the native animals on display, then back to church for confession &amp; communion, and a last chance to play with friends and finish off the fruit &amp; snacks. What a fun filled weekend of learning!
+<p>Big thank-yous go out to all the staff and parent volunteers — and especially to Der Moushegh, whose warmth and dedication make St. Mary a true spiritual home for our children.</p>
 
-Big thank yous go out to all the staff and parents who helped out this weekend. We simply couldn’t do it without you!  One other big thank you goes to our own Der Moushegh. We are so blessed to be a part of such a kid  friendly parish and have a priest who makes our children feel that their church is a second home to them.
-
-Registration and parent meeting for the new Sunday school year will begin on Sept. 7<sup>th</sup>. Classes will begin on Sept. 14<sup>th</sup> (it is also Exaltation of the Holy Cross feast day).  St. Mary church is looking forward to seeing all the children from pre-k to high school come and be a part of this group.  We are always looking for adult volunteers to help us. If you are interested please email Izzy Toumanian, who will be the new Superintendent for the coming year at  HYPERLINK "mailto:izzytoumanian@socal.rr.com" izzytoumanian@socal.rr.com, or phone at 714-596-4456.
-
-&nbsp;
+<p>Registration and parent meeting for the new Sunday School year began on September 7th, with classes starting September 14th — also the Feast of the Exaltation of the Holy Cross. St. Mary welcomes all children from pre-K through high school and is always looking for adult volunteers. Contact new Superintendent Izzy Toumanian at <a href="mailto:izzytoumanian@socal.rr.com">izzytoumanian@socal.rr.com</a> or (714) 596-4456.</p>

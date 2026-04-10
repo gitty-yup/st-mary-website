@@ -12,30 +12,42 @@ const ministries = [
   {
     name: 'ACYO (Armenian Church Youth Organization)',
     description:
-      'The ACYO is the youth arm of the Western Diocese, engaging teens and young adults in faith, fellowship, sports, and service. St. Mary ACYO has been an active part of parish life since Fr. Moushegh established it in 1992.',
+      'Guided by the mission to bring young people to Christ through the teachings and rich traditions of the Armenian Apostolic Church, St. Mary ACYO welcomes youth (12+) to grow in faith, build lasting friendships, and develop strong Christian Armenian identities. Through worship, service projects, educational events, leadership opportunities, sports, social gatherings, and retreats, St. Mary\'s ACYO helps teens and young adults deepen their relationship with God, serve their Church and community, and become committed leaders ready to live out their faith both inside and outside the parish. All youth are warmly invited to join our vibrant, welcoming chapter!',
   },
   {
     name: 'Ladies Society',
     description:
       'The St. Mary Ladies Society is a cornerstone of parish life. Their mission is to study and propagate the teachings of the Armenian Apostolic Church, cultivate Christian virtues, and support the parish through events, charitable work, and beautification of the church. Annual events include the Armenian Christmas Banquet, Mother\'s Day Luncheon, April 24th Walkathon, and the Church Food Festival.',
   },
-  {
-    name: 'Men\'s Fellowship',
-    description:
-      'The men of St. Mary support parish life through service, fellowship, and stewardship. Contact the parish office to learn how to get involved.',
-  },
 ];
 
-const youthPrograms = [
+const youthPrograms: { name: string; description: React.ReactNode }[] = [
   {
     name: 'Sunday School',
-    description:
-      'St. Mary Sunday School offers faith formation for children and youth during the Sunday Badarak season. Students learn the tenets of the Armenian Apostolic faith, Armenian Church history, and the Nicene Creed. A nursery class is available for 3–4 year olds. Contact: sundayschool@stmaryarmenianchurch.com',
-  },
-  {
-    name: 'Zvartnots Youth Choir & Dance Ensemble',
-    description:
-      'Founded in 1997, Zvartnots is a beloved youth program that nurtures Armenian cultural identity through choir singing and traditional folk dance. The ensemble performs at the church festival and community events throughout the year.',
+    description: (
+      <>
+        <p className='font-semibold text-primary mb-2'>Discover Faith, Grow in Christ at St. Mary Sunday School!</p>
+        <p className='mb-3'>
+          Join us every Sunday at 11:00 AM in the Meghrouni Education Center for an engaging, faith-filled experience
+          using the trusted <em>We Believe</em> curriculum from the{' '}
+          <a href='https://www.cecwd.org/' target='_blank' rel='noreferrer' className='text-secondary underline'>
+            Christian Education Council of the Western Diocese
+          </a>
+          . Children ages 5–15 will explore the life of Jesus Christ — from the Annunciation and His miraculous birth
+          to His teachings and miracles. They will also learn Bible stories, the meaning of our feasts and sacraments,
+          and the rich traditions of the Armenian Apostolic Church, while discovering who they are as beloved children
+          of God, the importance of family and community, and how to live out their faith daily.
+        </p>
+        <p className='mb-3'>
+          Through dynamic lessons, activities, crafts, and discussions, kids build a deeper relationship with Our Lord
+          and Savior Jesus Christ while making friends and growing spiritually in a warm, welcoming environment. All
+          children ages 5–15 are welcome — no matter their background!
+        </p>
+        <p className='font-semibold text-primary'>
+          St. Mary Sunday School: Where faith comes alive every Sunday morning. See you there! 🙏
+        </p>
+      </>
+    ),
   },
   {
     name: 'AGBU Saturday Armenian School',
@@ -44,8 +56,15 @@ const youthPrograms = [
   },
   {
     name: 'Hye Camp & Diocesan Retreats',
-    description:
-      'St. Mary youth participate in the Western Diocese\'s annual Hye Camp and other retreats, building friendships and deepening their faith in a camp setting.',
+    description: (
+      <>
+        St. Mary youth participate in the Western Diocese&apos;s annual{' '}
+        <a href='https://www.hyecamp.com/' target='_blank' rel='noreferrer' className='text-secondary underline'>
+          Hye Camp
+        </a>{' '}
+        and other retreats, building friendships and deepening their faith in a camp setting.
+      </>
+    ),
   },
 ];
 
@@ -70,17 +89,12 @@ const organizations = [
     description:
       'A program for young mothers and their toddlers to connect in a church atmosphere, with outings and monthly gatherings throughout the year.',
   },
-  {
-    name: 'Mr. & Mrs. Club',
-    description:
-      'A social and fellowship group for young married couples, offering retreats, dinners, and seasonal events to help families connect with parish life.',
-  },
 ];
 
 export default function ParishLife() {
   return (
     <AppLayout>
-      <header className='about-header-bg px-primary h-[205px] md:h-[305px] flex flex-col items-center justify-center text-center gap-3 text-white'>
+      <header className='parish-life-header-bg px-primary h-[205px] md:h-[305px] flex flex-col items-center justify-center text-center gap-3 text-white'>
         <p className='font-cursive text-secondary text-2xl'>Community &amp; Ministry</p>
         <h1 className='font-secondary font-bold text-2xl md:text-[32px] lg:text-[40px]'>
           Parish Life

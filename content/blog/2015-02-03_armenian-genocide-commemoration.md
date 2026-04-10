@@ -1,8 +1,12 @@
 ---
-title: 'Armenian Genocide Commemoration'
+title: 'Armenian Genocide Centennial Commemoration — Save the Date'
 date: '2015-02-03'
 author: 'admin'
 category: 'Parish News'
 ---
 
-<p style="text-align: center"><a href="http://stmaryarmenianchurch.com/?attachment_id=1168" rel="attachment wp-att-1168"><img class="wp-image-1168 aligncenter" src="/media/uploads/2015/02/SAVE-THE-DATE.jpg" alt="" width="640" height="1152" /></a></p>
+<p>St. Mary Armenian Church of Costa Mesa invites the community to the Centennial Armenian Genocide Commemoration. Please save the date for this important and solemn event honoring the memory of the 1.5 million martyrs.</p>
+
+<div class="photo-grid photo-grid-1">
+  <a href="/media/2015/02/SAVE-THE-DATE.jpg"><img src="/media/2015/02/SAVE-THE-DATE.jpg" alt="" loading="lazy" /></a>
+</div>

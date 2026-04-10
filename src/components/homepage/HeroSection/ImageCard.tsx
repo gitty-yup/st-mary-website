@@ -1,14 +1,16 @@
-import Image, { StaticImageData } from 'next/image';
 import React from 'react';
 
-function ImageCard({ image }: { image: StaticImageData }) {
+function ImageCard({ image }: { image: string }) {
   return (
-    <Image
-      src={image}
-      alt=''
-      className={'w-[243px] min-h-[331px] object-cover h-auto'}
-      placeholder='blur'
-    />
+    <div className='w-[243px] min-h-[331px] relative overflow-hidden'>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={image}
+        alt=''
+        className='w-full h-full object-cover'
+        loading='lazy'
+      />
+    </div>
   );
 }
 

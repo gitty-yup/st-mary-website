@@ -7,7 +7,7 @@ export default function About() {
   return (
     <AppLayout>
       {/* Page Header */}
-      <header className='about-header-bg px-primary h-[205px] md:h-[305px] lg:h-[405px] flex flex-col items-center justify-center text-center gap-3 text-white'>
+      <header className='about-header-bg px-primary h-[205px] md:h-[305px] flex flex-col items-center justify-center text-center gap-3 text-white'>
         <p className='font-cursive text-secondary text-2xl'>Learn More</p>
         <h1 className='font-secondary font-bold text-2xl md:text-[32px] lg:text-[40px]'>
           About St. Mary Armenian Apostolic Church
@@ -123,17 +123,19 @@ export default function About() {
           </div>
 
           <div id='council' className='bg-white rounded-2xl p-8 shadow-sm'>
-            <h3 className='font-secondary font-bold text-primary text-xl mb-4'>Parish Council 2025</h3>
+            <h3 className='font-secondary font-bold text-primary text-xl mb-4'>Parish Council 2026</h3>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
               {[
-                { name: 'Very Rev. Fr. Eremia Abgaryan', role: 'President' },
-                { name: 'Michael Hollis', role: 'Chairman' },
-                { name: 'Hovsep Bergciyan', role: '' },
-                { name: 'Tony Markarian', role: '' },
-                { name: 'Bedig Cemcem', role: 'Treasurer' },
-                { name: 'Herman Basmaciyan', role: 'Secretary' },
-                { name: 'Souren Toumanian', role: '' },
-                { name: 'Gevork Martirosian', role: '' },
+                { name: 'Very Rev. Fr. Eremia Abgaryan', role: 'Parish Priest (President)' },
+                { name: 'Mike Hollis', role: 'Chairman' },
+                { name: 'Bedig Cemcem', role: 'Vice Chairman' },
+                { name: 'Haig Altunian', role: 'Treasurer' },
+                { name: 'Harutiun Kassakhian', role: 'Recording Secretary' },
+                { name: 'Vera Kabaklian', role: 'Member' },
+                { name: 'Talar Karatas', role: 'Member' },
+                { name: 'Charlene Asdourian', role: 'Member' },
+                { name: 'Armond Mehrabian', role: 'Member' },
+                { name: 'Artak Karapetyan', role: 'Member' },
               ].map((member) => (
                 <div key={member.name} className='flex justify-between py-2 border-b border-gray-100'>
                   <span className='font-medium text-gray-800'>{member.name}</span>

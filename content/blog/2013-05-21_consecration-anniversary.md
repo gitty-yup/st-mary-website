@@ -1,8 +1,8 @@
 ---
-title: 'Consecration Anniversary'
+title: 'Consecration Anniversary — October 7th'
 date: '2013-05-21'
 author: 'admin'
 category: 'Parish News'
 ---
 
-<h2 style="text-align: center; font-family: Geneva, Arial, Helvetica, sans-serif; font-size: 18px;"><span style="font-family: impact,chicago; font-size: large;">October 7th is coming up fast.</span></h2>
+<p>October 7th is coming up fast — please mark your calendars for St. Mary's Consecration Anniversary celebration. Join us as we give thanks for over three decades of faith, fellowship, and community at St. Mary Armenian Church of Costa Mesa.</p>

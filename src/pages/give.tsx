@@ -5,7 +5,7 @@ import React from 'react';
 export default function Give() {
   return (
     <AppLayout>
-      <header className='giving-bg px-primary h-[205px] md:h-[305px] flex flex-col items-center justify-center text-center gap-3 text-white'>
+      <header className='giving-header-bg px-primary h-[205px] md:h-[305px] flex flex-col items-center justify-center text-center gap-3 text-white'>
         <p className='font-cursive text-secondary text-2xl'>Support Our Parish</p>
         <h1 className='font-secondary font-bold text-2xl md:text-[32px] lg:text-[40px]'>
           Give to St. Mary
@@ -46,7 +46,7 @@ export default function Give() {
                 or recurring gift — it takes less than 2 minutes.
               </p>
               <a
-                href='https://tithe.ly/give'
+                href='https://give.tithe.ly/?formId=2b4b2f59-428d-46ab-9cd4-b151b1f12dab'
                 target='_blank'
                 rel='noreferrer'
               >
@@ -71,7 +71,7 @@ export default function Give() {
                 Make checks payable to <strong>St. Mary Armenian Apostolic Church</strong> and mail to:
               </p>
               <address className='text-sm text-gray-700 not-italic'>
-                148 E. 22nd Street<br />
+                148 22nd Street<br />
                 Costa Mesa, CA 92627
               </address>
             </div>

@@ -2,12 +2,12 @@ import React from 'react';
 
 const timelines: { title: string; time: string }[] = [
   {
-    title: 'Sunday Badarak (Divine Liturgy)',
-    time: 'Every Sunday at 10:30 AM',
+    title: 'Morning Service & Soorp Badarak',
+    time: 'Every Sunday at 10:00 & 10:30 AM',
   },
   {
     title: 'Armenian Apostolic Faith Since 1985',
-    time: '148 E. 22nd Street, Costa Mesa, CA 92627',
+    time: '148 22nd Street, Costa Mesa, CA 92627',
   },
   {
     title: 'All Are Welcome',

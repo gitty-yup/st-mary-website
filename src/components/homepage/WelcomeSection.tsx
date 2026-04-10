@@ -18,9 +18,9 @@ const WelcomeSection = () => {
             and prayerful home here.
           </p>
           <p className='font-normal mb-6 text-gray-700 leading-relaxed'>
-            Our doors are open to all who seek God&apos;s presence. Join us for Sunday Badarak
-            at 10:30 AM and experience the rich liturgical tradition of one of the oldest
-            Christian churches in the world.
+            Our doors are open to all who seek God&apos;s presence. Join us for Morning Service
+            at 10:00 AM and Soorp Badarak at 10:30 AM, and experience the rich liturgical
+            tradition of one of the oldest Christian churches in the world.
           </p>
           <p className='font-bold text-primary mb-8'>
             — Very Rev. Fr. Eremia Abgaryan, Parish Priest
@@ -32,12 +32,12 @@ const WelcomeSection = () => {
         <div className='bg-[#FFF2EE] rounded-2xl p-8 flex flex-col gap-4'>
           <h3 className='font-secondary font-bold text-primary text-xl mb-2'>Service Times</h3>
           <div className='border-l-4 border-secondary pl-4'>
-            <p className='font-semibold text-primary'>Sunday Badarak (Divine Liturgy)</p>
-            <p className='text-gray-600'>Every Sunday at 10:30 AM</p>
+            <p className='font-semibold text-primary'>Morning Service</p>
+            <p className='text-gray-600'>Every Sunday at 10:00 AM</p>
           </div>
           <div className='border-l-4 border-secondary pl-4'>
-            <p className='font-semibold text-primary'>Confession</p>
-            <p className='text-gray-600'>Available before Badarak &mdash; contact the church to arrange</p>
+            <p className='font-semibold text-primary'>Soorp Badarak (Divine Liturgy)</p>
+            <p className='text-gray-600'>Every Sunday at 10:30 AM</p>
           </div>
           <div className='border-l-4 border-secondary pl-4'>
             <p className='font-semibold text-primary'>Feast Days & Seasonal Services</p>

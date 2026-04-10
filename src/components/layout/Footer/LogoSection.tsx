@@ -10,7 +10,7 @@ function LogoSection() {
         worshipping and serving the Armenian community of Orange County since 1985.
       </p>
       <p className="text-sm text-gray-400 mt-2">Sunday Badarak: 10:30 AM</p>
-      <p className="text-sm text-gray-400">148 E. 22nd Street, Costa Mesa, CA</p>
+      <p className="text-sm text-gray-400">148 22nd Street, Costa Mesa, CA</p>
     </div>
   );
 }

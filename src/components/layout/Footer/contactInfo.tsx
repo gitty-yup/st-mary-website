@@ -12,7 +12,7 @@ interface Info {
 const contactInfo: Info[] = [
   {
     icon: Location,
-    text: '148 E. 22nd Street, Costa Mesa, CA 92627',
+    text: '148 22nd Street, Costa Mesa, CA 92627',
     alt: 'Address',
   },
   {

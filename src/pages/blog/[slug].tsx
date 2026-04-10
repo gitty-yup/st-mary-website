@@ -25,7 +25,7 @@ export default function BlogPost({ title, date, author, content }: PostProps) {
 
   return (
     <AppLayout>
-      <header className='about-header-bg px-primary h-[180px] md:h-[240px] flex flex-col items-center justify-center text-center gap-2 text-white'>
+      <header className='blog-header-bg px-primary h-[180px] md:h-[240px] flex flex-col items-center justify-center text-center gap-2 text-white'>
         <p className='text-sm text-secondary'>{formattedDate}</p>
         <h1 className='font-secondary font-bold text-xl md:text-[28px] lg:text-[36px] max-w-3xl'>
           {title}
@@ -37,13 +37,27 @@ export default function BlogPost({ title, date, author, content }: PostProps) {
 
       <section className='px-primary py-16 bg-white'>
         <div className='max-w-3xl mx-auto'>
+          <style>{`
+            .photo-grid { display:grid; gap:8px; margin:24px 0; }
+            .photo-grid-1 { grid-template-columns:1fr; max-width:640px; margin-left:auto; margin-right:auto; }
+            .photo-grid-2 { grid-template-columns:repeat(2,1fr); }
+            .photo-grid-3 { grid-template-columns:repeat(3,1fr); }
+            .photo-grid-4 { grid-template-columns:repeat(4,1fr); }
+            @media(max-width:640px){
+              .photo-grid-3,.photo-grid-4 { grid-template-columns:repeat(2,1fr); }
+            }
+            .photo-grid a { display:block; aspect-ratio:1; overflow:hidden; border-radius:8px; }
+            .photo-grid img { width:100%; height:100%; object-fit:cover; display:block; transition:transform .2s; }
+            .photo-grid a:hover img { transform:scale(1.04); }
+          `}</style>
           <article
             className='prose prose-lg max-w-none text-gray-700 leading-relaxed
               [&_img]:rounded-xl [&_img]:my-4 [&_img]:max-w-full
               [&_a]:text-secondary [&_a]:underline
-              [&_h2]:text-primary [&_h2]:font-secondary
+              [&_h2]:text-primary [&_h2]:font-secondary [&_h2]:text-2xl [&_h2]:mt-8 [&_h2]:mb-4
               [&_h3]:text-primary [&_h3]:font-secondary
-              [&_iframe]:w-full [&_iframe]:rounded-xl [&_iframe]:my-4'
+              [&_iframe]:w-full [&_iframe]:rounded-xl [&_iframe]:my-4
+              [&_.photo-grid_a]:no-underline [&_.photo-grid_img]:my-0 [&_.photo-grid_img]:rounded-none'
             dangerouslySetInnerHTML={{ __html: content }}
           />
 

@@ -45,7 +45,7 @@ export default function Worship() {
   return (
     <AppLayout>
       {/* Header */}
-      <header className='about-header-bg px-primary h-[205px] md:h-[305px] flex flex-col items-center justify-center text-center gap-3 text-white'>
+      <header className='worship-header-bg px-primary h-[205px] md:h-[305px] flex flex-col items-center justify-center text-center gap-3 text-white'>
         <p className='font-cursive text-secondary text-2xl'>Come and Pray with Us</p>
         <h1 className='font-secondary font-bold text-2xl md:text-[32px] lg:text-[40px]'>
           Worship at St. Mary
@@ -81,12 +81,12 @@ export default function Worship() {
               <h3 className='font-secondary font-bold text-primary text-xl mb-4'>Service Schedule</h3>
               <div className='space-y-4'>
                 <div className='border-l-4 border-secondary pl-4'>
-                  <p className='font-semibold text-primary'>Sunday Badarak</p>
-                  <p className='text-gray-600'>Every Sunday at 10:30 AM</p>
+                  <p className='font-semibold text-primary'>Morning Service</p>
+                  <p className='text-gray-600'>Every Sunday at 10:00 AM</p>
                 </div>
                 <div className='border-l-4 border-secondary pl-4'>
-                  <p className='font-semibold text-primary'>Confession</p>
-                  <p className='text-gray-600'>Available before Badarak — call the office to arrange</p>
+                  <p className='font-semibold text-primary'>Soorp Badarak</p>
+                  <p className='text-gray-600'>Every Sunday at 10:30 AM</p>
                 </div>
                 <div className='border-l-4 border-secondary pl-4'>
                   <p className='font-semibold text-primary'>Feast Days &amp; Holy Week</p>
@@ -94,7 +94,7 @@ export default function Worship() {
                 </div>
                 <div className='border-l-4 border-secondary pl-4'>
                   <p className='font-semibold text-primary'>Location</p>
-                  <p className='text-gray-600'>148 E. 22nd Street, Costa Mesa, CA 92627</p>
+                  <p className='text-gray-600'>148 22nd Street, Costa Mesa, CA 92627</p>
                 </div>
               </div>
             </div>

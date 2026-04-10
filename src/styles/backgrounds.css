@@ -48,7 +48,35 @@
 }
 
 .about-header-bg {
-  background-image: url(../assets/backgrounds/about-header.webp);
+  background-image: url(/hero/h1.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
+.worship-header-bg {
+  background-image: url(/hero/worship.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
+.parish-life-header-bg {
+  background-image: url(/hero/parish-life.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
+.facilities-header-bg {
+  background-image: url(/hero/facilities.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
+.blog-header-bg {
+  background-image: url(/hero/blog.jpg);
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
@@ -63,7 +91,7 @@
 }
 
 .event-header-bg {
-  background-image: url(../assets/backgrounds/event-header.webp);
+  background-image: url(/hero/events.jpg);
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
@@ -105,7 +133,7 @@
 }
 
 .giving-header-bg {
-  background-image: url(../assets/backgrounds/giving.webp);
+  background-image: url(/hero/give.jpg);
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
@@ -133,10 +161,10 @@
 }
 
 .contact-header-bg {
-  background-image: url(../assets/backgrounds/contact.webp);
+  background-image: url(/hero/contact.jpg);
   background-repeat: no-repeat;
   background-size: cover;
-  background-position: center;
+  background-position: center 40%;
 }
 
 .feedback-header-bg {

@@ -21,7 +21,7 @@ interface BlogProps {
 export default function Blog({ posts }: BlogProps) {
   return (
     <AppLayout>
-      <header className='about-header-bg px-primary h-[205px] md:h-[305px] flex flex-col items-center justify-center text-center gap-3 text-white'>
+      <header className='blog-header-bg px-primary h-[205px] md:h-[305px] flex flex-col items-center justify-center text-center gap-3 text-white'>
         <p className='font-cursive text-secondary text-2xl'>Stay Connected</p>
         <h1 className='font-secondary font-bold text-2xl md:text-[32px] lg:text-[40px]'>
           News &amp; Announcements

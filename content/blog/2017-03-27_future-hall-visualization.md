@@ -1,12 +1,14 @@
 ---
-title: 'Future Hall Visualization'
+title: 'Future Stambolian Family Hall — Architectural Visualizations'
 date: '2017-03-27'
 author: 'admin'
 category: 'Parish News'
 ---
 
-<a href="/wp-content/uploads/2017/03/St-Mary-Armenian-Church-020917-Concept.jpg"><img class=" wp-image-1270 alignleft" src="/media/uploads/2017/03/St-Mary-Armenian-Church-020917-Concept.jpg" alt="" width="649" height="500" /></a>
+<p>As the parish moves forward with campus redevelopment, the Building Committee has released architectural visualizations of the planned Stambolian Family Hall. The renderings below show the proposed concept, elevation, and courtyard views designed to serve St. Mary's growing community for generations to come.</p>
 
-<a href="/wp-content/uploads/2017/03/St-Mary-Armenian-Church-020917-Elevation.jpg"><img class="wp-image-1269 alignleft" src="/media/uploads/2017/03/St-Mary-Armenian-Church-020917-Elevation.jpg" alt="" width="649" height="500" /></a>
-
-<a href="/wp-content/uploads/2017/03/St-Mary-Armenian-Church-020917-Courtyard.jpg"><img class=" wp-image-1271 alignleft" src="/media/uploads/2017/03/St-Mary-Armenian-Church-020917-Courtyard.jpg" alt="" width="649" height="500" /></a>
+<div class="photo-grid photo-grid-3">
+  <a href="/media/2017/03/St-Mary-Armenian-Church-020917-Concept.jpg"><img src="/media/2017/03/St-Mary-Armenian-Church-020917-Concept.jpg" alt="" loading="lazy" /></a>
+  <a href="/media/2017/03/St-Mary-Armenian-Church-020917-Elevation.jpg"><img src="/media/2017/03/St-Mary-Armenian-Church-020917-Elevation.jpg" alt="" loading="lazy" /></a>
+  <a href="/media/2017/03/St-Mary-Armenian-Church-020917-Courtyard.jpg"><img src="/media/2017/03/St-Mary-Armenian-Church-020917-Courtyard.jpg" alt="" loading="lazy" /></a>
+</div>
