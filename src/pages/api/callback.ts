@@ -28,8 +28,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return;
   }
 
-  // Decap CMS polls the popup with "requesting:github" every 500ms.
-  // The popup must listen for that message and reply with the token.
+  // Decap CMS netlify-auth handshake protocol:
+  // 1. Popup sends 'authorizing:github' to opener
+  // 2. CMS receives it, echoes 'authorizing:github' back to the popup
+  // 3. Popup receives the echo, sends 'authorization:github:success:{token}' to opener
+  // 4. CMS logs in and closes the popup
   res.status(200).send(`<!DOCTYPE html><html><body><script>
     (function() {
       var token = ${JSON.stringify(access_token)};
@@ -37,15 +40,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       var message = 'authorization:' + provider + ':success:' + JSON.stringify({ token: token, provider: provider });
 
       function onMessage(e) {
-        if (e.data === 'requesting:' + provider) {
+        if (e.data === 'authorizing:' + provider) {
           window.removeEventListener('message', onMessage);
           e.source.postMessage(message, e.origin);
-          setTimeout(function() { window.close(); }, 500);
         }
       }
       window.addEventListener('message', onMessage, false);
 
-      // Also send immediately in case the CMS already sent its ping
+      // Step 1: tell the opener we are authorizing
       if (window.opener) {
         window.opener.postMessage('authorizing:' + provider, '*');
       }
