@@ -97,7 +97,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   return {
     props: {
       title: data.title || slug,
-      date: data.date || '',
+      date: data.date ? String(data.date).slice(0, 10) : '',
       author: data.author || '',
       content: renderedContent,
     },

@@ -74,7 +74,7 @@ export const getStaticProps: GetStaticProps = async () => {
     return {
       slug: filename.replace('.md', ''),
       title: data.title || filename,
-      date: data.date || '',
+      date: data.date ? String(data.date).slice(0, 10) : '',
       excerpt,
     };
   });
