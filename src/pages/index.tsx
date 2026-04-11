@@ -52,7 +52,14 @@ export const getStaticProps: GetStaticProps = async () => {
     latestPosts = files.map((filename) => {
       const raw = fs.readFileSync(path.join(postsDir, filename), 'utf-8');
       const { data, content } = matter(raw);
-      const excerpt = content.replace(/[#*[\]()]/g, '').trim().slice(0, 150) + '…';
+      const excerpt = content
+        .replace(/!\[.*?\]\(.*?\)/g, '')
+        .replace(/\[.*?\]\(.*?\)/g, '')
+        .replace(/<[^>]+>/g, '')
+        .replace(/[#*`_]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .slice(0, 150) + '…';
       return {
         slug: filename.replace('.md', ''),
         title: data.title || filename,

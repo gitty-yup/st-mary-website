@@ -69,7 +69,13 @@ export const getStaticProps: GetStaticProps = async () => {
   const posts: Post[] = files.map((filename) => {
     const raw = fs.readFileSync(path.join(postsDir, filename), 'utf-8');
     const { data, content } = matter(raw);
-    const plainText = content.replace(/<[^>]+>/g, '').replace(/[#*[\]()]/g, '').trim();
+    const plainText = content
+      .replace(/!\[.*?\]\(.*?\)/g, '')  // strip markdown images
+      .replace(/\[.*?\]\(.*?\)/g, '')   // strip markdown links
+      .replace(/<[^>]+>/g, '')          // strip HTML tags
+      .replace(/[#*`_]/g, '')           // strip remaining markdown syntax
+      .replace(/\s+/g, ' ')
+      .trim();
     const excerpt = plainText.slice(0, 180) + (plainText.length > 180 ? '…' : '');
     return {
       slug: filename.replace('.md', ''),
