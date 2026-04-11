@@ -24,8 +24,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const body = req.body;
   const type = body?.type;
-  // Next.js / qs parses data[id] into body.data.id
-  const data = body?.data ?? {};
+  // Mailchimp sends data[id], data[status], etc. as URL-encoded form fields.
+  // Next.js body parser uses Node's querystring module which does NOT expand
+  // bracket notation into nested objects — keys arrive as literal "data[id]".
+  // Support both that flat format and a hypothetical pre-parsed nested object.
+  const data = extractData(body);
 
   if (type !== 'campaign' || data?.status !== 'sent') {
     return res.status(200).json({ skipped: true, type, status: data?.status });
@@ -100,6 +103,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.error('[mailchimp-webhook] Error:', err);
     return res.status(500).json({ error: err?.message ?? 'Internal error' });
   }
+}
+
+// ── Body parsing helper ───────────────────────────────────────────────────────
+
+function extractData(body: any): Record<string, string> {
+  // If already parsed into a nested object (e.g. by qs middleware)
+  if (body?.data && typeof body.data === 'object' && !Array.isArray(body.data)) {
+    return body.data;
+  }
+  // Flat keys: "data[id]", "data[status]", etc.
+  const data: Record<string, string> = {};
+  for (const [key, value] of Object.entries(body ?? {})) {
+    const match = key.match(/^data\[(.+)\]$/);
+    if (match) data[match[1]] = String(value);
+  }
+  return data;
 }
 
 // ── Mailchimp API helper ──────────────────────────────────────────────────────
