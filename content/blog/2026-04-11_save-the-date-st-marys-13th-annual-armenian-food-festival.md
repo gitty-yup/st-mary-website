@@ -28,13 +28,3 @@ With gratitude and blessings,
 Chairman, St. Mary Armenian Church Parish Council
 
 ![](/media/uploads/newsletters/save-the-date-st-marys-13th-annual-armenian-food-festival_1.png)
-
-  
-  
-  
-  
-  
-  
-
-This email was sent to[](mailto:)  
-_why did I get this?_    unsubscribe from this list    update subscription preferences

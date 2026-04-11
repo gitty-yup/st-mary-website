@@ -144,19 +144,25 @@ function extractContent(html: string): { markdown: string; imageUrls: string[] }
     root.querySelectorAll(sel).forEach(el => el.remove());
   });
 
-  // Remove nodes containing boilerplate text (unsubscribe, footer, view-in-browser)
+  // Remove nodes containing boilerplate text (unsubscribe, footer, view-in-browser).
+  // No length cap — these phrases are specific enough that false positives are unlikely.
   const boilerplatePhrases = [
+    'unsubscribe from this list',
     'unsubscribe',
+    'update subscription preferences',
     'update your preferences',
     'view this email in your browser',
     'view in browser',
+    'why did i get this',
+    'this email was sent to',
     'copyright ©',
     'all rights reserved',
     'our mailing address',
+    'want to change how you receive',
   ];
-  root.querySelectorAll('td, div, p').forEach(el => {
-    const text = el.innerText.toLowerCase();
-    if (boilerplatePhrases.some(phrase => text.includes(phrase)) && text.length < 500) {
+  root.querySelectorAll('td, div, p, span').forEach(el => {
+    const text = el.innerText.toLowerCase().trim();
+    if (text && boilerplatePhrases.some(phrase => text.includes(phrase))) {
       el.remove();
     }
   });
