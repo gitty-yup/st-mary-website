@@ -1,6 +1,6 @@
 ---
-title: "🎉 You're Invited! St. Mary Cultural Committee Talent Show 🎉"
-date: "2026-04-11"
+title: 🎉 You're Invited! St. Mary Cultural Committee Talent Show 🎉
+date: 2026-04-11
 author: St. Mary
 category: Parish News
 ---
@@ -37,7 +37,7 @@ With excitement and love,
 **St. Mary Cultural Committee**
 
 **Talent Show Sign-up Form:** [https://forms.gle/nKr14A6fhWFDFhnf6](https://forms.gle/nKr14A6fhWFDFhnf6)  
-  
-![](/media/uploads/newsletters/youre-invited-st-mary-cultural-committee-talent-show_1.png)
 
 ![](/media/uploads/newsletters/youre-invited-st-mary-cultural-committee-talent-show_2.png)
+  
+![](/media/uploads/newsletters/youre-invited-st-mary-cultural-committee-talent-show_1.png)
