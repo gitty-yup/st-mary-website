@@ -1,6 +1,6 @@
 ---
-title: "🎉 Save the Date! St. Mary’s 13th Annual Armenian Food Festival 🎉"
-date: "2026-04-11"
+title: Save the Date! St. Mary’s 13th Annual Armenian Food Festival
+date: 2026-04-11
 author: St. Mary
 category: Parish News
 ---
@@ -18,7 +18,7 @@ Please help us spread the word by sharing the attached **Save the Date** flyer w
 
 We are also excited to begin forming this year’s Festival Committee. If you would like to be part of this wonderful team and help make the 2026 festival another great success, we warmly invite you to join us.
 
-**To volunteer for the committee**, please email us at **[stmaryarmenianfestival@gmail.com](mailto:stmaryarmenianfestival@gmail.com)** by **April 1, 2026**.
+**To volunteer for the committee**, please email us at **[stmaryarmenianfestival@gmail.com](mailto:stmaryarmenianfestival@gmail.com)** by **April 21, 2026**.
 
 We look forward to working together to create another memorable festival that honors our culture and brings our community closer.
 
