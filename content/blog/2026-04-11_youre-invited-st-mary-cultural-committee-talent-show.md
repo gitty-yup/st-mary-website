@@ -4,10 +4,6 @@ date: 2026-04-11
 author: St. Mary
 category: Parish News
 ---
-
-**🎉 You're Invited! St. Mary Cultural Committee Talent Show 🎉**
-
-  
 Hello everyone!
 
 Get ready for an unforgettable afternoon of talent, laughter, and community spirit! The Cultural Committee is thrilled to host our **Talent Show** on **Sunday, May 17th, 2026**, and **everyone is invited**!
