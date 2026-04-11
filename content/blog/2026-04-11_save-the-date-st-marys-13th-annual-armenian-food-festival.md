@@ -1,13 +1,9 @@
 ---
-title: "🎉 Save the Date! St. Mary’s 13th Annual Armenian Food Festival 🎉"
-date: "2026-04-11"
+title: Save the Date! St. Mary’s 13th Annual Armenian Food Festival
+date: 2026-04-11
 author: St. Mary
 category: Parish News
 ---
-
-**🎉 Save the Date! St. Mary’s 13th Annual Armenian Food Festival 🎉**
-
-  
 Dear St. Mary Faithful,
 
 We are delighted to announce that preparations are underway for **St. Mary’s 13th Annual Armenian Food Festival**, taking place on **Saturday, October 10 and Sunday, October 11, 2026**!
