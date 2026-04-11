@@ -5,8 +5,6 @@ author: St. Mary
 category: Parish News
 ---
 
-\*|MC:SUBJECT|\*  \*|MC\_PREVIEW\_TEXT|\*
-
 **🎉 You're Invited! St. Mary Cultural Committee Talent Show 🎉**
 
   

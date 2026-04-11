@@ -134,6 +134,9 @@ async function mcFetch(path: string) {
 // ── HTML → Markdown extraction ────────────────────────────────────────────────
 
 function extractContent(html: string): { markdown: string; imageUrls: string[] } {
+  // Strip all Mailchimp merge tags: *|MC:SUBJECT|*, *|MC_PREVIEW_TEXT|*, etc.
+  html = html.replace(/\*\|[^|]+\|\*/g, '');
+
   const root = parseHtml(html);
 
   // Remove Mailchimp chrome: social follow, share, preheader
