@@ -156,11 +156,11 @@ export default function Worship() {
           <h2 className='text-primary font-secondary font-bold text-3xl mb-8'>Plan Your Visit</h2>
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
             {[
-              { q: 'What should I expect?', a: 'A reverent, joyful liturgy sung in Armenian and English. Services last approximately 90 minutes, followed by a warm fellowship hour.' },
-              { q: 'Where do I park?', a: 'Ample parking is available on-site and along E. 22nd Street. Our new parking lot is adjacent to the church.' },
-              { q: 'What should I wear?', a: 'Modest, respectful attire is appreciated. There is no strict dress code — come as you are.' },
-              { q: 'Is the service in Armenian?', a: 'The Badarak is celebrated in Classical Armenian (Grabar) and English. Bilingual bulletins are available.' },
-              { q: 'Are children welcome?', a: 'Absolutely. Children are a blessing to our parish family. Sunday School runs during the Liturgy season.' },
+              { q: 'What should I expect?', a: 'A reverent, joyful liturgy sung in Armenian and English. Services last approximately 120 minutes, followed by a warm fellowship hour.' },
+              { q: 'Where do I park?', a: 'Ample parking is available on-site and along surrounding neighborhood streets. Curbside loading and unloading are permissible in front of the sanctuary but parking there is strictly prohibited.' },
+              { q: 'What should I wear?', a: 'Modest attire is appreciated. Please ensure shoulders and knees are covered, and avoid casual wear such as t-shirts, jeans, and athletic clothing.' },
+              { q: 'Is the service in Armenian?', a: 'The Badarak is celebrated in Classical Armenian (Grabar), with English and Modern Armenian translations available. Sermons are bilingual, so you can fully participate regardless of your familiarity with Armenian.' },
+              { q: 'Are children welcome?', a: 'Absolutely. Children are a blessing to our parish family. Sunday School runs during the Liturgy from 11am until the conclusion of Badarak, every Sunday during the school year.' },
               { q: 'What happens after the service?', a: 'A fellowship hour (coffee hour) follows every Sunday Badarak. Everyone is invited to stay and connect.' },
             ].map((item) => (
               <div key={item.q} className='bg-white rounded-2xl p-6 shadow-sm'>
