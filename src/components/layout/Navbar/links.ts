@@ -9,6 +9,7 @@ const links: Link[] = [
   { title: 'Worship', destination: '/worship' },
   { title: 'Parish Life', destination: '/parish-life' },
   { title: 'Events', destination: '/events' },
+  { title: 'News', destination: '/blog' },
   { title: 'Gallery', destination: '/gallery' },
   { title: 'Facilities', destination: '/facilities' },
   { title: 'Give', destination: '/give' },
