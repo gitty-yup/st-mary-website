@@ -24,9 +24,9 @@ const ministries = [
     icon: '📖',
   },
   {
-    name: 'Zvartnots Youth Choir & Dance',
-    description: 'Youth choir and traditional Armenian dance ensemble preserving our cultural heritage.',
-    icon: '💃',
+    name: 'Cultural and Entertainment Committees',
+    description: 'Promote Armenian culture through lectures, musical programs, art exhibitions, and social gatherings like Fishermen\'s Night and our annual New Year\'s Eve party!',
+    icon: '💃🇦🇲',
   },
   {
     name: 'Saturday Armenian School',
