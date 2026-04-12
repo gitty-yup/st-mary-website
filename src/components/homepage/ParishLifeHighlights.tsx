@@ -25,8 +25,8 @@ const ministries = [
   },
   {
     name: 'Cultural and Entertainment Committees',
-    description: 'Promote Armenian culture through lectures, musical programs, art exhibitions, and social gatherings like Fishermen\'s Night and our annual New Year\'s Eve party!',
-    icon: '💃🇦🇲',
+    description: 'The Cultural and Entertainment Committees bring Armenian culture to life through lectures, musical programs, art exhibitions, and fun social gatherings like Fishermen\'s Night and our annual New Year\'s Eve party!',
+    icon: '🇦🇲💃',
   },
   {
     name: 'Saturday Armenian School',
