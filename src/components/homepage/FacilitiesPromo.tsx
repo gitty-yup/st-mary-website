@@ -39,6 +39,7 @@ const FacilitiesPromo = () => {
             Our intimate smaller hall is perfect for meetings, classes, smaller celebrations,
             and community events. A versatile space with all the essentials.
           </p>
+          <br />
           <ul className='text-sm text-gray-500 space-y-1 mb-6'>
             <li>✓ Capacity: up to 100 guests</li>
             <li>✓ Ideal for meetings &amp; small events</li>
