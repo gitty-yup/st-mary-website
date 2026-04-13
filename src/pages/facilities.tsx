@@ -93,17 +93,17 @@ export default function Facilities() {
         </div>
       </section>
 
-      {/* Small Hall */}
+      {/* Barsam Hall */}
       <section id='small-hall' className='px-primary py-16 bg-[#FFF5F2]'>
         <div className='max-w-4xl mx-auto'>
           <p className='text-secondary font-cursive text-2xl mb-2'>Intimate &amp; Versatile</p>
-          <h2 className='text-primary font-secondary font-bold text-3xl mb-6'>Small Hall</h2>
+          <h2 className='text-primary font-secondary font-bold text-3xl mb-6'>Barsam Hall</h2>
           <div className='grid grid-cols-1 lg:grid-cols-2 gap-10 items-start'>
             <div>
               <p className='text-gray-700 leading-relaxed mb-4'>
-                Our Small Hall is a flexible and welcoming space, ideal for smaller gatherings where
-                community and connection are at the heart of the event. It is used throughout the week
-                for parish meetings, classes, and community events.
+                Barsam Hall is a flexible and welcoming space with a maximum capacity of 100 guests,
+                ideal for smaller gatherings where community and connection are at the heart of the
+                event. It is used throughout the week for parish meetings, classes, and community events.
               </p>
               <ul className='space-y-2 text-gray-700'>
                 {[

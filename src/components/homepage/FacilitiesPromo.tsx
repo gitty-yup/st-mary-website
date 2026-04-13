@@ -33,7 +33,7 @@ const FacilitiesPromo = () => {
         </div>
         <div className='bg-[#EEF2FF] rounded-2xl p-8'>
           <h3 className='font-secondary font-bold text-primary text-xl mb-3'>
-            Small Hall
+            Barsam Hall
           </h3>
           <p className='text-gray-600 mb-4 leading-relaxed'>
             Our intimate smaller hall is perfect for meetings, classes, smaller celebrations,

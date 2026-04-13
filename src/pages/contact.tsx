@@ -173,7 +173,7 @@ export default function Contact() {
                   Facility Rental Inquiries
                 </h3>
                 <p className='text-gray-600 text-sm mb-3'>
-                  Interested in renting the Stambolian Family Hall or Small Hall for your event?
+                  Interested in renting the Stambolian Family Hall or Barsam Hall for your event?
                 </p>
                 <a href='/facilities#rental-inquiry'>
                   <Button className='!w-full !bg-transparent !text-primary !border-primary !border-2 hover:!bg-primary hover:!text-white'>
