@@ -59,7 +59,7 @@ export default function Facilities() {
               <div className='grid grid-cols-2 gap-4'>
                 {[
                   { label: 'Capacity', value: '~300 guests' },
-                  { label: 'Features', value: 'Stage & dance floor' },
+                  { label: 'Features', value: 'Stage & premium AV system' },
                   { label: 'Kitchen', value: 'Full catering kitchen' },
                   { label: 'Parking', value: 'Ample on-site parking' },
                 ].map((f) => (
