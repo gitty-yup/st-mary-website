@@ -67,7 +67,7 @@ export default function About() {
               <li><strong>Phase 3 (2022–2023):</strong> The Stambolian Family Hall — a modern assembly hall</li>
             </ul>
             <p>
-              This redevelopment was made possible by the generous lead gifts of the Meghrouni, Bassenian, and
+              This redevelopment was made possible by the generous lead gifts of the Bassenian, Meghrouni, and
               Stambolian families, along with the ongoing support of parishioners throughout the parish.
             </p>
 
