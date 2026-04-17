@@ -47,7 +47,7 @@ export default function Facilities() {
             <div>
               <p className='text-gray-700 leading-relaxed mb-4'>
                 Our stunning new Stambolian Family Hall is the crown jewel of St. Mary&apos;s recently
-                completed campus redevelopment. Named in honor of the Stamboulian family whose lead gift
+                completed campus redevelopment. Named in honor of the Stambolian family whose lead gift
                 made it possible, this modern assembly hall is designed for the most meaningful moments
                 in your life.
               </p>

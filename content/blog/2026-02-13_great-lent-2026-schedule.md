@@ -17,7 +17,7 @@ We warmly invite you to join us for our Wednesday evening Lenten gatherings.
 
 Every Wednesday evening:
 - **6:00 PM** — Hsgoom Lenten Service
-- **7:00 PM** — Lenten Dinner in Stamboulian Hall
+- **7:00 PM** — Lenten Dinner in Stambolian Hall
 
 ### Hosting Organizations by Date
 

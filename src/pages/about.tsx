@@ -68,7 +68,7 @@ export default function About() {
             </ul>
             <p>
               This redevelopment was made possible by the generous lead gifts of the Meghrouni, Bassenian, and
-              Stamboulian families, along with the ongoing support of parishioners throughout the parish.
+              Stambolian families, along with the ongoing support of parishioners throughout the parish.
             </p>
 
             <h3 className='text-primary font-secondary font-semibold text-xl mt-8'>Looking Ahead</h3>

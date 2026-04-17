@@ -15,7 +15,7 @@ The **funeral service** will take place on **Friday, January 16, 2026**, at **9:
 
 Following the service at St. Mary, the **interment** will be held at **Harbor Lawn-Mt. Olive Memorial Park** (1625 Gisler Ave., Costa Mesa, CA 92626).
 
-Immediately following the graveside service, all are invited to the St. Mary Stamboulian Hall for a **Hokejash (Հոգեջաշ)** memorial meal.
+Immediately following the graveside service, all are invited to the St. Mary Stambolian Hall for a **Hokejash (Հոգեջաշ)** memorial meal.
 
 We continue to give thanks to God for Dn. Rupen's lifelong dedication and pray for the repose of his soul. Please join us in bidding farewell to this faithful servant of our Lord and our community.
 
