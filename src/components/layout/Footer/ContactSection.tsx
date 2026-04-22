@@ -26,7 +26,7 @@ function ContactSection() {
       </ul>
       <div className='mt-8'>
         <p className='text-sm text-gray-400'>Office Hours</p>
-        <p className='text-sm mt-1'>Mon–Fri: 9:00 AM – 5:00 PM</p>
+        <p className='text-sm mt-1'>Monday–Friday: 9:00 AM – 5:00 PM</p>
       </div>
     </div>
   );
