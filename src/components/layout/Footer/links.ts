@@ -16,7 +16,7 @@ const links: Link[] = [
         { name: 'Our History', destination: '/about#history' },
         { name: 'Parish Priest', destination: '/about#clergy' },
         { name: 'Parish Council', destination: '/about#council' },
-        { name: 'Our Diocese', destination: 'https://www.westerndiocese.org', external: true },
+        { name: 'Our Diocese', destination: 'https://www.wdacna.com', external: true },
       ],
     },
   },
