@@ -34,10 +34,10 @@
 }
 
 .direction-bg {
-  background-image: url(../assets/backgrounds/direction.jpg);
+  background-image: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url(../assets/backgrounds/direction.jpg);
   background-repeat: no-repeat;
   background-size: cover;
-  background-position: center;
+  background-position: center 60%;
 }
 
 .subscriber-bg {
