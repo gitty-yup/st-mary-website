@@ -75,6 +75,13 @@
   background-position: center;
 }
 
+.gallery-header-bg {
+  background-image: radial-gradient(ellipse at center, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 70%), url(../assets/backgrounds/direction.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center 20%;
+}
+
 .blog-header-bg {
   background-image: radial-gradient(ellipse at center, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 70%), url(/hero/blog.jpg);
   background-repeat: no-repeat;

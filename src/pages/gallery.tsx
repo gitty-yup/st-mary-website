@@ -23,7 +23,7 @@ export default function Gallery({ years }: GalleryProps) {
 
   return (
     <AppLayout>
-      <header className='blog-header-bg px-primary h-[205px] md:h-[305px] flex flex-col items-center justify-center text-center gap-3 text-white'>
+      <header className='gallery-header-bg px-primary h-[205px] md:h-[305px] flex flex-col items-center justify-center text-center gap-3 text-white'>
         <p className='font-cursive text-secondary text-2xl'>Our Community</p>
         <h1 className='font-secondary font-bold text-2xl md:text-[32px] lg:text-[40px]'>
           Photo Gallery
