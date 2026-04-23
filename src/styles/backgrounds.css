@@ -100,7 +100,7 @@
 .event-header-bg {
   background-image: radial-gradient(ellipse at center, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 70%), url(/hero/events.jpg);
   background-repeat: no-repeat;
-  background-size: cover;
+  background-size: 120%;
   background-position: center;
 }
 
