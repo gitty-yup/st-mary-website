@@ -56,17 +56,12 @@ export default function Give() {
             <div className='bg-white rounded-2xl p-8 shadow-sm text-center'>
               <div className='text-4xl mb-4'>📱</div>
               <h3 className='font-secondary font-bold text-primary text-xl mb-3'>Zelle</h3>
-              <p className='text-gray-600 text-sm leading-relaxed mb-4'>
-                Send your gift directly to the parish via Zelle.
-              </p>
-              <div className='text-sm text-gray-600 mb-4'>
-                <p><strong>Zelle:</strong> info@stmaryarmenianchurch.com</p>
-              </div>
               <img
                 src='/images/zelle-qr.png'
                 alt='Zelle QR Code'
-                className='w-full max-w-[160px] mx-auto object-contain'
+                className='w-full max-w-[160px] mx-auto object-contain mb-4'
               />
+              <p className='text-sm text-gray-600'>info@stmaryarmenianchurch.com</p>
             </div>
             <div className='bg-white rounded-2xl p-8 shadow-sm text-center'>
               <div className='text-4xl mb-4'>✉️</div>
