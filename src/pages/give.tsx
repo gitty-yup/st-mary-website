@@ -91,7 +91,7 @@ export default function Give() {
               },
               {
                 name: 'Angel Fund',
-                desc: 'The Angel Fund supports charitable outreach to individuals and families in need within our parish community and the broader Armenian community. Your gift to the Angel Fund helps neighbors in crisis.',
+                desc: 'Help make a difference today by becoming a St. Mary Angel. Your $100 monthly recurring donation will help support the Church\'s operations and mission. "The Armenian Church is the birthplace of my soul. Like a vast grotto, it is simple and profound, dark and light With its hospitable courtyard, ample tribune and hushed altar Standing in the distance, as though it were a ship afloat…" –Vahan Tekeyan',
               },
               {
                 name: 'Memorial Donations',
@@ -99,7 +99,7 @@ export default function Give() {
               },
               {
                 name: 'Special Appeals',
-                desc: 'Throughout the year, the parish issues special appeals for campus needs, mission projects, and Diocesan programs. Watch for announcements in the bulletin.',
+                desc: 'Throughout the year, the parish issues special appeals for campus needs, mission projects, and Diocesan programs. Watch for announcements via email, our website/social media, or during Sunday services!',
               },
               {
                 name: 'Parish Dues',
