@@ -44,7 +44,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       mcFetch(`/campaigns/${campaignId}/content`),
     ]);
 
-    const html = content.html ?? '';
+    let html = content.html ?? '';
+
+    // If the content API returned empty HTML (race condition — webhook fires before
+    // Mailchimp finishes populating the content endpoint), fall back to the public
+    // archive URL, retrying up to 3 times with a short delay between attempts.
+    if (!html && campaign.archive_url) {
+      for (let attempt = 0; attempt < 3 && !html; attempt++) {
+        if (attempt > 0) await new Promise(r => setTimeout(r, 5000));
+        try {
+          const archiveRes = await fetch(campaign.archive_url);
+          if (archiveRes.ok) html = await archiveRes.text();
+        } catch { /* ignore, try again */ }
+      }
+    }
+
     if (!html) return res.status(200).json({ skipped: true, reason: 'No HTML content' });
 
     // Extract cleaned markdown + image URLs from the newsletter HTML
