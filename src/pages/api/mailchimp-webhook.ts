@@ -12,6 +12,10 @@ const WEBHOOK_SECRET = process.env.MAILCHIMP_WEBHOOK_SECRET;
 const td = new TurndownService({ headingStyle: 'atx', bulletListMarker: '-' });
 td.remove(['style', 'script', 'head', 'meta', 'link']);
 
+export const config = {
+  maxDuration: 60,
+};
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // Mailchimp sends a GET to verify the endpoint is reachable
   if (req.method === 'GET') return res.status(200).end();
@@ -24,10 +28,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const body = req.body;
   const type = body?.type;
-  // Mailchimp sends data[id], data[status], etc. as URL-encoded form fields.
-  // Next.js body parser uses Node's querystring module which does NOT expand
-  // bracket notation into nested objects — keys arrive as literal "data[id]".
-  // Support both that flat format and a hypothetical pre-parsed nested object.
   const data = extractData(body);
 
   if (type !== 'campaign' || data?.status !== 'sent') {
@@ -37,41 +37,49 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const campaignId = data.id;
   if (!campaignId) return res.status(400).json({ error: 'Missing campaign ID' });
 
+  // Respond to Mailchimp immediately so it doesn't time out or retry.
+  // The function keeps running in the background until complete.
+  res.status(200).json({ ok: true, processing: true });
+
+  // Wait 30 seconds for Mailchimp to finish populating campaign content —
+  // the webhook fires the moment a campaign is sent, before content is ready.
+  await new Promise(r => setTimeout(r, 30000));
+
   try {
-    // Fetch campaign metadata and HTML content in parallel
-    const [campaign, content] = await Promise.all([
-      mcFetch(`/campaigns/${campaignId}`),
-      mcFetch(`/campaigns/${campaignId}/content`),
-    ]);
+    // Fetch campaign metadata first, then try multiple sources for HTML content
+    const campaign = await mcFetch(`/campaigns/${campaignId}`);
+    const title = campaign.settings?.subject_line ?? 'Newsletter';
+    const sendTime: string = campaign.send_time ?? new Date().toISOString();
+    const date = sendTime.slice(0, 10);
+    const slug = slugify(title);
+    const filename = `${date}_${slug}`;
 
-    let html = content.html ?? '';
+    // Try to get HTML from: 1) content API, 2) content API archive_html, 3) public archive URL
+    let html = '';
 
-    // If the content API returned empty HTML (race condition — webhook fires before
-    // Mailchimp finishes populating the content endpoint), fall back to the public
-    // archive URL, retrying up to 3 times with a short delay between attempts.
-    if (!html && campaign.archive_url) {
-      for (let attempt = 0; attempt < 3 && !html; attempt++) {
-        if (attempt > 0) await new Promise(r => setTimeout(r, 5000));
-        try {
-          const archiveRes = await fetch(campaign.archive_url);
-          if (archiveRes.ok) html = await archiveRes.text();
-        } catch { /* ignore, try again */ }
-      }
+    try {
+      const content = await mcFetch(`/campaigns/${campaignId}/content`);
+      html = content.html ?? content.archive_html ?? '';
+    } catch { /* fall through to archive URL */ }
+
+    if (!html) {
+      const archiveUrl = campaign.archive_url
+        ?? `https://${MC_SERVER}.campaign-archive.com/?u=c597aa31e06253c792039198a&id=${campaign.web_id}`;
+      try {
+        const archiveRes = await fetch(archiveUrl);
+        if (archiveRes.ok) html = await archiveRes.text();
+      } catch { /* ignore */ }
     }
 
-    if (!html) return res.status(200).json({ skipped: true, reason: 'No HTML content' });
+    if (!html) {
+      console.error(`[mailchimp-webhook] No HTML found for campaign ${campaignId}`);
+      return;
+    }
 
     // Extract cleaned markdown + image URLs from the newsletter HTML
     const { markdown, imageUrls } = extractContent(html);
 
-    // Build post metadata
-    const title = campaign.settings?.subject_line ?? 'Newsletter';
-    const sendTime: string = campaign.send_time ?? new Date().toISOString();
-    const date = sendTime.slice(0, 10); // YYYY-MM-DD
-    const slug = slugify(title);
-    const filename = `${date}_${slug}`;
-
-    // Download images and commit them to the repo, collect the local path mapping
+    // Download images and commit them to the repo
     const imageMap: Record<string, string> = {};
     for (let i = 0; i < imageUrls.length; i++) {
       const url = imageUrls[i];
@@ -112,21 +120,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       `Add newsletter post: ${title}`,
     );
 
-    return res.status(200).json({ ok: true, filename, images: Object.keys(imageMap).length });
+    console.log(`[mailchimp-webhook] Published: ${filename}, images: ${Object.keys(imageMap).length}`);
   } catch (err: any) {
     console.error('[mailchimp-webhook] Error:', err);
-    return res.status(500).json({ error: err?.message ?? 'Internal error' });
   }
 }
 
 // ── Body parsing helper ───────────────────────────────────────────────────────
 
 function extractData(body: any): Record<string, string> {
-  // If already parsed into a nested object (e.g. by qs middleware)
   if (body?.data && typeof body.data === 'object' && !Array.isArray(body.data)) {
     return body.data;
   }
-  // Flat keys: "data[id]", "data[status]", etc.
   const data: Record<string, string> = {};
   for (const [key, value] of Object.entries(body ?? {})) {
     const match = key.match(/^data\[(.+)\]$/);
@@ -159,10 +164,8 @@ function extractContent(html: string): { markdown: string; imageUrls: string[] }
   });
 
   // Remove nodes containing boilerplate text (unsubscribe, footer, view-in-browser).
-  // No length cap — these phrases are specific enough that false positives are unlikely.
   const boilerplatePhrases = [
     'unsubscribe from this list',
-    'unsubscribe',
     'update subscription preferences',
     'update your preferences',
     'view this email in your browser',
@@ -196,20 +199,17 @@ function extractContent(html: string): { markdown: string; imageUrls: string[] }
 
 function isContentImage(src: string): boolean {
   if (!src || !src.startsWith('http')) return false;
-  // Only images served from Mailchimp's user-content CDN
   if (!src.includes('mcusercontent.com')) return false;
-  // Skip tracking pixels and beacons
   if (/\/track\/|open\.php|beacon|pixel/i.test(src)) return false;
-  // Skip social media icon images
   if (/facebook|twitter|instagram|youtube|linkedin|tiktok|pinterest/i.test(src)) return false;
   return true;
 }
 
 function cleanMarkdown(md: string): string {
   return md
-    .replace(/\n{3,}/g, '\n\n') // collapse 3+ blank lines to 2
-    .replace(/^\s+|\s+$/g, '')  // trim leading/trailing whitespace
-    .replace(/\[!\[\]\([^)]+\)\]\([^)]+\)/g, '') // drop empty linked images
+    .replace(/\n{3,}/g, '\n\n')
+    .replace(/^\s+|\s+$/g, '')
+    .replace(/\[!\[\]\([^)]+\)\]\([^)]+\)/g, '')
     + '\n';
 }
 
@@ -244,7 +244,6 @@ async function githubPut(path: string, content: Buffer, message: string): Promis
     'Content-Type': 'application/json',
   };
 
-  // Get existing file SHA if the file already exists (required for updates)
   let sha: string | undefined;
   const existing = await fetch(url, { headers });
   if (existing.ok) {
