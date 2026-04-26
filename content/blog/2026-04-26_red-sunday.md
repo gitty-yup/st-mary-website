@@ -1,7 +1,7 @@
 ---
 title: Red Sunday
 date: 2026-04-26
-author: Dn. Eric Vozzy
+author: St. Mary Armenian Chruch
 category: Parish News
 ---
 # Red Sunday
@@ -32,7 +32,6 @@ We are to use the opportunity of Red Sunday to once again remind ourselves of Pa
 > “Truly, truly, I say to you, the hour is coming, and now is, when the dead will hear the voice of the Son of God, and those who hear will live. For as the Father has life in himself, so he has granted the Son also to have life in himself, and has given him authority to execute judgment, because he is the Son of man. Do not marvel at this; for the hour is coming when all who are in the tombs will hear his voice and come forth, those who have done good, to the resurrection of life, and those who have done evil, to the resurrection of judgment.  
 > 
 > “I can do nothing on my own authority; as I hear, I judge; and my judgment is just, because I seek not my own will but the will of him who sent me.”
-
 
 ---
 
@@ -134,4 +133,4 @@ We are called to walk soberly, with diligence and confidence in Christ’s victo
 
 ---
 
-*Prepared for the Armenian Church — April 21, 2026*
+*Adapted for the St. Mary Armenian Church from writings by Dn. Eric Vozzy — April 21, 2026*
