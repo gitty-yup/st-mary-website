@@ -5,6 +5,8 @@ author: St. Mary
 category: Parish News
 ---
 
+![Mother's Day Luncheon](/media/uploads/newsletters/invitation-st-mary-ladies-society-mothers-day-luncheon-satur_1.jpg)
+
 Dear St. Mary Parishioners and Friends,
 
 The **St. Mary Ladies Society** cordially invites all mothers, grandmothers, godmothers, sisters, daughters, and nurturing women of the parish to celebrate at their annual Mother's Day Luncheon.
