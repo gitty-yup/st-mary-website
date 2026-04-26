@@ -1,12 +1,26 @@
 ---
 title: Red Sunday
 date: 2026-04-26
-author: St. Mary Armenian Chruch
+author: Dn. Eric Vozzy
 category: Parish News
 ---
 # Red Sunday
 
+In the Calendar of the Armenian Church, the third Sunday following the Glorious Resurrection of Our Lord Jesus Christ is known as **Red Sunday**.
 
+The color “red” has been used throughout history to represent many things. One of the symbolic meanings is the blood of the martyrs who were sacrificed for Christ, His Holy Church, and their Christian faith. 
+
+During the early years of Christianity, faithful followers of Jesus Christ were subjected to severe persecutions and torments. Many elected to die rather than betray their principles of life and faith, which the Incarnate God — Christ Jesus — had endowed to them and all of mankind. The psalmist writes, 
+
+> “Precious in the sight of the Lord is the death of the saints” (Psalms 116:15).
+
+Today, martyrdom is far less often an occurrence in the lives of Christians, yet it does happen. However, the greater struggle is the one against sin, which we can see manifested in many ways throughout the world. The battle against wickedness and evil, which will be victorious in the end, is the current expression of the significance of Red Sunday.
+
+The Apostle Paul writes that Christ Himself endured such opposition, that we should not grow weary in our battle against wickedness. In his letter to the Hebrews, Paul says: 
+
+> “In your struggle against sin, you have not yet resisted to the point of shedding your blood.” (Hebrews 12:4).
+
+We are to use the opportunity of Red Sunday to once again remind ourselves of Paul’s exhortation to remain steadfast in the Lord, and to continue our daily labors of goodness and righteousness.
 
 ---
 
@@ -18,6 +32,7 @@ category: Parish News
 > “Truly, truly, I say to you, the hour is coming, and now is, when the dead will hear the voice of the Son of God, and those who hear will live. For as the Father has life in himself, so he has granted the Son also to have life in himself, and has given him authority to execute judgment, because he is the Son of man. Do not marvel at this; for the hour is coming when all who are in the tombs will hear his voice and come forth, those who have done good, to the resurrection of life, and those who have done evil, to the resurrection of judgment.  
 > 
 > “I can do nothing on my own authority; as I hear, I judge; and my judgment is just, because I seek not my own will but the will of him who sent me.”
+
 
 ---
 
@@ -119,4 +134,4 @@ We are called to walk soberly, with diligence and confidence in Christ’s victo
 
 ---
 
-*Adapted for the St. Mary Armenian Church from writings by Dn. Eric Vozzy — April 21, 2026*
+*Prepared for the Armenian Church — April 21, 2026*
