@@ -1,7 +1,7 @@
 ---
 title: Red Sunday
 date: 2026-04-26
-author: Dn. Eric Vozzy
+author: " "
 category: Parish News
 ---
 # Red Sunday
@@ -119,4 +119,4 @@ We are called to walk soberly, with diligence and confidence in Christ’s victo
 
 ---
 
-*Prepared for the Armenian Church — April 21, 2026*
+*Adapted for the St. Mary Armenian Church from writings by Dn. Eric Vozzy — April 21, 2026*
