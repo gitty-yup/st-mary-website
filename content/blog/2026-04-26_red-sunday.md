@@ -1,7 +1,7 @@
 ---
 title: Red Sunday
 date: 2026-04-26
-author: " "
+author: " St. Mary Armenian Chruch"
 category: Parish News
 ---
 # Red Sunday
