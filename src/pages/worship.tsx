@@ -66,18 +66,14 @@ export default function Worship() {
                 &ldquo;offering&rdquo; or &ldquo;sacrifice.&rdquo; One of the most ancient Christian
                 liturgies in the world, the Badarak dates to the 5th century and remains the heart of
                 Armenian Apostolic worship: a sacred encounter with Jesus Christ where we hear God&apos;s
-                Word, offer prayer and praise, and receive Holy Communion.
+                Word, offer prayer and praise, and the baptized receive Holy Communion — bringing spiritual
+                nourishment, forgiveness, and union with God and one another.
               </p>
               <p className='text-gray-700 leading-relaxed mb-4'>
                 Celebrated every Sunday and on major feast days, the Badarak weaves together rich Armenian
                 hymns (sharagans), Scripture readings, solemn prayers, and the celebration of Christ&apos;s
                 sacrifice. Celebrated in Classical Armenian (Grabar) with bilingual portions, the service
                 allows all to participate fully.
-              </p>
-              <p className='text-gray-700 leading-relaxed mb-4'>
-                Through the consecrated bread and wine, baptized and chrismated members of the Armenian
-                Apostolic Church truly receive the living Body and Blood of our Lord — bringing spiritual
-                nourishment, forgiveness, and union with God and one another.
               </p>
               <p className='text-gray-700 leading-relaxed'>
                 A Fellowship Hour follows every Sunday Liturgy. All are warmly invited to stay and enjoy
