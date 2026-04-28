@@ -70,19 +70,18 @@ export default function Worship() {
               </p>
               <p className='text-gray-700 leading-relaxed mb-4'>
                 Celebrated every Sunday and on major feast days, the Badarak weaves together rich Armenian
-                hymns (sharagans), Scripture, solemn prayers, and the celebration of Christ&apos;s
-                sacrifice. Through the consecrated bread and wine, we believe we truly receive the living
-                Body and Blood of our Lord — spiritual nourishment, forgiveness, and union with God and
-                one another.
+                hymns (sharagans), Scripture readings, solemn prayers, and the celebration of Christ&apos;s
+                sacrifice. Celebrated in Classical Armenian (Grabar) with bilingual portions, the service
+                allows all to participate fully.
               </p>
               <p className='text-gray-700 leading-relaxed mb-4'>
-                The Badarak is celebrated in Classical Armenian (Grabar) with bilingual portions, so all
-                may participate fully. Holy Communion is offered to baptized and chrismated members of the
-                Armenian Apostolic Church.
+                Through the consecrated bread and wine, baptized and chrismated members of the Armenian
+                Apostolic Church truly receive the living Body and Blood of our Lord — bringing spiritual
+                nourishment, forgiveness, and union with God and one another.
               </p>
               <p className='text-gray-700 leading-relaxed'>
-                A Fellowship Hour follows every Sunday Liturgy — all are warmly invited to stay and share
-                in our parish family. We would be delighted to have you join us.
+                A Fellowship Hour follows every Sunday Liturgy. All are warmly invited to stay and enjoy
+                our hospitality.
               </p>
             </div>
             <div className='bg-[#FFF2EE] rounded-2xl p-8'>
