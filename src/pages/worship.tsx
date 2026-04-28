@@ -63,30 +63,26 @@ export default function Worship() {
             <div>
               <p className='text-gray-700 leading-relaxed mb-4'>
                 The Armenian word for the Divine Liturgy is <strong>Badarak</strong> — meaning
-                &ldquo;offering&rdquo; or &ldquo;sacrifice.&rdquo; It is one of the most ancient Christian
-                liturgies in the world, dating to the 5th century. At the heart of our worship in the
-                Armenian Apostolic Church, the Badarak is the most sacred service — a beautiful, ancient
-                encounter with Jesus Christ where we gather as one family to hear God&apos;s Word, offer
-                prayer and praise, and receive Holy Communion.
+                &ldquo;offering&rdquo; or &ldquo;sacrifice.&rdquo; One of the most ancient Christian
+                liturgies in the world, the Badarak dates to the 5th century and remains the heart of
+                Armenian Apostolic worship: a sacred encounter with Jesus Christ where we hear God&apos;s
+                Word, offer prayer and praise, and receive Holy Communion.
               </p>
               <p className='text-gray-700 leading-relaxed mb-4'>
-                Every Sunday and on major feast days, our community gathers to offer our prayers, our
-                hearts, and our lives to God. The Badarak brings together rich Armenian hymns (sharagans),
-                Scripture readings, solemn prayers, and the celebration of Christ&apos;s sacrifice. Through
-                the consecrated bread and wine, we believe we truly receive the living Body and Blood of our
-                Lord — spiritual nourishment, forgiveness, and union with God and one another.
+                Celebrated every Sunday and on major feast days, the Badarak weaves together rich Armenian
+                hymns (sharagans), Scripture, solemn prayers, and the celebration of Christ&apos;s
+                sacrifice. Through the consecrated bread and wine, we believe we truly receive the living
+                Body and Blood of our Lord — spiritual nourishment, forgiveness, and union with God and
+                one another.
               </p>
               <p className='text-gray-700 leading-relaxed mb-4'>
                 The Badarak is celebrated in Classical Armenian (Grabar) with bilingual portions, so all
                 may participate fully. Holy Communion is offered to baptized and chrismated members of the
                 Armenian Apostolic Church.
               </p>
-              <p className='text-gray-700 leading-relaxed mb-4'>
-                A Fellowship Hour follows each Sunday Liturgy — all are warmly invited to stay and share
-                in our parish family.
-              </p>
               <p className='text-gray-700 leading-relaxed'>
-                We would be delighted to have you join us. <strong>All are welcome.</strong>
+                A Fellowship Hour follows every Sunday Liturgy — all are warmly invited to stay and share
+                in our parish family. We would be delighted to have you join us.
               </p>
             </div>
             <div className='bg-[#FFF2EE] rounded-2xl p-8'>
