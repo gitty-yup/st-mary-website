@@ -12,10 +12,6 @@ const WEBHOOK_SECRET = process.env.MAILCHIMP_WEBHOOK_SECRET;
 const td = new TurndownService({ headingStyle: 'atx', bulletListMarker: '-' });
 td.remove(['style', 'script', 'head', 'meta', 'link']);
 
-export const config = {
-  maxDuration: 60,
-};
-
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // Mailchimp sends a GET to verify the endpoint is reachable
   if (req.method === 'GET') return res.status(200).end();
@@ -37,16 +33,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const campaignId = data.id;
   if (!campaignId) return res.status(400).json({ error: 'Missing campaign ID' });
 
-  // Respond to Mailchimp immediately so it doesn't time out or retry.
-  // The function keeps running in the background until complete.
-  res.status(200).json({ ok: true, processing: true });
-
-  // Wait 30 seconds for Mailchimp to finish populating campaign content —
-  // the webhook fires the moment a campaign is sent, before content is ready.
-  await new Promise(r => setTimeout(r, 30000));
-
   try {
-    // Fetch campaign metadata first, then try multiple sources for HTML content
+    // Fetch campaign metadata
     const campaign = await mcFetch(`/campaigns/${campaignId}`);
     const title = campaign.settings?.subject_line ?? 'Newsletter';
     const sendTime: string = campaign.send_time ?? new Date().toISOString();
@@ -54,51 +42,57 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const slug = slugify(title);
     const filename = `${date}_${slug}`;
 
-    // Try to get HTML from: 1) content API, 2) content API archive_html, 3) public archive URL
+    // Build the canonical archive URL up front — used as a fallback link in the post
+    // body if content extraction fails, so the user always has a way to read the email.
+    const archiveUrl = campaign.archive_url
+      ?? `https://${MC_SERVER}.campaign-archive.com/?u=c597aa31e06253c792039198a&id=${campaign.web_id}`;
+
+    // Try to fetch HTML from: 1) content API, 2) public archive URL.
+    // Total time budget ≤ 8s so we fit within Vercel Hobby's 10s timeout.
     let html = '';
 
     try {
       const content = await mcFetch(`/campaigns/${campaignId}/content`);
       html = content.html ?? content.archive_html ?? '';
-    } catch { /* fall through to archive URL */ }
+    } catch { /* fall through */ }
 
     if (!html) {
-      const archiveUrl = campaign.archive_url
-        ?? `https://${MC_SERVER}.campaign-archive.com/?u=c597aa31e06253c792039198a&id=${campaign.web_id}`;
       try {
         const archiveRes = await fetch(archiveUrl);
         if (archiveRes.ok) html = await archiveRes.text();
       } catch { /* ignore */ }
     }
 
-    if (!html) {
-      console.error(`[mailchimp-webhook] No HTML found for campaign ${campaignId}`);
-      return;
-    }
-
-    // Extract cleaned markdown + image URLs from the newsletter HTML
-    const { markdown, imageUrls } = extractContent(html);
-
-    // Download images and commit them to the repo
+    // Extract markdown + images if we got HTML, otherwise build a fallback post
+    let finalMarkdown: string;
     const imageMap: Record<string, string> = {};
-    for (let i = 0; i < imageUrls.length; i++) {
-      const url = imageUrls[i];
-      const ext = (url.split('.').pop()?.split('?')[0] ?? 'jpg').toLowerCase();
-      const localName = `${slug}_${i + 1}.${ext}`;
-      const repoPath = `public/media/uploads/newsletters/${localName}`;
-      const localPath = `/media/uploads/newsletters/${localName}`;
 
-      const imageBuffer = await fetchBinary(url);
-      if (imageBuffer) {
-        await githubPut(repoPath, imageBuffer, `Add newsletter image: ${localName}`);
-        imageMap[url] = localPath;
+    if (html) {
+      const { markdown, imageUrls } = extractContent(html);
+
+      for (let i = 0; i < imageUrls.length; i++) {
+        const url = imageUrls[i];
+        const ext = (url.split('.').pop()?.split('?')[0] ?? 'jpg').toLowerCase();
+        const localName = `${slug}_${i + 1}.${ext}`;
+        const repoPath = `public/media/uploads/newsletters/${localName}`;
+        const localPath = `/media/uploads/newsletters/${localName}`;
+
+        const imageBuffer = await fetchBinary(url);
+        if (imageBuffer) {
+          await githubPut(repoPath, imageBuffer, `Add newsletter image: ${localName}`);
+          imageMap[url] = localPath;
+        }
       }
-    }
 
-    // Replace remote image URLs with local paths in the markdown
-    let finalMarkdown = markdown;
-    for (const [remote, local] of Object.entries(imageMap)) {
-      finalMarkdown = finalMarkdown.split(remote).join(local);
+      finalMarkdown = markdown;
+      for (const [remote, local] of Object.entries(imageMap)) {
+        finalMarkdown = finalMarkdown.split(remote).join(local);
+      }
+    } else {
+      // Content not yet available — leave a placeholder with the archive link so
+      // the user can manually fix the post (or it auto-resolves on next webhook retry).
+      finalMarkdown = `_Content not yet available._\n\n[Read the full email on Mailchimp](${archiveUrl})\n`;
+      console.error(`[mailchimp-webhook] No HTML available for campaign ${campaignId}, posting placeholder`);
     }
 
     // Build the full markdown file with frontmatter
@@ -120,9 +114,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       `Add newsletter post: ${title}`,
     );
 
-    console.log(`[mailchimp-webhook] Published: ${filename}, images: ${Object.keys(imageMap).length}`);
+    return res.status(200).json({
+      ok: true,
+      filename,
+      images: Object.keys(imageMap).length,
+      hasContent: !!html,
+    });
   } catch (err: any) {
     console.error('[mailchimp-webhook] Error:', err);
+    return res.status(500).json({ error: err?.message ?? 'Internal error' });
   }
 }
 
