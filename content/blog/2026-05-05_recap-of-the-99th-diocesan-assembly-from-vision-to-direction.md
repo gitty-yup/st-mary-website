@@ -1,6 +1,6 @@
 ---
-title: "Recap of the 99th Diocesan Assembly: \"From Vision to Direction\""
-date: "2026-05-05"
+title: 'Recap of the 99th Diocesan Assembly: "From Vision to Direction"'
+date: 2026-05-05
 author: St. Mary
 category: Parish News
 ---
@@ -45,7 +45,7 @@ The Primate outlined **four concrete priorities for every parish**:
 (c) Cultivate stewardship and expand membership (including dues-paying membership) for long-term sustainability
 (d) Invest in leadership development at every level
 
-A major new initiative launched at the Assembly is a **comprehensive parish survey** to better understand our strengths and areas for growth. Parish leadership is now called to convene special meetings to align all programs with this diocesan direction. All parishioners are encouraged to complete the survey and provide their feedback. The message was clear: "discipline in execution and full collaboration between clergy and laity are non-negotiable."
+A major new initiative launched at the Assembly is a [**comprehensive parish survey**] (https://stmaryarmenianchurch.us18.list-manage.com/track/click?u=c597aa31e06253c792039198a&id=5f722019ec&e=88f635ae2f) to better understand our strengths and areas for growth. Parish leadership is now called to convene special meetings to align all programs with this diocesan direction. All parishioners are encouraged to complete the survey and provide their feedback. The message was clear: "discipline in execution and full collaboration between clergy and laity are non-negotiable."
 
 ## Stewardship: From Stability to Sustainability (Executive Director's Report)
 
@@ -112,7 +112,7 @@ As we prepare to celebrate our Diocese's 100th anniversary in Burbank next year,
 **What can you do right now?**
 
 - Pray for the continued guidance of the Holy Spirit on our Diocese and our parish.
-- Participate in the online parish survey sponsored by the Diocese.
+- Participate in the [**online parish survey**] (https://stmaryarmenianchurch.us18.list-manage.com/track/click?u=c597aa31e06253c792039198a&id=5f722019ec&e=88f635ae2f) sponsored by the Diocese.
 - Engage more deeply in worship, education, fellowship, and service.
 - Support stewardship initiatives that ensure our parish's vitality for generations to come.
 - Stay tuned for direction from parish leadership where we will share more about how we will align with the diocesan priorities.
@@ -125,3 +125,9 @@ Michael Hollis, Chairman
 St. Mary Armenian Apostolic Church
 
 _"The plans of the diligent lead surely to abundance." — Proverbs 21:5_
+
+***
+
+_For the full Primate’s Message, Executive Director’s Report, and other Assembly materials, please visit the Western Diocese [website] (https://stpaulfresno.com/wp/wp-content/uploads/2026/04/99th-Diocesan-Assembly-Binder.pdf) or [Facebook page] (https://www.facebook.com/westerndiocese/posts/pfbid02BNdnWXymTnhQhXfwVJiz2Z2hAxwC7GQBFAXNWB1ru9dJ82NZxR7K8CSZX7NgDLtzl)._
+
+
