@@ -149,7 +149,7 @@ export default function AcyoPage() {
       contact={{
         email: 'st.mary.cm.acyo@gmail.com',
         phone: '(949) 826-4429',
-        whatsapp: 'https://ACYOchat.whatsapp.com/',
+        whatsapp: 'https://chat.whatsapp.com/L4GWsKYdXim5dFeIv5BPFy?mlu=0&s=qt&p=a',
         signupForm: 'https://forms.gle/e3Rrmz4nmSmRKu268',
       }}
       social={{
