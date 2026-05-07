@@ -18,6 +18,7 @@ export default function AcyoPage() {
       name='ACYO'
       fullName='Armenian Church Youth Organization'
       tagline='Love One Another. — John 15:17'
+      headerBgClass='acyo-header-bg'
       sections={[
         {
           title: 'About Our Chapter',

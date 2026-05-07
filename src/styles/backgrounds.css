@@ -68,6 +68,13 @@
   background-position: center;
 }
 
+.acyo-header-bg {
+  background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(/hero/acyo.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
 .facilities-header-bg {
   background-image: radial-gradient(ellipse at center, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 70%), url(/hero/facilities.jpg);
   background-repeat: no-repeat;
