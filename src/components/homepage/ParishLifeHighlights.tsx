@@ -2,7 +2,14 @@ import Button from '@/common/Button';
 import Link from 'next/link';
 import React from 'react';
 
-const ministries = [
+interface Ministry {
+  name: string;
+  description: string;
+  icon: string;
+  href?: string;
+}
+
+const ministries: Ministry[] = [
   {
     name: 'Hovsepian Choir',
     description: 'Our adult choir leads the congregation in Armenian liturgical music during Sunday Badarak.',
@@ -12,6 +19,7 @@ const ministries = [
     name: 'ACYO',
     description: 'The Armenian Church Youth Organization engages teens and young adults through faith and fellowship.',
     icon: '✝️',
+    href: '/organizations/acyo',
   },
   {
     name: 'Ladies Society',
@@ -48,13 +56,23 @@ const ParishLifeHighlights = () => {
         </p>
       </div>
       <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-        {ministries.map((m) => (
-          <div key={m.name} className='bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow'>
-            <div className='text-3xl mb-3'>{m.icon}</div>
-            <h3 className='font-secondary font-bold text-primary text-lg mb-2'>{m.name}</h3>
-            <p className='text-gray-600 text-sm leading-relaxed'>{m.description}</p>
-          </div>
-        ))}
+        {ministries.map((m) => {
+          const card = (
+            <div className={`bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow h-full ${m.href ? 'cursor-pointer' : ''}`}>
+              <div className='text-3xl mb-3'>{m.icon}</div>
+              <h3 className='font-secondary font-bold text-primary text-lg mb-2'>{m.name}</h3>
+              <p className='text-gray-600 text-sm leading-relaxed'>{m.description}</p>
+              {m.href && <p className='text-secondary text-sm mt-3 font-semibold'>Learn more →</p>}
+            </div>
+          );
+          return m.href ? (
+            <Link key={m.name} href={m.href}>
+              {card}
+            </Link>
+          ) : (
+            <div key={m.name}>{card}</div>
+          );
+        })}
       </div>
       <div className='text-center mt-10'>
         <Link href='/parish-life'>
