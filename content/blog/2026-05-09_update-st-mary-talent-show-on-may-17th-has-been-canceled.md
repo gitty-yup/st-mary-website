@@ -21,9 +21,5 @@ Thank you for your understanding and continued support of our parish family.
 With gratitude and love,
 
 **St. Mary Cultural Committee**
-
 - - -
-
-
-
 ![](/media/uploads/talenshowcancellation.png)
