@@ -23,4 +23,7 @@ With gratitude and love,
 **St. Mary Cultural Committee**
 
 - - -
+
+
+
 ![](/media/uploads/talenshowcancellation.png)
