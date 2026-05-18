@@ -156,6 +156,14 @@ export function extractContent(html: string): { markdown: string; imageUrls: str
 
   let markdown = td.turndown(root.innerHTML);
 
+  // Strip Mailchimp's "View this email in your browser" preheader line from the top.
+  // It appears as a standalone line near the top of every campaign — remove it
+  // wherever it appears (as a line, link, or short paragraph).
+  markdown = markdown
+    .split('\n')
+    .filter(line => !/^\s*(\[)?view (this email )?in (your )?browser/i.test(line.trim()))
+    .join('\n');
+
   // Strip footer at the markdown level. Only use markers that ONLY appear in the
   // footer — "view this email in your browser" is NOT included because Mailchimp
   // puts that link as a preheader at the very top of emails, which would cause
