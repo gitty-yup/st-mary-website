@@ -5,8 +5,6 @@ author: St. Mary
 category: Parish News
 ---
 
-View this email in your browser
-
 Բարեւ ձեզ - Dear Friends and Family,
 
 We are delighted to invite you and your loved ones to our special **Father’s Day Celebration** at St. Mary Armenian Apostolic Church!
