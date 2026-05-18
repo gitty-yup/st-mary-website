@@ -47,6 +47,58 @@ export default function HovsepianChoirPage() {
           ),
         },
         {
+          title: 'In Memoriam: Dn. Rupen Ozsogomonyan',
+          content: (
+            <>
+              <p>
+                The Hovsepian Choir owes much of its life and character to the late Deacon Rupen
+                Ozsogomonyan, who served as Choir Master (Դպրապետ), director, and organist for over
+                thirty years. A founding member of St. Mary Armenian Apostolic Church, Dn. Rupen
+                offered his musical and liturgical gifts in service to the Holy Altar and to the
+                sacred music of the Divine Liturgy with quiet dedication and deep reverence.
+              </p>
+              <p>
+                Under his leadership, the choir participated in the regular worship life of the parish
+                as well as in major liturgical milestones — including visitations of the Catholicos of
+                All Armenians and the Patriarch of Constantinople, and the 25th Anniversary of the
+                Consecration of St. Mary Church in 2017. He possessed a profound knowledge of the
+                Armenian Church&apos;s liturgical life, having mastered not only the various forms of
+                the Divine Liturgy but also the daily offices, the observances of the major feasts,
+                and the sacramental rites that define our liturgical cycle.
+              </p>
+              <p>
+                In recognition of his decades of dedicated and selfless service to the Armenian
+                Church, Dn. Rupen was awarded the <strong>St. Nerses Shnorhali Medal in 2014</strong>{' '}
+                — one of the highest honors bestowed by the Church upon those who have given
+                exemplary service.
+              </p>
+              <p className='italic'>
+                May the Lord grant him rest in the light of His eternal presence. Աստուած հոգին
+                լուսաւորէ.
+              </p>
+            </>
+          ),
+        },
+        {
+          title: 'Our Organist: Ms. Angèle Nalbandian',
+          content: (
+            <>
+              <p>
+                The Hovsepian Choir is deeply grateful to have <strong>Ms. Angèle Nalbandian</strong>
+                {' '}as our organist. Daughter of Armenian Apostolic priest Der Zenob Nalbandian,
+                Angèle was raised within the rich liturgical and musical heritage of our Church, and
+                she now offers those gifts in faithful service to our parish.
+              </p>
+              <p>
+                Following the passing of Dn. Rupen, Angèle stepped graciously into a leadership role,
+                guiding the choir with warmth, skill, and a steady devotion to the sacred music that
+                shapes our worship. Her presence at the organ each Sunday is a blessing to the
+                congregation and to all who lift their voices in song.
+              </p>
+            </>
+          ),
+        },
+        {
           title: 'Our Mission',
           content: (
             <p className='italic'>
