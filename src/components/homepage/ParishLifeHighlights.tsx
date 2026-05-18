@@ -14,6 +14,7 @@ const ministries: Ministry[] = [
     name: 'Hovsepian Choir',
     description: 'Our adult choir leads the congregation in Armenian liturgical music during Sunday Badarak.',
     icon: '🎶',
+    href: '/organizations/hovsepian-choir',
   },
   {
     name: 'ACYO',
