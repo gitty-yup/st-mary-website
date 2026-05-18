@@ -156,10 +156,11 @@ export function extractContent(html: string): { markdown: string; imageUrls: str
 
   let markdown = td.turndown(root.innerHTML);
 
-  // Strip footer at the markdown level: find first occurrence of a footer marker
-  // and cut everything from there onward.
+  // Strip footer at the markdown level. Only use markers that ONLY appear in the
+  // footer — "view this email in your browser" is NOT included because Mailchimp
+  // puts that link as a preheader at the very top of emails, which would cause
+  // us to cut at position 0 and lose all content.
   const footerMarkers = [
-    /view this email in your browser/i,
     /unsubscribe from this list/i,
     /update subscription preferences/i,
     /update your preferences/i,
