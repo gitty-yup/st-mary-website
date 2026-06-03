@@ -102,11 +102,11 @@ export default function BaptismPage() {
                 (often an infant) and family.
               </li>
               <li>
-                The godparent(s) renounce Satan on behalf of the child and affirm faith in Christ.
+                The godparent(s) renounce Satan on behalf of the child and profess the Nicene Creed.
               </li>
               <li>
                 The water is blessed and the candidate is immersed <strong>three times</strong> in
-                the name of the Father, the Son, and the Holy Spirit. This symbolizes Christ&apos;s
+                the name of the Father, the Son, and the Holy Spirit — symbolizing Christ&apos;s
                 three days in the tomb and His resurrection.
               </li>
               <li>
@@ -119,6 +119,33 @@ export default function BaptismPage() {
                 symbolizing purity and new life.
               </li>
             </ul>
+
+            <div className='bg-white rounded-xl p-5 border-l-4 border-secondary'>
+              <p className='font-secondary font-bold text-primary mb-2'>
+                &ldquo;Faith, Hope, Love, and Baptism&rdquo;
+              </p>
+              <p className='mb-3'>
+                After the blessing of the water and the profession of the Creed, the priest asks
+                the godfather three times: <em>&ldquo;What does this child request?&rdquo;</em>
+              </p>
+              <p className='mb-3'>The godfather replies each time:</p>
+              <p className='italic mb-2'>
+                &ldquo;Faith, hope, love, and baptism — to be baptized and justified, to be cleansed
+                of sins, to be freed from demons, and to serve God.&rdquo;
+              </p>
+              <p className='text-sm text-gray-500 mb-3'>
+                Armenian: <em>Havadk, hooys, ser, yev mgurdutyun</em>
+              </p>
+              <p>
+                This response echoes 1 Corinthians 13:13 — &ldquo;faith, hope, and love&rdquo; —
+                the three theological virtues — paired with the explicit request for the sacrament.
+                The priest then answers: <em>&ldquo;Be it unto thee according to thy faith.&rdquo;</em>{' '}
+                This dialogue underscores that the child enters the Church through these foundational
+                Christian virtues, spoken by the godfather on behalf of a child who cannot yet speak
+                for themselves.
+              </p>
+            </div>
+
             <p>
               The service is a <strong>public act</strong> of the community, welcoming the new
               member into the parish family.
@@ -139,18 +166,34 @@ export default function BaptismPage() {
             The Role of Godparents
           </h2>
           <div className='text-gray-700 leading-relaxed space-y-4'>
-            <p>Godparents play a vital spiritual role. They:</p>
+            <p>
+              Godparents — traditionally centered on the godfather, known in Armenian as the{' '}
+              <strong>Kavor</strong> (<em>Gnkahayr</em>) — serve as the child&apos;s spiritual
+              sponsors. Many parishes today welcome both a godfather and a godmother.
+            </p>
+            <p>During the rite, godparents:</p>
             <ul className='list-disc pl-5 space-y-3'>
-              <li>Sponsor the child during the ceremony.</li>
-              <li>Affirm the faith on the child&apos;s behalf.</li>
               <li>
-                Commit to helping raise the child in the Christian faith through example, education,
-                and participation in Church life.
+                Renounce Satan and profess the Nicene Creed on the child&apos;s behalf.
+              </li>
+              <li>
+                Make the threefold request for &ldquo;faith, hope, love, and baptism&rdquo; — the
+                sacred dialogue described above.
+              </li>
+              <li>
+                Provide ritual items, typically including a cross and chain (blessed during the
+                service), white towels, and a candle.
               </li>
             </ul>
             <p>
-              According to diocesan guidelines, at least one godparent should be a baptized and
-              chrismated member of the Armenian Apostolic Church.
+              Beyond the ceremony, godparents commit to supporting the child&apos;s faith
+              throughout life — offering spiritual guidance, Christian example, and ongoing
+              involvement in Church life. Godparenthood creates a lifelong bond, akin to a second
+              set of parents devoted to the child&apos;s spiritual formation.
+            </p>
+            <p>
+              At least one godparent must be a baptized and chrismated member of the Armenian
+              Apostolic Church; a second godparent, if named, should be a baptized Christian.
             </p>
           </div>
         </div>
