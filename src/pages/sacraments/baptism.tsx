@@ -58,7 +58,7 @@ export default function BaptismPage() {
         <div className='max-w-3xl mx-auto'>
           <h2 className='text-primary font-secondary font-bold text-2xl mb-4'>Why Do We Baptize?</h2>
           <div className='text-gray-700 leading-relaxed space-y-4'>
-            <ul className='list-disc list-inside space-y-2'>
+            <ul className='list-disc pl-5 space-y-3'>
               <li>
                 <strong>Cleansing and Rebirth:</strong> Through immersion in blessed water, the
                 person is washed from original sin (inherited from Adam and Eve) and enters a new
@@ -96,7 +96,7 @@ export default function BaptismPage() {
             <p>
               The Armenian baptismal service is rich in symbolism and follows ancient traditions:
             </p>
-            <ul className='list-disc list-inside space-y-2'>
+            <ul className='list-disc pl-5 space-y-3'>
               <li>
                 It usually begins at the church entrance, where the priest welcomes the candidate
                 (often an infant) and family.
@@ -140,7 +140,7 @@ export default function BaptismPage() {
           </h2>
           <div className='text-gray-700 leading-relaxed space-y-4'>
             <p>Godparents play a vital spiritual role. They:</p>
-            <ul className='list-disc list-inside space-y-2'>
+            <ul className='list-disc pl-5 space-y-3'>
               <li>Sponsor the child during the ceremony.</li>
               <li>Affirm the faith on the child&apos;s behalf.</li>
               <li>
@@ -163,7 +163,7 @@ export default function BaptismPage() {
             Practical Information for Families at St. Mary
           </h2>
           <div className='text-gray-700 leading-relaxed space-y-4'>
-            <ul className='list-disc list-inside space-y-2'>
+            <ul className='list-disc pl-5 space-y-3'>
               <li>Schedule the baptism with the Pastor well in advance.</li>
               <li>
                 Prepare items such as an Armenian-style cross and chain, white towels, and
