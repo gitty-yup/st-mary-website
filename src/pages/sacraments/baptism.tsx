@@ -98,10 +98,6 @@ export default function BaptismPage() {
             </p>
             <ul className='list-disc pl-5 space-y-3'>
               <li>
-                It begins at the church entrance, where the priest welcomes the candidate (often an
-                infant) and family.
-              </li>
-              <li>
                 The godfather renounces Satan on the child&apos;s behalf, professes the Nicene
                 Creed, and makes the sacred threefold request for &ldquo;faith, hope, love, and
                 baptism.&rdquo;
