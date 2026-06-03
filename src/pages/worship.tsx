@@ -8,6 +8,7 @@ const sacraments = [
     name: 'Baptism',
     description:
       'The sacrament of initiation into the Body of Christ. Infants and adults are welcomed into the Armenian Apostolic Church through Holy Baptism.',
+    href: '/sacraments/baptism',
   },
   {
     name: 'Chrismation',
@@ -117,7 +118,15 @@ export default function Worship() {
           <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
             {sacraments.map((s) => (
               <div key={s.name} className='bg-white rounded-2xl p-6 shadow-sm'>
-                <h3 className='font-secondary font-bold text-primary text-lg mb-2'>{s.name}</h3>
+                <h3 className='font-secondary font-bold text-primary text-lg mb-2'>
+                  {s.href ? (
+                    <Link href={s.href} className='hover:text-secondary transition-colors'>
+                      {s.name}
+                    </Link>
+                  ) : (
+                    s.name
+                  )}
+                </h3>
                 <p className='text-gray-600 text-sm leading-relaxed'>{s.description}</p>
               </div>
             ))}
