@@ -29,6 +29,7 @@ const sacraments = [
     name: 'Marriage',
     description:
       'The holy union of a man and woman in Christ. Our parish is happy to assist couples wishing to be married in the Armenian Apostolic tradition.',
+    href: '/sacraments/marriage',
   },
   {
     name: 'Ordination',
