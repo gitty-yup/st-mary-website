@@ -19,6 +19,7 @@ const sacraments = [
     name: 'Holy Communion',
     description:
       'The Eucharist is the central act of Christian worship. Communion is offered to baptized and chrismated members of the Armenian Apostolic Church.',
+    href: '/sacraments/holy-communion',
   },
   {
     name: 'Confession',
