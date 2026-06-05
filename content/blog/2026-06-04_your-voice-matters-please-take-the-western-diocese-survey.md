@@ -14,7 +14,7 @@ By completing this survey, you will help inform future parish programs, ministri
 
 The **survey is** **anonymous and confidential**, and it takes approximately **10–15 minutes** to complete. If you are **18 years or older, consider yourself an Armenian Christian,** we urge you to complete the survey. Please take a few moments to share your thoughts by clicking the link or the image below:  
 
-**[www.wdanca.com/survey](http://www.wdanca.com/survey)**
+**<https://www.wdacna.com/survey>**
 
 ![](/media/uploads/newsletters/your-voice-matters-please-take-the-western-diocese-survey_1.jpg)
 
