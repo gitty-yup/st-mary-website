@@ -27,5 +27,3 @@ With gratitude and in Christ’s service,
 **Mike Hollis**\
 Parish Council Chairman\
 St. Mary Armenian Apostolic Church
-
-_
