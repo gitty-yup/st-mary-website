@@ -234,7 +234,7 @@ export default function ConfessionPage() {
             </p>
             <ul className='list-disc pl-5 space-y-3'>
               <li>
-                <strong>Public Confession</strong> (<em>Megha Asdoodzoh</em>) is offered before
+                <strong>Public Confession</strong> (<em>Megha Asdoodzoh</em>) is offered during
                 every Sunday Badarak as part of the regular liturgy.
               </li>
               <li>
