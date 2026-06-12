@@ -25,6 +25,7 @@ const sacraments = [
     name: 'Confession',
     description:
       'The sacrament of reconciliation, restoring the faithful to a right relationship with God. Available before Sunday Badarak.',
+    href: '/sacraments/confession',
   },
   {
     name: 'Marriage',
