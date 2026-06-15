@@ -27,8 +27,59 @@ export default function OrdinationPage() {
         </div>
       </section>
 
-      {/* The Priest: Human and Yet Called */}
+      {/* The Three Orders */}
       <section className='px-primary py-12 bg-[#FFF5F2]'>
+        <div className='max-w-3xl mx-auto'>
+          <h2 className='text-primary font-secondary font-bold text-2xl mb-4'>
+            The Three Orders of Clergy
+          </h2>
+          <div className='text-gray-700 leading-relaxed space-y-4'>
+            <p>
+              In the Church, there is a three-fold ministry. The three major orders of ordained
+              clergy are the deacon, the priest, and the bishop.
+            </p>
+            <div className='space-y-4'>
+              <div className='bg-white rounded-xl p-5 border-l-4 border-secondary'>
+                <h3 className='font-secondary font-bold text-primary text-lg mb-2'>Deacon</h3>
+                <p className='text-sm leading-relaxed'>
+                  The diaconate traces to Acts 6, where the Apostles prayed over and laid their
+                  hands on the first deacons as a symbol of authority. Deacons were instructed to
+                  assist the Apostles in serving the people. Today, deacons continue that role —
+                  assisting at liturgical services and supporting the administrative, charitable,
+                  and mission programs of the Church.
+                </p>
+              </div>
+              <div className='bg-white rounded-xl p-5 border-l-4 border-secondary'>
+                <h3 className='font-secondary font-bold text-primary text-lg mb-2'>Priest</h3>
+                <p className='text-sm leading-relaxed'>
+                  This order evolved fully by the second century, when the growing number of
+                  Christian converts made it necessary to expand the ordained ranks. The
+                  priest&apos;s task — then as now — is to preach, to sanctify, to celebrate the
+                  Divine Liturgy, and to serve as the leader of his flock in the name of the
+                  bishop.
+                </p>
+              </div>
+              <div className='bg-white rounded-xl p-5 border-l-4 border-secondary'>
+                <h3 className='font-secondary font-bold text-primary text-lg mb-2'>Bishop</h3>
+                <p className='text-sm leading-relaxed'>
+                  The office of bishop can be traced directly to Christ, who instituted it through
+                  the Holy Apostles. Originally, bishops served as heads of individual parishes;
+                  as the Church grew, bishops came to oversee groups of parishes, with priests
+                  serving as local parish leaders in their name.
+                </p>
+              </div>
+            </div>
+            <p className='text-sm text-gray-500 mt-2'>
+              There are also minor orders, including the <em>clerk</em> (<em>tbir</em>) — which
+              encompasses four ranks: doorkeeper, reader, exorcist, and acolyte — and the
+              sub-diaconate (<em>gisasargavak</em>).
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* The Priest: Human and Yet Called */}
+      <section className='px-primary py-12 bg-white'>
         <div className='max-w-3xl mx-auto'>
           <h2 className='text-primary font-secondary font-bold text-2xl mb-4'>
             Human, and Yet Called
@@ -59,7 +110,7 @@ export default function OrdinationPage() {
       </section>
 
       {/* Biblical Foundation */}
-      <section className='px-primary py-12 bg-white'>
+      <section className='px-primary py-12 bg-[#FFF5F2]'>
         <div className='max-w-3xl mx-auto'>
           <h2 className='text-primary font-secondary font-bold text-2xl mb-4'>
             Biblical Foundation
@@ -98,7 +149,7 @@ export default function OrdinationPage() {
       </section>
 
       {/* Apostolic Succession */}
-      <section className='px-primary py-12 bg-[#FFF5F2]'>
+      <section className='px-primary py-12 bg-white'>
         <div className='max-w-3xl mx-auto'>
           <h2 className='text-primary font-secondary font-bold text-2xl mb-4'>
             Apostolic Succession
@@ -117,7 +168,7 @@ export default function OrdinationPage() {
               Lord and Savior Jesus Christ — and it is the foundation upon which the validity of
               every sacrament rests.
             </p>
-            <div className='bg-white rounded-xl p-5 border-l-4 border-secondary'>
+            <div className='bg-[#FFF5F2] rounded-xl p-5 border-l-4 border-secondary'>
               <p className='text-gray-700 leading-relaxed'>
                 Apostolic Succession is not something that simply looks backward. It is something
                 which impels the Church <em>forward</em> — to continue the very mission initiated
@@ -126,6 +177,7 @@ export default function OrdinationPage() {
                 at the end of time. It is a solemn proclamation that Jesus Christ is the Lord of
                 the Church, and that it is ultimately He who gives legitimacy to all aspects of
                 authority within it.
+
               </p>
             </div>
           </div>
