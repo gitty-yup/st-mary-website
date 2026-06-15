@@ -44,6 +44,7 @@ const sacraments = [
     name: 'Prayer for the Sick / Last Rites',
     description:
       'The Church ministers to the sick and dying through prayer, anointing, and the sacraments. Contact the parish office to arrange a pastoral visit.',
+    href: '/sacraments/prayer-for-the-sick',
   },
 ];
 
