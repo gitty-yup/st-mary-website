@@ -35,8 +35,8 @@ export default function OrdinationPage() {
           </h2>
           <div className='text-gray-700 leading-relaxed space-y-4'>
             <p>
-              In the Church, there is a three-fold ministry. The three major orders of ordained
-              clergy are the deacon, the priest, and the bishop.
+              In the Armenian Apostolic Church, there is a three-fold ministry. The three major
+              orders of ordained clergy are the deacon, the priest, and the bishop.
             </p>
             <div className='space-y-4'>
               <div className='bg-white rounded-xl p-5 border-l-4 border-secondary'>
