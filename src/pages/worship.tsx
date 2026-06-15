@@ -14,6 +14,7 @@ const sacraments = [
     name: 'Chrismation',
     description:
       'Immediately following Baptism, the newly baptized is anointed with the Holy Myron (chrism), receiving the gift of the Holy Spirit.',
+    href: '/sacraments/chrismation',
   },
   {
     name: 'Holy Communion',
