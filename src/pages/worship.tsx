@@ -38,6 +38,7 @@ const sacraments = [
     name: 'Ordination',
     description:
       'The setting apart of clergy for sacred ministry. Several of our parish deacons and acolytes have been ordained at St. Mary.',
+    href: '/sacraments/ordination',
   },
   {
     name: 'Prayer for the Sick / Last Rites',
