@@ -131,7 +131,39 @@ export default function HovsepianChoirPage() {
                 The choir leads worship at every Sunday Badarak as well as at Tabernacle and Holy Week
                 services throughout the liturgical year.
               </p>
-              <p>We hold <strong>biweekly rehearsals</strong> to prepare the music for upcoming services.</p>
+              <p>
+                Rehearsals are held <strong>every other Thursday, 7:00–9:00 PM</strong>. The 2026
+                schedule is as follows:
+              </p>
+              <div className='overflow-x-auto'>
+                <table className='w-full text-sm border-collapse'>
+                  <tbody>
+                    {[
+                      ['January', 'Jan 1, 15, 29'],
+                      ['February', 'Feb 12, 26'],
+                      ['March', 'Mar 12, 26'],
+                      ['April', 'Apr 9, 23'],
+                      ['May', 'May 7, 21'],
+                      ['June', 'Jun 4, 18'],
+                      ['July', 'Jul 2, 16, 30'],
+                      ['August', 'Aug 13, 27'],
+                      ['September', 'Sep 10, 24'],
+                      ['October', 'Oct 8, 22'],
+                      ['November', 'Nov 5, 19'],
+                      ['December', 'Dec 3, 17, 31'],
+                    ].map(([month, dates], i) => (
+                      <tr key={month} className={i % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+                        <td className='py-1.5 px-3 font-semibold text-primary w-32'>{month}</td>
+                        <td className='py-1.5 px-3 text-gray-600'>{dates}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className='text-sm text-gray-500 italic'>
+                For changes or confirmation, please contact the choir director or check the church
+                calendar.
+              </p>
             </>
           ),
         },
