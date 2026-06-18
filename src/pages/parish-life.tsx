@@ -120,7 +120,7 @@ export default function ParishLife() {
                 </div>
               );
               return m.href ? (
-                <Link key={m.name} href={m.href}>{card}</Link>
+                <Link key={m.name} href={m.href} className='block'>{card}</Link>
               ) : (
                 <div key={m.name}>{card}</div>
               );
