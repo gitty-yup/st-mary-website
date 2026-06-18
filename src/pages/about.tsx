@@ -158,9 +158,11 @@ export default function About() {
             The Armenian Apostolic Church is one of the oldest Christian churches in the world, with its
             spiritual center at the Mother See of Holy Etchmiadzin in Armenia.
           </p>
-          <a href='https://www.westerndiocese.org' target='_blank' rel='noreferrer'>
-            <Button className='!w-[280px]'>Visit the Western Diocese</Button>
-          </a>
+          <div className='flex justify-center'>
+            <a href='https://www.wdacna.com/' target='_blank' rel='noreferrer'>
+              <Button className='!w-[280px]'>Visit the Western Diocese</Button>
+            </a>
+          </div>
         </div>
       </section>
     </AppLayout>
