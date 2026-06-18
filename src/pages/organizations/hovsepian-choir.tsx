@@ -101,8 +101,11 @@ export default function HovsepianChoirPage() {
         {
           title: 'Our Mission',
           content: (
-            <p className='italic'>
-              Rehearse like you perform during services.
+            <p>
+              To worship God and serve the parish through the sacred music of the Armenian
+              Apostolic Church — offering our voices in prayer, giving voice to the ancient
+              melodies of the Divine Liturgy, and drawing the congregation into deeper communion
+              with Christ.
             </p>
           ),
         },
