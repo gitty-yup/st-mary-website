@@ -8,11 +8,13 @@ const ministries = [
     name: 'Hovsepian Choir',
     description:
       'The St. Mary Hovsepian Choir leads the congregation in the sacred hymns of the Badarak each Sunday. Named in honor of Archbishop Vatche Hovsepian, founding Primate of the Western Diocese, the choir continues a rich tradition of Armenian liturgical music.',
+    href: '/organizations/hovsepian-choir',
   },
   {
     name: 'ACYO (Armenian Church Youth Organization)',
     description:
       'Guided by the mission to bring young people to Christ through the teachings and rich traditions of the Armenian Apostolic Church, St. Mary ACYO welcomes youth (12+) to grow in faith, build lasting friendships, and develop strong Christian Armenian identities. Through worship, service projects, educational events, leadership opportunities, sports, social gatherings, and retreats, St. Mary\'s ACYO helps teens and young adults deepen their relationship with God, serve their Church and community, and become committed leaders ready to live out their faith both inside and outside the parish. All youth are warmly invited to join our vibrant, welcoming chapter!',
+    href: '/organizations/acyo',
   },
   {
     name: 'Ladies Society',
@@ -83,6 +85,7 @@ const organizations = [
     name: 'Cultural Committee',
     description:
       'Promotes Armenian culture through lectures, musical programs, art exhibitions, and a book fair at the annual Food Festival. Contact through the church office.',
+    href: '/organizations/cultural-entertainment-committees',
   },
   {
     name: 'Mommy & Me',
@@ -108,12 +111,20 @@ export default function ParishLife() {
           <p className='text-secondary font-cursive text-2xl mb-2'>Serving Together</p>
           <h2 className='text-primary font-secondary font-bold text-3xl mb-8'>Ministries</h2>
           <div className='space-y-6'>
-            {ministries.map((m) => (
-              <div key={m.name} className='bg-[#FFF5F2] rounded-2xl p-6'>
-                <h3 className='font-secondary font-bold text-primary text-lg mb-2'>{m.name}</h3>
-                <p className='text-gray-700 leading-relaxed'>{m.description}</p>
-              </div>
-            ))}
+            {ministries.map((m) => {
+              const card = (
+                <div className={`bg-[#FFF5F2] rounded-2xl p-6 ${m.href ? 'hover:shadow-md transition-shadow cursor-pointer' : ''}`}>
+                  <h3 className='font-secondary font-bold text-primary text-lg mb-2'>{m.name}</h3>
+                  <p className='text-gray-700 leading-relaxed'>{m.description}</p>
+                  {m.href && <p className='text-secondary text-sm mt-3 font-semibold'>Learn more →</p>}
+                </div>
+              );
+              return m.href ? (
+                <Link key={m.name} href={m.href}>{card}</Link>
+              ) : (
+                <div key={m.name}>{card}</div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -140,12 +151,20 @@ export default function ParishLife() {
           <p className='text-secondary font-cursive text-2xl mb-2'>Our Community</p>
           <h2 className='text-primary font-secondary font-bold text-3xl mb-8'>Parish Organizations</h2>
           <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-            {organizations.map((o) => (
-              <div key={o.name} className='bg-[#FFF5F2] rounded-2xl p-6'>
-                <h3 className='font-secondary font-bold text-primary text-lg mb-2'>{o.name}</h3>
-                <p className='text-gray-700 text-sm leading-relaxed'>{o.description}</p>
-              </div>
-            ))}
+            {organizations.map((o) => {
+              const card = (
+                <div className={`bg-[#FFF5F2] rounded-2xl p-6 h-full ${o.href ? 'hover:shadow-md transition-shadow cursor-pointer' : ''}`}>
+                  <h3 className='font-secondary font-bold text-primary text-lg mb-2'>{o.name}</h3>
+                  <p className='text-gray-700 text-sm leading-relaxed'>{o.description}</p>
+                  {o.href && <p className='text-secondary text-sm mt-3 font-semibold'>Learn more →</p>}
+                </div>
+              );
+              return o.href ? (
+                <Link key={o.name} href={o.href}>{card}</Link>
+              ) : (
+                <div key={o.name}>{card}</div>
+              );
+            })}
           </div>
         </div>
       </section>
