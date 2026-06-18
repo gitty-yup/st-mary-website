@@ -3,13 +3,13 @@ import Button from '@/common/Button';
 import Link from 'next/link';
 import React from 'react';
 
-export default function VardavarPage() {
+export default function VartavarPage() {
   return (
     <AppLayout>
       <header className='worship-header-bg px-primary h-[205px] md:h-[305px] flex flex-col items-center justify-center text-center gap-3 text-white'>
         <p className='font-cursive text-secondary text-2xl'>Feast of the Transfiguration</p>
         <h1 className='font-secondary font-bold text-2xl md:text-[32px] lg:text-[40px]'>
-          Vardavar
+          Vartavar
         </h1>
         <p className='font-normal text-lg max-w-2xl'>
           Վարդավառ — The Festival of Water &amp; Light
@@ -20,7 +20,7 @@ export default function VardavarPage() {
       <section className='px-primary py-12 bg-white'>
         <div className='max-w-3xl mx-auto text-gray-700 leading-relaxed space-y-4'>
           <p>
-            <strong>Vardavar</strong> (also spelled Vartavar; Armenian: <strong>Վարդավառ</strong>)
+            <strong>Vartavar</strong> (also spelled Vardavar in Eastern Armenian; Armenian: <strong>Վարդավառ</strong>)
             is one of Armenia&apos;s most beloved and joyful summer holidays — famously known as
             the &ldquo;Festival of Water,&rdquo; the day when people of all ages playfully drench
             each other in celebration. It is a feast that holds both ancient roots and deep
@@ -39,7 +39,7 @@ export default function VardavarPage() {
           </h2>
           <div className='text-gray-700 leading-relaxed space-y-4'>
             <p>
-              Vardavar dates back to pre-Christian pagan times in Armenia. It was traditionally
+              Vartavar dates back to pre-Christian pagan times in Armenia. It was traditionally
               associated with <strong>Astghik</strong>, the goddess of water, beauty, love, and
               fertility. In these ancient celebrations, people honored her by offering roses —
               the Armenian word <em>vard</em> means &ldquo;rose&rdquo; — sprinkling rosewater,
@@ -57,7 +57,7 @@ export default function VardavarPage() {
             <p>
               When Armenia became the first nation to adopt Christianity as its state religion in
               301 AD, the Church transformed many pre-existing customs rather than erasing them.
-              Vardavar was reinterpreted and aligned with the Feast of the Transfiguration — the
+              Vartavar was reinterpreted and aligned with the Feast of the Transfiguration — the
               water element coming to symbolize purification, renewal, and the Holy Spirit; the
               roses, once offered to Astghik, becoming associated with the radiant light and beauty
               of Christ&apos;s transfigured form.
@@ -74,7 +74,7 @@ export default function VardavarPage() {
           </h2>
           <div className='text-gray-700 leading-relaxed space-y-4'>
             <p>
-              At the heart of Vardavar is the commemoration of one of the most luminous moments in
+              At the heart of Vartavar is the commemoration of one of the most luminous moments in
               the Gospels — the Transfiguration of Christ on Mount Tabor, when Jesus revealed His
               divine glory to His closest disciples:
             </p>
@@ -105,7 +105,7 @@ export default function VardavarPage() {
           </h2>
           <div className='text-gray-700 leading-relaxed space-y-4'>
             <p>
-              Vardavar is a <strong>movable feast</strong>, observed{' '}
+              Vartavar is a <strong>movable feast</strong>, observed{' '}
               <strong>98 days (14 weeks) after Easter Sunday</strong> in the Armenian Apostolic
               Church calendar. It typically falls between late June and early August, at the height
               of summer.
@@ -113,7 +113,7 @@ export default function VardavarPage() {
             <div className='bg-white rounded-xl p-5 border-l-4 border-secondary'>
               <p className='font-secondary font-bold text-primary mb-1'>2026</p>
               <p>
-                Easter falls on April 5, 2026 — placing Vardavar on{' '}
+                Easter falls on April 5, 2026 — placing Vartavar on{' '}
                 <strong>Sunday, July 12, 2026</strong>.
               </p>
             </div>
@@ -129,7 +129,7 @@ export default function VardavarPage() {
           </h2>
           <div className='text-gray-700 leading-relaxed space-y-4'>
             <p>
-              The hallmark of Vardavar is the <strong>playful water fight</strong> that engulfs
+              The hallmark of Vartavar is the <strong>playful water fight</strong> that engulfs
               communities across Armenia and the diaspora. People of all ages — friends, family,
               strangers — splash, spray, and pour buckets of water on each other. Getting soaked is
               entirely the point, and no one takes offense. In Yerevan, crowds gather at fountains,
@@ -173,13 +173,13 @@ export default function VardavarPage() {
           </h2>
           <div className='text-gray-700 leading-relaxed space-y-4'>
             <p>
-              Vardavar is more than a water fight. It embodies themes of joy, renewal, community,
+              Vartavar is more than a water fight. It embodies themes of joy, renewal, community,
               love, and spiritual transformation. Recognized on Armenia&apos;s intangible cultural
               heritage list, it has preserved Armenian identity across centuries of history —
               through conquest, diaspora, and survival.
             </p>
             <p>
-              For the faithful of St. Mary Armenian Apostolic Church, Vardavar is a vibrant
+              For the faithful of St. Mary Armenian Apostolic Church, Vartavar is a vibrant
               opportunity to celebrate Christ&apos;s Transfiguration while embracing the lively
               traditions that connect us to our ancestors. In the heat of summer, it brings people
               together in laughter and shared delight — a reminder that joy, too, is a form of
@@ -189,7 +189,7 @@ export default function VardavarPage() {
               &ldquo;His face shone like the sun.&rdquo; — Matthew 17:2
             </blockquote>
             <p>
-              May your Vardavar be filled with blessings, joy, and plenty of water.
+              May your Vartavar be filled with blessings, joy, and plenty of water.
             </p>
           </div>
         </div>
