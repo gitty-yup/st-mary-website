@@ -49,7 +49,7 @@ export default function VartavarPage() {
               the summer heat and harvest season.
             </p>
             <p>
-              Some traditions also link Vardavar to the story of Noah and the Great Flood: after
+              Some traditions also link Vartavar to the story of Noah and the Great Flood: after
               the waters receded and Noah&apos;s family found safety on Mount Ararat, he instructed
               his descendants to sprinkle water on each other in remembrance, and to release doves
               as a sign of peace and new beginning.
@@ -89,7 +89,7 @@ export default function VartavarPage() {
             </blockquote>
             <p>
               This revelation of Christ&apos;s divine nature — His face shining like the sun, His
-              garments blazing white — is what the water, the light, and the joy of Vardavar
+              garments blazing white — is what the water, the light, and the joy of Vartavar
               ultimately point toward. The feast invites the faithful to behold Christ not only as
               teacher and healer but as the eternal Son of God, radiant in glory.
             </p>
