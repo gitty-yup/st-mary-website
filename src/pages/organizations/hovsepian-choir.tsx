@@ -169,11 +169,24 @@ export default function HovsepianChoirPage() {
         {
           title: 'Events & Activities',
           content: (
-            <ul className='list-disc list-inside space-y-1'>
-              <li>Sponsor one of the parish&apos;s annual Lenten Dinners each year</li>
-              <li>Celebrate the combined Church and Choir anniversary together with the parish</li>
-              <li>Provide annual activity and financial reports to the Parish Council</li>
-            </ul>
+            <>
+              <p>
+                Beyond the Sunday Badarak, the Hovsepian Choir plays a central role in the most
+                sacred moments of the liturgical year — leading the music of Holy Week, the
+                Tabernacle services, and the great feast days that mark the rhythm of Armenian
+                Apostolic worship.
+              </p>
+              <p>
+                Each year, the choir hosts one of the parish&apos;s beloved Lenten Dinners,
+                bringing the community together around the table during the season of fasting and
+                prayer.
+              </p>
+              <p>
+                The choir also joins the parish each year in commemorating the founding of
+                St. Mary Armenian Apostolic Church — a celebration of the faith and community they
+                have helped sustain through music since 1992.
+              </p>
+            </>
           ),
         },
       ]}
