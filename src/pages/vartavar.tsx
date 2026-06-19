@@ -12,7 +12,7 @@ export default function VartavarPage() {
           Vartavar
         </h1>
         <p className='font-normal text-lg max-w-2xl'>
-          Վարդավառ — The Festival of Water &amp; Light
+          Վարդավառ — The Festival of Water
         </p>
       </header>
 
@@ -20,7 +20,7 @@ export default function VartavarPage() {
       <section className='px-primary py-12 bg-white'>
         <div className='max-w-3xl mx-auto text-gray-700 leading-relaxed space-y-4'>
           <p>
-            <strong>Vartavar</strong> (also spelled Vardavar in Eastern Armenian; Armenian: <strong>Վարդավառ</strong>)
+            <strong>Vartavar</strong> (also spelled Vardavar (<strong>Վարդավառ</strong>) in Eastern Armenian)
             is one of Armenia&apos;s most beloved and joyful summer holidays — famously known as
             the &ldquo;Festival of Water,&rdquo; the day when people of all ages playfully drench
             each other in celebration. It is a feast that holds both ancient roots and deep
