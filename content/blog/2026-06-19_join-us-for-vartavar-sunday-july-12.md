@@ -22,3 +22,5 @@ We look forward to celebrating with you!
 In Christ,
 
 **St. Mary Armenian Apostolic Church**
+
+![](/media/uploads/newsletters/join-us-for-vartavar-sunday-july-12_1.png)
