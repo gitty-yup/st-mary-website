@@ -19,8 +19,7 @@ Come celebrate one of Armenia's most beloved and joyful summer traditions with y
 
 We look forward to celebrating with you!
 
-In Christ,
-
+In Christ,\
 **St. Mary Armenian Apostolic Church**
 
 ![](/media/uploads/newsletters/join-us-for-vartavar-sunday-july-12_1.png)
