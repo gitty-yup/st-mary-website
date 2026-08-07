@@ -139,10 +139,9 @@ export default function Facilities() {
         <div className='max-w-4xl mx-auto'>
           <p className='text-secondary font-cursive text-2xl mb-2'>Before You Book</p>
           <h2 className='text-primary font-secondary font-bold text-3xl mb-6'>Hall Rental Guidelines</h2>
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-6 mb-10'>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-6 mb-10'>
             {[
               { title: 'Parishioner Priority', desc: 'Parish members receive priority scheduling and preferred rates for both halls.' },
-              { title: 'General Availability', desc: 'Non-parishioner rentals are welcome based on availability and alignment with parish values.' },
               { title: 'Catering & Setup', desc: 'Our kitchen is available for use with catering arrangements. Tables and chairs are included.' },
             ].map((item) => (
               <div key={item.title} className='bg-[#FFF2EE] rounded-2xl p-6'>
