@@ -5,7 +5,6 @@ date: 2026-08-02
 author: St. Mary
 category: Parish News
 ---
-
 Feast of the Assumption of St. Mary · Blessing of the Grapes & Madagh · Sunday, August 16 · Plus: Reserved Parking Auction opens today at 5 PM!
 
 Սուրբ Աստուածածին Հայ Առաքելական Եկեղեցի
@@ -18,14 +17,15 @@ Costa Mesa, California
 
 Name Day of Our Church
 
-## Feast of the Assumption of  
+## Feast of the Assumption of
+
 St. Mary, Mother of God
 
 Blessing of the Grapes & Madagh
 
 ![St. Mary Armenian Apostolic Church — Feast of the Assumption of the Holy Mother of God, Blessing of the Grapes & Madagh, Sunday August 16, 2026](/media/uploads/newsletters/join-us-for-madagh-this-sunday-august-16th-and-participate-i_1.jpg)
 
-“Honor the Lord with your wealth and with the firstfruits of all your produce; then your barns will be filled with plenty.”  
+“Honor the Lord with your wealth and with the firstfruits of all your produce; then your barns will be filled with plenty.”\
 — Proverbs 3:9–10
 
 Dear Faithful,
@@ -40,35 +40,16 @@ Please make your heartfelt and tax-deductible Name-Day/Madagh donation using one
 
 ### Ways to Give — Name-Day / Madagh
 
-Tithe.ly
 
-Credit / Debit / Bank  
-Online or Mobile
 
-[Give Online](https://give.tithe.ly/?formId=2b4b2f59-428d-46ab-9cd4-b151b1f12dab)
+<!-- Three giving options -->          <tr>            <td style="padding: 0 20px 24px 20px;" class="mobile-padding">              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">                <tr>                  <!-- Tithe.ly -->                  <td class="stack-column-center" width="33.33%" style="padding: 8px; vertical-align: top;">                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f8f4fb; border: 1px solid #e0d4eb; border-radius: 8px; height: 100%;">                      <tr>                        <td style="padding: 18px 12px; text-align: center;">                          <p style="margin: 0 0 10px 0; font-family: Arial, Helvetica, sans-serif; font-size: 15px; font-weight: bold; color: #4a235a;">                            Tithe.ly                          </p>                          <p style="margin: 0 0 14px 0; font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #666666; line-height: 1.4;">                            Credit / Debit / Bank<br>Online or Mobile                          </p>                          <!-- Button -->                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center">                            <tr>                              <td style="border-radius: 5px; background-color: #6c3483;">                                <a href="https://give.tithe.ly/?formId=2b4b2f59-428d-46ab-9cd4-b151b1f12dab" target="_blank" style="display: inline-block; padding: 10px 18px; font-family: Arial, Helvetica, sans-serif; font-size: 13px; font-weight: bold; color: #ffffff; text-decoration: none; border-radius: 5px;">                                  Give Online                                </a>                              </td>                            </tr>                          </table>                        </td>                      </tr>                    </table>                  </td>                                    <!-- Zelle -->                  <td class="stack-column-center" width="33.33%" style="padding: 8px; vertical-align: top;">                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f8f4fb; border: 1px solid #e0d4eb; border-radius: 8px; height: 100%;">                      <tr>                        <td style="padding: 18px 12px; text-align: center;">                          <p style="margin: 0 0 10px 0; font-family: Arial, Helvetica, sans-serif; font-size: 15px; font-weight: bold; color: #4a235a;">                            Zelle                          </p>                          <p style="margin: 0 0 8px 0; font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #666666; line-height: 1.4;">                            Send to:                          </p>                          <p style="margin: 0 0 6px 0; font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #2c1a36; word-break: break-all;">                            <strong>info@stmaryarmenianchurch.com</strong>                          </p>                          <p style="margin: 0; font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #6c3483;">                            Memo: Madagh / Name Day                          </p>                        </td>                      </tr>                    </table>                  </td>                                    <!-- By Mail -->                  <td class="stack-column-center" width="33.33%" style="padding: 8px; vertical-align: top;">                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f8f4fb; border: 1px solid #e0d4eb; border-radius: 8px; height: 100%;">                      <tr>                        <td style="padding: 18px 12px; text-align: center;">                          <p style="margin: 0 0 10px 0; font-family: Arial, Helvetica, sans-serif; font-size: 15px; font-weight: bold; color: #4a235a;">                            By Mail                          </p>                          <p style="margin: 0 0 6px 0; font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #666666; line-height: 1.4;">                            Checks payable to                          </p>                          <p style="margin: 0 0 6px 0; font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #2c1a36; line-height: 1.35;">                            <strong>St. Mary Armenian<br>Apostolic Church</strong>                          </p>                          <p style="margin: 0; font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #666666; line-height: 1.35;">                            148 22nd Street<br>Costa Mesa, CA 92627                          </p>                        </td>                      </tr>                    </table>                  </td>                </tr>              </table>            </td>          </tr>
 
-Zelle
 
-Send to:
 
-**info@stmaryarmenianchurch.com**
+#### Mdagh Schedule - Sunday, August 16, 2026
 
-Memo: Madagh / Name Day
-
-By Mail
-
-Checks payable to
-
-**St. Mary Armenian  
-Apostolic Church**
-
-148 22nd Street  
-Costa Mesa, CA 92627
-
-Sunday, August 16, 2026
-
-Morning Service — **10:00 a.m.**  
-Divine Liturgy — **10:30 a.m.**  
+Morning Service — **10:00 a.m.**\
+Divine Liturgy — **10:30 a.m.**\
 Grape and Madagh Blessings — **12:00 p.m.**
 
 Followed by special celebration luncheon
@@ -76,8 +57,6 @@ Followed by special celebration luncheon
 We look forward to celebrating this holy feast with you.
 
 St. Mary Parish Council
-
- 
 
 🚗
 
