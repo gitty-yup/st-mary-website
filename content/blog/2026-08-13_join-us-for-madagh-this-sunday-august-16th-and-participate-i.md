@@ -1,6 +1,7 @@
 ---
-title: "Join Us for Madagh This Sunday, August 16th and Participate in a First of Its Kind St. Mary Fundraising Auction!"
-date: "2026-08-13"
+title: Join Us for Madagh This Sunday, August 16th and Participate in a First of
+  Its Kind St. Mary Fundraising Auction!
+date: 2026-08-02
 author: St. Mary
 category: Parish News
 ---
