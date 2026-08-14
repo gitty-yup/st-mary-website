@@ -38,13 +38,9 @@ As Holy Scripture calls us to honor the Lord with the firstfruits of our labor, 
 
 Please make your heartfelt and tax-deductible Name-Day/Madagh donation using one of the options below. Your generosity strengthens our parish mission and those in need.
 
-### Ways to Give — Name-Day / Madagh
-
-
+#### Ways to Give — Name-Day / Madagh
 
 <!-- Three giving options -->          <tr>            <td style="padding: 0 20px 24px 20px;" class="mobile-padding">              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">                <tr>                  <!-- Tithe.ly -->                  <td class="stack-column-center" width="33.33%" style="padding: 8px; vertical-align: top;">                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f8f4fb; border: 1px solid #e0d4eb; border-radius: 8px; height: 100%;">                      <tr>                        <td style="padding: 18px 12px; text-align: center;">                          <p style="margin: 0 0 10px 0; font-family: Arial, Helvetica, sans-serif; font-size: 15px; font-weight: bold; color: #4a235a;">                            Tithe.ly                          </p>                          <p style="margin: 0 0 14px 0; font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #666666; line-height: 1.4;">                            Credit / Debit / Bank<br>Online or Mobile                          </p>                          <!-- Button -->                          <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center">                            <tr>                              <td style="border-radius: 5px; background-color: #6c3483;">                                <a href="https://give.tithe.ly/?formId=2b4b2f59-428d-46ab-9cd4-b151b1f12dab" target="_blank" style="display: inline-block; padding: 10px 18px; font-family: Arial, Helvetica, sans-serif; font-size: 13px; font-weight: bold; color: #ffffff; text-decoration: none; border-radius: 5px;">                                  Give Online                                </a>                              </td>                            </tr>                          </table>                        </td>                      </tr>                    </table>                  </td>                                    <!-- Zelle -->                  <td class="stack-column-center" width="33.33%" style="padding: 8px; vertical-align: top;">                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f8f4fb; border: 1px solid #e0d4eb; border-radius: 8px; height: 100%;">                      <tr>                        <td style="padding: 18px 12px; text-align: center;">                          <p style="margin: 0 0 10px 0; font-family: Arial, Helvetica, sans-serif; font-size: 15px; font-weight: bold; color: #4a235a;">                            Zelle                          </p>                          <p style="margin: 0 0 8px 0; font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #666666; line-height: 1.4;">                            Send to:                          </p>                          <p style="margin: 0 0 6px 0; font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #2c1a36; word-break: break-all;">                            <strong>info@stmaryarmenianchurch.com</strong>                          </p>                          <p style="margin: 0; font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #6c3483;">                            Memo: Madagh / Name Day                          </p>                        </td>                      </tr>                    </table>                  </td>                                    <!-- By Mail -->                  <td class="stack-column-center" width="33.33%" style="padding: 8px; vertical-align: top;">                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f8f4fb; border: 1px solid #e0d4eb; border-radius: 8px; height: 100%;">                      <tr>                        <td style="padding: 18px 12px; text-align: center;">                          <p style="margin: 0 0 10px 0; font-family: Arial, Helvetica, sans-serif; font-size: 15px; font-weight: bold; color: #4a235a;">                            By Mail                          </p>                          <p style="margin: 0 0 6px 0; font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #666666; line-height: 1.4;">                            Checks payable to                          </p>                          <p style="margin: 0 0 6px 0; font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #2c1a36; line-height: 1.35;">                            <strong>St. Mary Armenian<br>Apostolic Church</strong>                          </p>                          <p style="margin: 0; font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #666666; line-height: 1.35;">                            148 22nd Street<br>Costa Mesa, CA 92627                          </p>                        </td>                      </tr>                    </table>                  </td>                </tr>              </table>            </td>          </tr>
-
-
 
 #### Mdagh Schedule - Sunday, August 16, 2026
 
@@ -62,7 +58,7 @@ St. Mary Parish Council
 
 ## St. Mary Reserved Parking Auction
 
-Online bidding opens TODAY at 10:00 PM!
+Online bidding opens AUGUST 12 at 10:00 PM!
 
 ![Reserved parking sign example — Your Name Goes Here at St. Mary Armenian Apostolic Church](/media/uploads/newsletters/join-us-for-madagh-this-sunday-august-16th-and-participate-i_2.jpg)
 
@@ -90,7 +86,7 @@ And remember: last-second bidding won’t steal the spot. If a bid is placed dur
 
 Whether you’re bidding for the convenience, the fun of seeing your family’s name on your own parking space, or simply as a special way to support St. Mary, we hope you’ll join in!
 
-Bidding opens today at 10:00 PM!
+Bidding opens AUGUST 12th at 10:00 PM!
 
 Good luck—and happy bidding!
 
