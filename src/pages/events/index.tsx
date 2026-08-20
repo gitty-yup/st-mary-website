@@ -35,7 +35,15 @@ function parseICS(text: string): CalEvent[] {
     const start = parseDate(rawStart);
     if (!start) continue;
     const summary = get('SUMMARY').replace(/\\,/g, ',').replace(/\\n/g, ' ');
-    const description = get('DESCRIPTION').replace(/\\,/g, ',').replace(/\\n/g, '\n').trim();
+    const rawDesc = get('DESCRIPTION').replace(/\\,/g, ',').replace(/\\n/g, '\n').trim();
+    // Auto-linkify bare URLs not already inside an <a> tag
+    const description = rawDesc.replace(
+      /(?<!href=["'])((https?:\/\/|www\.)[^\s<]+)/g,
+      (url) => {
+        const href = url.startsWith('http') ? url : `https://${url}`;
+        return `<a href="${href}" target="_blank" rel="noreferrer">${url}</a>`;
+      }
+    );
     const location = get('LOCATION').replace(/\\,/g, ',').trim();
     events.push({
       title: summary || 'Untitled Event',
