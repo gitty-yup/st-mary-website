@@ -163,7 +163,7 @@ export default function Events({ upcomingEvents }: { upcomingEvents: CalEvent[] 
                       <p className='text-gray-500 text-sm'>📍 {event.location}</p>
                     )}
                     {event.description && (
-                      <p className='text-gray-600 text-sm mt-2 leading-relaxed' dangerouslySetInnerHTML={{ __html: event.description }} />
+                      <p className='text-gray-600 text-sm mt-2 leading-relaxed [&_a]:text-secondary [&_a]:underline [&_a]:hover:brightness-90' dangerouslySetInnerHTML={{ __html: event.description }} />
                     )}
                   </div>
                 </div>
