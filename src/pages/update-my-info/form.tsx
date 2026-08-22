@@ -28,8 +28,8 @@ function formatPhone(digits: string): string {
 // ─── US address check ─────────────────────────────────────────────────────────
 
 function isUS(country: string): boolean {
-  const c = country.trim().toLowerCase();
-  return !c || c === 'us' || c === 'usa' || c === 'united states' || c === 'united states of america';
+  const c = country.trim().toLowerCase().replace(/[\s.]/g, '');
+  return !c || c === 'us' || c === 'usa' || c.startsWith('unitedstate') || c === 'america';
 }
 
 function addressesMatch(a: VerifiedAddress, b: typeof emptyForm): boolean {
