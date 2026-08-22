@@ -36,7 +36,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       api_key: process.env.GEOCODIO_API_KEY ?? '',
     });
 
-    const apiRes = await fetch(`https://api.geocod.io/v1.7/geocode?${params}`);
+    const apiRes = await fetch(`https://api.geocod.io/v2.0/geocode?${params}`);
     if (!apiRes.ok) throw new Error(`Geocodio API ${apiRes.status}`);
 
     const data = await apiRes.json();
