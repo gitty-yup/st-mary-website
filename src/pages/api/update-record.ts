@@ -21,6 +21,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(403).json({ error: 'Record mismatch. Please request a new link.' });
   }
 
+  // Normalize phone: strip everything except digits, enforce 10-digit US number
+  if (data.Phone !== undefined) {
+    const digits = (data.Phone as string).replace(/\D/g, '');
+    if (digits.length > 0 && digits.length !== 10) {
+      return res.status(400).json({ error: 'Please enter a valid 10-digit US phone number.' });
+    }
+    data.Phone = digits;
+  }
+
   const today = new Date().toISOString().slice(0, 10);
 
   try {
