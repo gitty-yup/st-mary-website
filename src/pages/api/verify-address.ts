@@ -8,15 +8,18 @@ export interface VerifiedAddress {
   ZIP: string; // ZIP+4 format e.g. 92627-3208
 }
 
-interface SmartyResult {
-  delivery_line_1: string;
-  delivery_line_2?: string;
-  components: {
-    city_name: string;
-    state_abbreviation: string;
-    zipcode: string;
-    plus4_code?: string;
-  };
+function escapeXml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+function extractTag(xml: string, tag: string): string {
+  const m = xml.match(new RegExp(`<${tag}>([^<]*)</${tag}>`));
+  return m ? m[1].trim() : '';
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -27,42 +30,60 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: 'Street, city, and state are required.' });
   }
 
-  const params = new URLSearchParams({
-    'auth-id': process.env.SMARTY_AUTH_ID!,
-    'auth-token': process.env.SMARTY_AUTH_TOKEN!,
-    street: street.trim(),
-    city: city.trim(),
-    state: state.trim(),
-    candidates: '1',
-    match: 'strict',
-  });
-  if (street2?.trim()) params.set('street2', street2.trim());
-  if (zip?.trim()) params.set('zipcode', zip.trim().slice(0, 5)); // strip any existing +4 before sending
+  // USPS quirk: Address1 = secondary (apt/suite), Address2 = street
+  const xml = `<AddressValidateRequest USERID="${process.env.USPS_USER_ID}">` +
+    `<Revision>1</Revision>` +
+    `<Address ID="0">` +
+    `<Address1>${escapeXml((street2 ?? '').trim())}</Address1>` +
+    `<Address2>${escapeXml(street.trim())}</Address2>` +
+    `<City>${escapeXml(city.trim())}</City>` +
+    `<State>${escapeXml(state.trim())}</State>` +
+    `<Zip5>${(zip ?? '').trim().slice(0, 5)}</Zip5>` +
+    `<Zip4></Zip4>` +
+    `</Address>` +
+    `</AddressValidateRequest>`;
 
   try {
     const response = await fetch(
-      `https://us-street.api.smarty.com/street-address?${params}`,
-      { headers: { 'Accept': 'application/json' } }
+      `https://secure.shippingapis.com/ShippingAPI.dll?API=Verify&XML=${encodeURIComponent(xml)}`,
+      { headers: { 'Accept': 'application/xml' } }
     );
-    if (!response.ok) throw new Error(`Smarty ${response.status}`);
 
-    const results: SmartyResult[] = await response.json();
-    if (!results?.length) return res.status(200).json({ verified: false });
+    if (!response.ok) throw new Error(`USPS API ${response.status}`);
+    const body = await response.text();
 
-    const r = results[0];
-    const c = r.components;
+    // USPS returns an <Error> block if the address is invalid
+    if (body.includes('<Error>')) {
+      return res.status(200).json({ verified: false });
+    }
+
+    const address2 = extractTag(body, 'Address2'); // street
+    const address1 = extractTag(body, 'Address1'); // apt/suite
+    const city_out = extractTag(body, 'City');
+    const state_out = extractTag(body, 'State');
+    const zip5 = extractTag(body, 'Zip5');
+    const zip4 = extractTag(body, 'Zip4');
+
+    if (!address2 || !city_out || !state_out || !zip5) {
+      return res.status(200).json({ verified: false });
+    }
+
+    // Title-case the USPS ALL-CAPS response
+    const toTitle = (s: string) =>
+      s.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+
     const verified: VerifiedAddress = {
-      Address_Line_1: r.delivery_line_1,
-      Address_Line_2: r.delivery_line_2 ?? '',
-      City: c.city_name,
-      State: c.state_abbreviation,
-      ZIP: c.plus4_code ? `${c.zipcode}-${c.plus4_code}` : c.zipcode,
+      Address_Line_1: toTitle(address2),
+      Address_Line_2: toTitle(address1),
+      City: toTitle(city_out),
+      State: state_out.toUpperCase(),
+      ZIP: zip4 ? `${zip5}-${zip4}` : zip5,
     };
 
     return res.status(200).json({ verified: true, address: verified });
   } catch (err) {
     console.error('[verify-address]', err);
-    // Don't block submission if the verification service is unavailable
+    // Don't block submission if the service is unavailable
     return res.status(200).json({ verified: false, serviceError: true });
   }
 }
