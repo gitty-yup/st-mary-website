@@ -40,7 +40,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!apiRes.ok) throw new Error(`Geocodio API ${apiRes.status}`);
 
     const data = await apiRes.json();
-    console.log('[verify-address] Geocodio:', JSON.stringify(data).slice(0, 600));
+    const top0 = data.results?.[0];
+    console.log('[verify-address] ac:', JSON.stringify(top0?.address_components));
+    console.log('[verify-address] accuracy:', top0?.accuracy_type);
 
     const results: any[] = data.results ?? [];
     if (!results.length) return res.status(200).json({ verified: false });
