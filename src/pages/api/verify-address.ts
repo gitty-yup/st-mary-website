@@ -64,6 +64,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!apiRes.ok) throw new Error(`USPS addresses API ${apiRes.status}`);
 
     const data = await apiRes.json();
+    console.log('[verify-address] USPS raw:', JSON.stringify(data));
     const a = data.address;
 
     if (!a?.streetAddress) return res.status(200).json({ verified: false });

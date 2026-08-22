@@ -195,10 +195,15 @@ export default function UpdateFormPage({ record, token }: Props) {
       });
       const json = await res.json();
 
-      if (json.verified && !addressesMatch(json.address, form)) {
-        // Smarty returned a corrected address — show it for confirmation
-        setSuggestion(json.address);
-        setStage('address-suggestion');
+      if (json.verified) {
+        if (!addressesMatch(json.address, form)) {
+          // USPS returned a corrected address — show both for user to choose
+          setSuggestion(json.address);
+          setStage('address-suggestion');
+          return;
+        }
+        // Address confirmed as-is — still save USPS version to capture ZIP+4
+        await doUpdate(json.address);
         return;
       }
 
@@ -208,7 +213,7 @@ export default function UpdateFormPage({ record, token }: Props) {
         return;
       }
 
-      // Either verified with no changes, or service was unavailable — proceed
+      // Service unavailable — proceed with user's input
       await doUpdate();
     } catch {
       // If our own API fails, don't block the user
