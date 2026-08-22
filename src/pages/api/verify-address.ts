@@ -34,6 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const params = new URLSearchParams({
       q,
       api_key: process.env.GEOCODIO_API_KEY ?? '',
+      fields: 'zip4',
     });
 
     const apiRes = await fetch(`https://api.geocod.io/v1.7/geocode?${params}`);
@@ -42,6 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const data = await apiRes.json();
     const top0 = data.results?.[0];
     console.log('[verify-address] ac:', JSON.stringify(top0?.address_components));
+    console.log('[verify-address] fields:', JSON.stringify(top0?.fields));
     console.log('[verify-address] accuracy:', top0?.accuracy_type);
 
     const results: any[] = data.results ?? [];
@@ -54,7 +56,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(200).json({ verified: false });
     }
 
-    const zipFull = ac.zip4 ? `${ac.zip}-${ac.zip4}` : ac.zip;
+    // fields.zip4.zip4 is the USPS CASS lookup; ac.zip4 is Geocodio's own data
+    const zip4ext = top.fields?.zip4?.zip4 ?? ac.zip4;
+    const zipFull = zip4ext ? `${ac.zip}-${zip4ext}` : ac.zip;
     // formatted_address = "148 22nd St, Costa Mesa, CA 92627" — take the street portion
     const streetPart = (top.formatted_address ?? '').split(',')[0].trim();
 
