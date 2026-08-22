@@ -56,9 +56,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(200).json({ verified: false });
     }
 
-    // fields.zip4.zip4 is the USPS CASS lookup; ac.zip4 is Geocodio's own data
-    const zip4ext = top.fields?.zip4?.zip4 ?? ac.zip4;
-    const zipFull = zip4ext ? `${ac.zip}-${zip4ext}` : ac.zip;
+    // fields.zip4.zip9 is an array of full ZIP+4 strings e.g. ["92604-1234"]
+    const zip9 = top.fields?.zip4?.zip9;
+    const zipFull = Array.isArray(zip9) && zip9[0]
+      ? zip9[0]
+      : (ac.zip4 ? `${ac.zip}-${ac.zip4}` : ac.zip);
     // formatted_address = "148 22nd St, Costa Mesa, CA 92627" — take the street portion
     const streetPart = (top.formatted_address ?? '').split(',')[0].trim();
 
