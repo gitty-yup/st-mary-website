@@ -4,7 +4,7 @@ import { signToken } from '@/lib/magicLink';
 import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.stmaryarmenianchurch.com';
+const SITE_URL = process.env.SITE_URL ?? 'https://www.stmaryarmenianchurch.com';
 const FROM = 'St. Mary Armenian Apostolic Church <info@stmaryarmenianchurch.com>';
 
 function buildEmailHtml(links: { name: string; url: string }[]): string {
