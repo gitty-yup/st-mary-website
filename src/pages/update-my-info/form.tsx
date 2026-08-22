@@ -345,7 +345,7 @@ export default function UpdateFormPage({ record, token }: Props) {
                 <div className='mt-2 bg-amber-50 border border-amber-300 rounded-xl p-5'>
                   <p className='font-secondary font-bold text-amber-800 text-sm mb-1'>Address could not be verified</p>
                   <p className='text-amber-700 text-sm mb-4'>
-                    We weren&apos;t able to confirm this address with the USPS database. Please double-check it,
+                    We weren&apos;t able to confirm this address. Please double-check it,
                     or submit as entered if you&apos;re confident it&apos;s correct.
                   </p>
                   <div className='flex gap-3 flex-wrap'>
