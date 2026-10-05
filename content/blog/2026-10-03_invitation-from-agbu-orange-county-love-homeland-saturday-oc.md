@@ -1,20 +1,9 @@
 ---
-title: "Invitation from AGBU Orange County — “Love & Homeland,” Saturday, October 24"
-date: "2026-10-03"
+title: Invitation from AGBU Orange County — “Love & Homeland,” Saturday, October 24
+date: 2026-10-03
 author: St. Mary
 category: Parish News
 ---
-
-AGBU Orange County invites the parishioners of
-
-St. Mary Armenian Apostolic Church
-
-AGBU LA Choir
-
-Love & Homeland
-
-Featuring the OC Saturday School Children’s Choir
-
 Dear St. Mary Parishioners and Friends,
 
 The **AGBU Orange County Chapter** warmly invites the parishioners of St. Mary to an evening of Armenian song with the **AGBU LA Choir**. The concert will be held in our own Stambolian Hall.
@@ -23,13 +12,13 @@ Proceeds benefit the **Armenian Genocide Memorial** at the Orange County Great P
 
 Saturday, October 24, 2026  |  7:00 p.m.
 
-**Stambolian Hall**  
-St. Mary Armenian Apostolic Church  
-148 E. 22nd Street  
+**Stambolian Hall**\
+St. Mary Armenian Apostolic Church\
+148 E. 22nd Street\
 Costa Mesa, CA 92626
 
-**Choir Conductor:** Nektar Mirakyan  
-**Musical Ensemble** led by Shushan Hakobyan  
+**Choir Conductor:** Nektar Mirakyan\
+**Musical Ensemble** led by Shushan Hakobyan\
 **Featuring:** OC Saturday School Children’s Choir
 
 **Tickets: $60**
@@ -40,8 +29,8 @@ We hope many of you will join us for this celebration of faith, culture, and hom
 
 With prayers,
 
-**Parish Council**  
-St. Mary Armenian Apostolic Church  
+**Parish Council**\
+St. Mary Armenian Apostolic Church\
 Costa Mesa
 
 AGBU  ·  120 Years  ·  Proceeds benefit the Armenian Genocide Memorial
