@@ -38,6 +38,22 @@ link, and removing an address there also ends its existing sessions. Sessions la
 - Records stay editable after issue for corrections; the number and certificate
   date don't change, and every change is in the record's history (`audit_events`).
 
+## Public forms (`/forms/baptism`, `/forms/marriage`)
+
+Fields are defined in `intake.ts` (based on the paper intake forms). On submit
+(`/api/forms/submit`) the original answers are kept unchanged in `submitted_data`,
+the certificate fields are pre-filled from them, and the record appears in the
+office as "New submission". Then:
+
+- The priest is emailed a short summary and a link to the record, CC the parish
+  council (`CERTIFICATE_NOTIFY_TO` / `CERTIFICATE_NOTIFY_CC`). Preview deployments
+  send only to info@ with a `[TEST]` subject.
+- The family gets a receipt that repeats nothing they typed except the date, so the
+  form can't be used to send arbitrary text to arbitrary addresses.
+- Spam: hidden honeypot field, 5 submissions per hour per IP (stored only as a salted
+  hash), and Cloudflare Turnstile once `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and
+  `TURNSTILE_SECRET_KEY` are set.
+
 Database: Neon Postgres (`DATABASE_URL`). Schema changes go in a new
 `db/migrations/NNN_name.sql`; `npm run build` applies pending migrations
 (`scripts/db-migrate.js`), so each Vercel deployment migrates its own database

@@ -244,9 +244,15 @@ export default function BaptismPage() {
       <section className='px-primary py-12 bg-primary text-white text-center'>
         <h2 className='font-secondary font-bold text-2xl mb-4'>Ready to schedule a Baptism?</h2>
         <p className='text-gray-200 max-w-xl mx-auto mb-6'>
-          Contact the parish office to speak with our Pastor and begin the process.
+          Contact the parish office to speak with our Pastor and begin the process. Once the date is
+          set, submit the baptism information online.
         </p>
         <div className='flex gap-3 justify-center flex-wrap'>
+          <Link href='/forms/baptism'>
+            <Button className='!w-[260px] !bg-white !text-primary !border-white hover:!brightness-95'>
+              Submit Baptism Information
+            </Button>
+          </Link>
           <Link href='/contact'>
             <Button className='!w-[200px] !bg-secondary !border-secondary hover:!brightness-90'>
               Contact Us

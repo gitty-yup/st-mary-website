@@ -20,6 +20,11 @@ export interface CertificateRecord {
   status: RecordStatus;
   source: 'public' | 'office';
   officeData: OfficeData;
+  /** Exactly what the family submitted online (empty for office-entered records). */
+  submittedData: Record<string, string>;
+  contactName: string | null;
+  contactEmail: string | null;
+  contactPhone: string | null;
   registryNumber: string | null;
   certificateDate: string | null;
   issuedAt: string | null;
@@ -52,6 +57,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export class RecordError extends Error {
   constructor(message: string, public status: number) {
     super(message);
+    Object.setPrototypeOf(this, RecordError.prototype); // keep instanceof working when compiled to ES5
   }
 }
 
@@ -69,6 +75,10 @@ function toRecord(r: Row): CertificateRecord {
     status: r.status,
     source: r.source,
     officeData: r.office_data ?? {},
+    submittedData: r.submitted_data ?? {},
+    contactName: r.contact_name,
+    contactEmail: r.contact_email,
+    contactPhone: r.contact_phone,
     registryNumber: r.registry_number,
     certificateDate: r.certificate_date,
     issuedAt: iso(r.issued_at),
@@ -123,6 +133,46 @@ export async function createRecord(type: CertificateType, data: OfficeData, acto
     await recordAudit(rows[0].id, actor, 'create', { source: 'office' }, client);
     return toRecord(rows[0]);
   });
+}
+
+/**
+ * A family's online submission. The original is kept untouched in
+ * submitted_data; office_data starts as the certificate fields pre-filled
+ * from it.
+ */
+export async function createSubmission(
+  type: CertificateType,
+  submitted: Record<string, string>,
+  officeData: OfficeData,
+  clientIpHash: string | null,
+): Promise<CertificateRecord> {
+  return withTransaction(async (client) => {
+    const { rows } = await client.query(
+      `insert into certificate_requests
+         (type, status, source, submitted_data, office_data, contact_name, contact_email, contact_phone, client_ip_hash)
+       values ($1, 'submitted', 'public', $2, $3, $4, $5, $6, $7) returning *`,
+      [
+        type,
+        JSON.stringify(submitted),
+        JSON.stringify(officeData),
+        submitted.contact_name || null,
+        submitted.contact_email || null,
+        submitted.contact_phone || null,
+        clientIpHash,
+      ],
+    );
+    await recordAudit(rows[0].id, 'online form', 'submit', {}, client);
+    return toRecord(rows[0]);
+  });
+}
+
+/** Online submissions from this (hashed) IP address in the last hour. */
+export async function recentSubmissionCount(clientIpHash: string): Promise<number> {
+  const [{ count }] = await query<{ count: string }>(
+    "select count(*) from certificate_requests where client_ip_hash = $1 and created_at > now() - interval '1 hour'",
+    [clientIpHash],
+  );
+  return Number(count);
 }
 
 /**

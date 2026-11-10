@@ -7,6 +7,7 @@ import crypto from 'crypto';
 import type { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from 'next';
 import { query } from '@/lib/db';
 import { recordAudit } from '@/lib/office/audit';
+import { safeOfficePath } from '@/lib/office/nav';
 
 const DEFAULT_OFFICE_EMAILS = 'freremia@gmail.com,info@stmaryarmenianchurch.com';
 const COOKIE = 'stm_office';
@@ -52,7 +53,7 @@ export function siteBaseUrl(): string {
  * Creates a sign-in link for an allowlisted email, or returns null if the
  * email isn't allowed or has requested too many links in the last hour.
  */
-export async function createLoginLink(email: string): Promise<string | null> {
+export async function createLoginLink(email: string, next?: string | null): Promise<string | null> {
   const normalized = email.trim().toLowerCase();
   if (!isOfficeEmail(normalized)) return null;
   const [{ count }] = await query<{ count: string }>(
@@ -66,7 +67,8 @@ export async function createLoginLink(email: string): Promise<string | null> {
      values ($1, $2, now() + make_interval(mins => $3))`,
     [hash, normalized, LOGIN_LINK_MINUTES],
   );
-  return `${siteBaseUrl()}/office/verify?token=${encodeURIComponent(token)}`;
+  const dest = safeOfficePath(next);
+  return `${siteBaseUrl()}/office/verify?token=${encodeURIComponent(token)}${dest ? `&next=${encodeURIComponent(dest)}` : ''}`;
 }
 
 /** Consumes a sign-in link token (single use) and starts a session. */

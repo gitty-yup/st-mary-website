@@ -2,6 +2,7 @@ import type { GetServerSideProps } from 'next';
 import React from 'react';
 import CertificateEditor from '@/components/office/CertificateEditor';
 import OfficeLayout from '@/components/office/OfficeLayout';
+import SubmissionPanel from '@/components/office/SubmissionPanel';
 import { displayName, emptyOfficeData } from '@/certificates/fields';
 import { requireOfficePage } from '@/lib/office/auth';
 import { getAudit, getRecord, type AuditEntry, type CertificateRecord } from '@/lib/office/records';
@@ -20,6 +21,14 @@ export default function RecordPage({ email, record, audit }: Props) {
       <h1 className='font-secondary text-2xl font-semibold text-primary mb-4'>
         {kind}: {name}
       </h1>
+      {record.source === 'public' && (
+        <SubmissionPanel
+          type={record.type}
+          submitted={record.submittedData}
+          createdAt={record.createdAt}
+          defaultOpen={record.status !== 'issued'}
+        />
+      )}
       <CertificateEditor
         key={record.id}
         type={record.type}

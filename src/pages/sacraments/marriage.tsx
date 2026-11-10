@@ -183,9 +183,12 @@ export default function MarriagePage() {
                 the wedding.
               </li>
               <li>
-                <strong>Application:</strong> An application form is completed to provide the
-                couple&apos;s identity, age, and marital status for church records and the issuance
-                of a church marriage certificate.
+                <strong>Application:</strong> An{' '}
+                <Link href='/forms/marriage' className='text-primary underline'>
+                  application form
+                </Link>{' '}
+                is completed to provide the couple&apos;s identity, age, and marital status for
+                church records and the issuance of a church marriage certificate.
               </li>
               <li>
                 <strong>Divorced individuals</strong> must provide the appropriate civil documents.
@@ -201,9 +204,15 @@ export default function MarriagePage() {
           Planning a wedding at St. Mary?
         </h2>
         <p className='text-gray-200 max-w-xl mx-auto mb-6'>
-          Reach out to the parish office to begin the conversation with our Pastor.
+          Reach out to the parish office to begin the conversation with our Pastor. Once the date is
+          set, submit the marriage information online.
         </p>
         <div className='flex gap-3 justify-center flex-wrap'>
+          <Link href='/forms/marriage'>
+            <Button className='!w-[260px] !bg-white !text-primary !border-white hover:!brightness-95'>
+              Submit Marriage Information
+            </Button>
+          </Link>
           <Link href='/contact'>
             <Button className='!w-[200px] !bg-secondary !border-secondary hover:!brightness-90'>
               Contact Us

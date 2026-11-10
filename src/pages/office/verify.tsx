@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import OfficeLayout from '@/components/office/OfficeLayout';
+import { safeOfficePath } from '@/lib/office/nav';
 
 /**
  * Landing page for the emailed sign-in link. Signing in takes a button press
@@ -26,7 +27,7 @@ export default function OfficeVerify() {
         return;
       }
       if (!res.ok) throw new Error();
-      router.replace('/office');
+      router.replace(safeOfficePath(router.query.next) ?? '/office');
     } catch {
       setError('Something went wrong. Please try again.');
       setBusy(false);

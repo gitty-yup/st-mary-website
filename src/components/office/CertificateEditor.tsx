@@ -327,6 +327,14 @@ function describe(type: CertificateType, a: AuditEntry): string {
   switch (a.action) {
     case 'create':
       return 'Created';
+    case 'submit':
+      return 'Submitted online by the family';
+    case 'notify': {
+      const notice = a.detail.notice as { sent?: boolean; to?: string[] } | undefined;
+      return notice?.sent
+        ? `Notification emailed to ${(notice.to ?? []).join(', ')}`
+        : 'Notification email FAILED; check this record was seen';
+    }
     case 'issue':
       return `Issued as ${a.detail.registryNumber}`;
     case 'download':

@@ -7,7 +7,9 @@ export type AuditAction =
   | 'create'
   | 'update'
   | 'issue'
-  | 'download';
+  | 'download'
+  | 'submit'
+  | 'notify';
 
 export async function recordAudit(
   requestId: string | null,

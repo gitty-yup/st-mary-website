@@ -17,7 +17,7 @@ export default function OfficeLogin() {
       const res = await fetch('/api/office/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, next: router.query.next }),
       });
       const body = await res.json().catch(() => ({}));
       if (!res.ok) {

@@ -41,7 +41,8 @@ export async function findUnsupportedCharacters(
   const ok = await printableCodePoints();
   const problems: UnsupportedCharacters[] = [];
   for (const [key, value] of Object.entries(data)) {
-    const bad = Array.from(new Set(Array.from(value ?? '').filter((ch) => ch !== ' ' && !ok.has(ch.codePointAt(0)!))));
+    // Whitespace (incl. line breaks) is collapsed to spaces before printing.
+    const bad = Array.from(new Set(Array.from(value ?? '').filter((ch) => !/\s/.test(ch) && !ok.has(ch.codePointAt(0)!))));
     if (bad.length) problems.push({ key, label: fieldLabel(type, key), characters: bad });
   }
   return problems;

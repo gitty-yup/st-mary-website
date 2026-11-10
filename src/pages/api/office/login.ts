@@ -13,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: 'Please enter a valid email address.' });
   }
   try {
-    const link = await createLoginLink(email);
+    const link = await createLoginLink(email, req.body?.next);
     if (link) await sendLoginEmail(email, link);
     return res.status(200).json(GENERIC_OK);
   } catch (err) {
