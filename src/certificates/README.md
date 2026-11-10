@@ -20,6 +20,33 @@ const bytes = await renderCertificate('baptism', data, { preview: false }); // i
 | `assets.generated.ts` | Base64 of `assets/`, so Vercel always bundles them. Regenerate with `node scripts/embed-certificate-assets.js`. |
 | `fixtures/samples.json` | Fictional data for layout testing. |
 
+| `fields.ts` | Editable fields per certificate, form sections, input cleaning, date formatting. Browser-safe. |
+| `defaults.ts` | Parish defaults per certificate type. Browser-safe. |
+| `validate.ts` | Finds characters the certificate fonts can't print. |
+
+## Certificate office (`/office`)
+
+Staff sign in at `/office/login` with an emailed one-time link (20 minutes). Only
+addresses in `OFFICE_EMAILS` (comma-separated; default: the priest and info@) get a
+link, and removing an address there also ends its existing sessions. Sessions last
+14 days and are stored in `office_sessions`.
+
+- `/office`: all records. `/office/new?type=baptism|marriage`: manual entry.
+- `/office/records/[id]`: edit, preview (watermarked), issue, print.
+- Issuing assigns the next number for the sacrament's year (`B-2026-001`,
+  `M-2026-001`) and dates the certificate today (Pacific). Numbers are never reused.
+- Records stay editable after issue for corrections; the number and certificate
+  date don't change, and every change is in the record's history (`audit_events`).
+
+Database: Neon Postgres (`DATABASE_URL`). Schema changes go in a new
+`db/migrations/NNN_name.sql`; `npm run build` applies pending migrations
+(`scripts/db-migrate.js`), so each Vercel deployment migrates its own database
+(preview deployments get their own Neon branch). Run them by hand with
+`DATABASE_URL=... npm run db:migrate`.
+
+Local development without an email service: leave `RESEND_API_KEY` unset
+and the sign-in link is printed in the `next dev` console.
+
 ## Checking output
 
 ```sh
