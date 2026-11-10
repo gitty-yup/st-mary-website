@@ -1,0 +1,85 @@
+{
+  "_note": "Fictional sample data for layout testing only. Armenian spellings here are placeholders, not approved spellings.",
+  "baptism-typical": {
+    "type": "baptism",
+    "data": {
+      "certificate_date": "11/10/2026",
+      "registry_number": "B-2026-001",
+      "baptized_name_en": "Aram Davit Petrosyan",
+      "baptized_name_hy": "Արամ Դաւիթ Պետրոսեան",
+      "birth_date": "03/14/2026",
+      "birth_place_en": "Newport Beach, California",
+      "birth_place_hy": "Նիուփորթ Պիչ, Կալիֆորնիա",
+      "father_name_en": "Davit Petrosyan",
+      "father_name_hy": "Դաւիթ Պետրոսեան",
+      "mother_name_en": "Ani Sarkissian",
+      "mother_name_hy": "Անի Սարգիսեան",
+      "godfather_en": "Levon Hakobyan",
+      "godfather_hy": "Լեւոն Յակոբեան",
+      "baptism_date": "11/08/2026"
+    }
+  },
+  "baptism-long": {
+    "type": "baptism",
+    "data": {
+      "certificate_date": "11/10/2026",
+      "registry_number": "B-2026-002",
+      "baptized_name_en": "Alexander Hovhannes Krikor Der-Bedrossian-Mardirossian",
+      "baptized_name_hy": "Ալեքսանդր Յովհաննէս Գրիգոր Տէր-Պետրոսեան-Մարտիրոսեան",
+      "birth_date": "01/02/2026",
+      "birth_place_en": "Children's Hospital of Orange County, Orange, California",
+      "birth_place_hy": "Օրենջ Քաունթիի Մանկական Հիւանդանոց, Օրենջ, Կալիֆորնիա",
+      "father_name_en": "Hovhannes Krikor Der-Bedrossian-Mardirossian",
+      "father_name_hy": "Յովհաննէս Գրիգոր Տէր-Պետրոսեան-Մարտիրոսեան",
+      "mother_name_en": "Anahit Seda Kalaydjian-Boghossian",
+      "mother_name_hy": "Անահիտ Սեդա Գալայճեան-Պօղոսեան",
+      "godfather_en": "Vartan Haroutiun Shahinian-Kevorkian",
+      "godfather_hy": "Վարդան Յարութիւն Շահինեան-Գէորգեան",
+      "baptism_date": "11/08/2026"
+    }
+  },
+  "baptism-blank": {
+    "type": "baptism",
+    "data": {}
+  },
+  "marriage-typical": {
+    "type": "marriage",
+    "data": {
+      "marriage_license_number": "2026-0012345",
+      "certificate_date": "11/10/2026",
+      "registry_number": "M-2026-001",
+      "groom_name_en": "Hayk Martirosyan",
+      "groom_name_hy": "Հայկ Մարտիրոսեան",
+      "bride_name_en": "Nare Grigoryan",
+      "bride_name_hy": "Նարե Գրիգորեան",
+      "marriage_date": "10/24/2026",
+      "brother_cross_en": "Tigran Avetisyan",
+      "brother_cross_hy": "Տիգրան Աւետիսեան",
+      "matron_honor_en": "Lilit Hovsepyan",
+      "matron_honor_hy": "Լիլիթ Յովսէփեան"
+    }
+  },
+  "marriage-long": {
+    "type": "marriage",
+    "data": {
+      "marriage_license_number": "LA-2026-000987654-REISSUE",
+      "license_county": "Los Angeles",
+      "license_state": "California",
+      "certificate_date": "11/10/2026",
+      "registry_number": "M-2026-002",
+      "groom_name_en": "Krikor Hagop Der-Bedrossian-Mardirossian",
+      "groom_name_hy": "Գրիգոր Յակոբ Տէր-Պետրոսեան-Մարտիրոսեան",
+      "bride_name_en": "Anahit Seda Kalaydjian-Boghossian",
+      "bride_name_hy": "Անահիտ Սեդա Գալայճեան-Պօղոսեան",
+      "marriage_date": "10/24/2026",
+      "brother_cross_en": "Vartan Haroutiun Shahinian-Kevorkian",
+      "brother_cross_hy": "Վարդան Յարութիւն Շահինեան-Գէորգեան",
+      "matron_honor_en": "Talin Arpi Kouyoumdjian-Hagopian",
+      "matron_honor_hy": "Թալին Արփի Գույումճեան-Յակոբեան"
+    }
+  },
+  "marriage-blank": {
+    "type": "marriage",
+    "data": {}
+  }
+}
