@@ -193,8 +193,21 @@ function drawBorder(ctx: Ctx) {
     ctx.page.drawSvgPath(`M 0 ${-r} L ${r} 0 L 0 ${r} L ${-r} 0 Z`, {
       x: cx, y: cy, borderColor: BORDER, borderWidth: 0.55,
     });
-  for (let x = left + 8; x < right - 8; x += 15) { diamond(x, top); diamond(x, bottom); }
-  for (let y = bottom + 10; y < top - 10; y += 15) { diamond(left, y); diamond(right, y); }
+  for (const x of centeredRun(left + 8, right - 8, 15)) { diamond(x, top); diamond(x, bottom); }
+  for (const y of centeredRun(bottom + 10, top - 10, 15)) { diamond(left, y); diamond(right, y); }
+}
+
+/**
+ * Evenly spaced positions, centered between `start` and `end`. Uses the same
+ * diamond count as the prototype's loop (`for p = start; p < end; p += step`),
+ * which anchored the run at `start` and left the leftover space at the far end
+ * (rows sat 6.5pt left of center, columns 4.5pt low). Centered, every corner
+ * gets an equal 14.5pt gap.
+ */
+function centeredRun(start: number, end: number, step: number): number[] {
+  const count = Math.ceil((end - start) / step);
+  const first = (start + end) / 2 - ((count - 1) * step) / 2;
+  return Array.from({ length: count }, (_, i) => first + i * step);
 }
 
 async function drawLogo(doc: PDFDocument, ctx: Ctx) {
@@ -358,8 +371,10 @@ export async function renderBaptismCertificate(
   drawLeftParagraph(ctx, T.sacramentHy, LEFT_X, 190, LEFT_END - LEFT_X, 'arm', 8.0, 10.6, 4);
   drawLeftParagraph(ctx, T.sacramentEn, RIGHT_X, 190, RIGHT_END - RIGHT_X, 'eng', 7.8, 10.6, 4);
 
-  // Signature row (last) sits lower to leave room for a handwritten signature.
-  const lowerY = [150, 132, 114, 96, 78, 54];
+  // Signature row (last) sits lower to leave room for a handwritten signature:
+  // a 30pt gap and the same y=48 baseline as the marriage certificate.
+  // (Prototype: y=54, a 24pt gap.)
+  const lowerY = [150, 132, 114, 96, 78, 48];
   const lowerHy = [d.officiant_hy, d.godfather_hy, d.baptism_date, d.parish_church_hy, d.city_state_hy, d.signature_hy];
   const lowerEn = [d.officiant_en, d.godfather_en, d.baptism_date, d.parish_church_en, d.city_state_en, d.signature_en];
   lowerY.forEach((y, i) => {

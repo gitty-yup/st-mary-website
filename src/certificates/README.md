@@ -58,3 +58,8 @@ that follow Armenian text shift a few points). Notes:
 - Approved change from the prototype: header metadata underlines (date, registry,
   license, county, state) are black 0.45pt like the body underlines. The prototype
   accidentally drew them in the border color (#B75430, 0.55pt).
+- Approved change from the prototype: the border diamonds are centered along each
+  side (same count and 15pt spacing). The prototype's rows sat 6.5pt left of center
+  and its columns 4.5pt low.
+- Approved change from the prototype: the baptism signature line moved from y=54 to
+  y=48, giving the same 30pt of signing room as the marriage certificate (was 24pt).
