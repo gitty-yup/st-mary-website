@@ -63,7 +63,9 @@ async function writeTabs(tabs: Record<string, Table>): Promise<void> {
     }
   }
 
-  // Size each tab to fit (and freeze the header row) before writing.
+  // Size each tab to fit (and freeze the header row) before writing. At least
+  // two rows: Google refuses to freeze every row of a sheet, which a header-only
+  // tab (no records yet) would otherwise be.
   await sheets.spreadsheets.batchUpdate({
     spreadsheetId,
     requestBody: {
@@ -71,7 +73,7 @@ async function writeTabs(tabs: Record<string, Table>): Promise<void> {
         updateSheetProperties: {
           properties: {
             sheetId: existing.get(title),
-            gridProperties: { rowCount: t.rows.length + 1, columnCount: t.headers.length, frozenRowCount: 1 },
+            gridProperties: { rowCount: Math.max(t.rows.length + 1, 2), columnCount: t.headers.length, frozenRowCount: 1 },
           },
           fields: 'gridProperties(rowCount,columnCount,frozenRowCount)',
         },
