@@ -67,7 +67,7 @@ const CONTACT_FIELDS: IntakeField[] = [
 
 const NOTES: IntakeField = {
   key: 'notes',
-  label: 'Anything else Father should know?',
+  label: 'Anything else Hayr Eremia should know?',
   kind: 'textarea',
   width: 'full',
 };
@@ -92,7 +92,7 @@ export const INTAKE_FORMS: Record<CertificateType, IntakeSection[]> = {
     {
       title: 'Baptism',
       fields: [
-        { key: 'baptism_date', label: 'Date of baptism', kind: 'date', required: true, width: 'half', help: 'The date scheduled with Father.' },
+        { key: 'baptism_date', label: 'Date of baptism', kind: 'date', required: true, width: 'half', help: 'The date scheduled with Hayr Eremia.' },
         { key: 'baptism_place', label: 'Place of baptism', kind: 'text', width: 'half', help: 'Leave blank if at St. Mary, Costa Mesa.' },
         { key: 'godfather', label: 'Godfather’s full name', kind: 'text', required: true, armenian: true, width: 'full' },
       ],
@@ -116,7 +116,7 @@ export const INTAKE_FORMS: Record<CertificateType, IntakeSection[]> = {
     {
       title: 'Ceremony',
       fields: [
-        { key: 'marriage_date', label: 'Date of marriage', kind: 'date', required: true, width: 'half', help: 'The date scheduled with Father.' },
+        { key: 'marriage_date', label: 'Date of marriage', kind: 'date', required: true, width: 'half', help: 'The date scheduled with Hayr Eremia.' },
         { key: 'marriage_place', label: 'Place of marriage', kind: 'text', width: 'half', help: 'Leave blank if at St. Mary, Costa Mesa.' },
         { key: 'brother_cross', label: 'Best man (Brother-in-the-Cross)', kind: 'text', required: true, armenian: true, width: 'full' },
         { key: 'matron_honor', label: 'Matron of honor', kind: 'text', armenian: true, width: 'full' },

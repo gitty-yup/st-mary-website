@@ -90,7 +90,7 @@ export default function IntakeForm({ type }: { type: CertificateType }) {
       <div ref={topRef} tabIndex={-1} className='bg-white rounded-2xl shadow-sm p-8 text-center space-y-3 outline-none'>
         <h2 className='font-secondary font-bold text-2xl text-primary'>Thank you</h2>
         <p className='text-gray-700'>
-          Your information was sent to Father Eremia and the parish office. We also emailed you a receipt.
+          Your information was sent to Hayr Eremia and the parish office. We also emailed you a receipt.
         </p>
         <p className='text-gray-700'>If anything changes, reply to that email or call the office at 949.650.8367.</p>
       </div>
@@ -124,7 +124,7 @@ export default function IntakeForm({ type }: { type: CertificateType }) {
 
       <div className='bg-white rounded-2xl shadow-sm p-6 space-y-4'>
         <p className='text-sm text-gray-600'>
-          Your information goes only to Father Eremia and the parish office. It is kept with the church’s sacramental
+          Your information goes only to Hayr Eremia and the parish office. It is kept with the church’s sacramental
           records and used to prepare the certificate.
         </p>
         {SITE_KEY && <div ref={turnstile.ref} />}

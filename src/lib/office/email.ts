@@ -195,10 +195,10 @@ export async function sendSubmissionConfirmation(s: SubmissionSummary): Promise<
     subject: `We received your ${kind} information`,
     html: layout(
       'Thank you',
-      `<p style="margin:0 0 16px;">We received the ${kind} information you submitted${escapeHtml(when)}. Father Eremia and the parish office will use it to prepare the church records and certificate.</p>
+      `<p style="margin:0 0 16px;">We received the ${kind} information you submitted${escapeHtml(when)}. Hayr Eremia and the parish office will use it to prepare the church records and certificate.</p>
        <p style="margin:0 0 16px;">If anything needs to change, or if you have questions, reply to this email or call the parish office at ${OFFICE_PHONE}.</p>
        <p style="margin:0;font-size:13px;color:#888;">If you didn't submit this, please let us know by replying to this email.</p>`,
     ),
-    text: `We received the ${kind} information you submitted${when}. Father Eremia and the parish office will use it to prepare the church records and certificate.\n\nIf anything needs to change, or if you have questions, reply to this email or call the parish office at ${OFFICE_PHONE}.\n\nIf you didn't submit this, please let us know by replying to this email.`,
+    text: `We received the ${kind} information you submitted${when}. Hayr Eremia and the parish office will use it to prepare the church records and certificate.\n\nIf anything needs to change, or if you have questions, reply to this email or call the parish office at ${OFFICE_PHONE}.\n\nIf you didn't submit this, please let us know by replying to this email.`,
   });
 }

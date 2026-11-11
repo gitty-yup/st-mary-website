@@ -107,14 +107,14 @@ export default function About() {
                 Archimandrite (Very Reverend).
               </p>
               <p>
-                Fr. Eremia served as parish priest of Holy Trinity Armenian Apostolic Church in Sydney, Australia,
+                Hayr Eremia served as parish priest of Holy Trinity Armenian Apostolic Church in Sydney, Australia,
                 before returning to the Western Diocese where he now serves as Vicar General and as the beloved
                 Parish Priest of St. Mary since 2025. Under his pastoral leadership, the parish has experienced
                 renewed energy through inspiring liturgies, meaningful youth programs, and a deepened sense of
                 fellowship among parishioners.
               </p>
               <p>
-                In addition to his parish responsibilities, Fr. Eremia has served as Diocesan Youth Director for
+                In addition to his parish responsibilities, Hayr Eremia has served as Diocesan Youth Director for
                 the ACYO and frequently represents the Primate at interfaith gatherings, ordinations, and diocesan
                 events. We are deeply grateful for his spiritual guidance and warmly welcome all to join our
                 growing parish family.

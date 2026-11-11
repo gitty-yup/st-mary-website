@@ -14,13 +14,13 @@ interface Props {
 const INTRO: Record<CertificateType, React.ReactNode> = {
   baptism: (
     <>
-      Once you have scheduled the baptism with Father Eremia, please fill out this form. The parish uses it for the
+      Once you have scheduled the baptism with Hayr Eremia, please fill out this form. The parish uses it for the
       church records and to prepare the Certificate of Baptism and Chrismation.
     </>
   ),
   marriage: (
     <>
-      Once you have scheduled the wedding with Father Eremia, please fill out this form. The parish uses it for the
+      Once you have scheduled the wedding with Hayr Eremia, please fill out this form. The parish uses it for the
       church records and to prepare the Certificate of Marriage.
     </>
   ),
