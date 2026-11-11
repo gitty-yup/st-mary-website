@@ -52,6 +52,18 @@ Records with the same name and sacrament date show a "Possible duplicate" warnin
 Outside production, the family email goes to info@ instead (preview databases are
 copies of production).
 
+Export and backup (`/office/backup`):
+
+- **CSV:** `/api/office/export?type=baptism|marriage`, every record with certificate
+  fields and the family's original answers (UTF-8 with BOM for Excel; formula-like
+  cells prefixed with `'`).
+- **Nightly backup:** Vercel Cron calls `/api/cron/certificate-backup` (needs
+  `CRON_SECRET`) and rewrites the Baptisms, Marriages, and History tabs of the Google
+  Sheet `CERTIFICATE_BACKUP_SHEET_ID`, using `GOOGLE_SERVICE_ACCOUNT_KEY`. The Sheet is
+  owned by the church and shared with the service account as Editor (service accounts
+  can't own Drive files). Earlier copies: the Sheet's version history. Failures email
+  info@; "Back up now" on the page runs it on demand.
+
 ## Public forms (`/forms/baptism`, `/forms/marriage`)
 
 Fields are defined in `intake.ts` (based on the paper intake forms). On submit

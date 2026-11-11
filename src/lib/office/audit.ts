@@ -15,7 +15,9 @@ export type AuditAction =
   | 'decline'
   | 'reopen'
   | 'void'
-  | 'email';
+  | 'email'
+  | 'export'
+  | 'backup';
 
 export async function recordAudit(
   requestId: string | null,

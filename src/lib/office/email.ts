@@ -79,6 +79,25 @@ export async function sendLoginEmail(to: string, link: string): Promise<void> {
   });
 }
 
+// --- Backups --------------------------------------------------------------------------
+
+/** To the parish office when the nightly backup fails. */
+export async function sendBackupFailureEmail(error: string): Promise<void> {
+  const url = `${siteBaseUrl()}/office/backup`;
+  await send({
+    to: [OFFICE_ADDRESS],
+    subject: 'Certificate records backup failed',
+    html: layout(
+      'Backup failed',
+      `<p style="margin:0 0 16px;">Last night's backup of the certificate records to Google Sheets did not complete:</p>
+       <p style="margin:0 0 24px;padding:12px 16px;background:#faf7f5;border-left:3px solid #C84B2F;">${escapeHtml(error)}</p>
+       ${button(url, 'Open backup page')}
+       <p style="margin:0;font-size:13px;color:#888;">The records themselves are safe in the database. You can retry from the backup page.</p>`,
+    ),
+    text: `Last night's backup of the certificate records to Google Sheets did not complete:\n\n${error}\n\nRetry from the backup page: ${url}\n\nThe records themselves are safe in the database.`,
+  });
+}
+
 // --- Online submissions -------------------------------------------------------------
 
 export interface SubmissionSummary {
