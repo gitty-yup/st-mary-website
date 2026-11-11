@@ -10,7 +10,7 @@ import {
   type OfficeData,
 } from '@/certificates/fields';
 import type { CertificateType } from '@/certificates/types';
-import type { RecordStatus } from '@/lib/office/status';
+import { STATUS_ACTIONS, type RecordStatus, type StatusAction } from '@/lib/office/status';
 
 export { STATUS_LABELS, type RecordStatus } from '@/lib/office/status';
 
@@ -193,6 +193,7 @@ export async function updateRecord(
       throw new RecordError('Someone else changed this record while you were editing. Reload to see their changes.', 409);
     }
     if (current.status === 'voided') throw new RecordError('Voided records cannot be edited.', 409);
+    if (current.status === 'declined') throw new RecordError('Declined records cannot be edited. Reopen it first.', 409);
     const before: OfficeData = current.office_data ?? {};
     const changes: Record<string, [string, string]> = {};
     for (const key of Object.keys(data)) {
@@ -260,4 +261,77 @@ export async function issueRecord(id: string, version: number, actor: string): P
     await recordAudit(id, actor, 'issue', { registryNumber: number }, client);
     return toRecord(rows[0]);
   });
+}
+
+export interface StatusChange {
+  /** What's missing (needs_info), why (decline/void), or an optional note. */
+  note?: string;
+  /** Decline reason code (see DECLINE_REASONS). */
+  reason?: string;
+}
+
+/**
+ * Moves a record through the review workflow (STATUS_ACTIONS says which
+ * action is allowed from which status). Registry numbers are never released:
+ * a voided certificate keeps its number.
+ */
+export async function changeStatus(
+  id: string,
+  version: number,
+  action: StatusAction,
+  change: StatusChange,
+  actor: string,
+): Promise<CertificateRecord> {
+  if (!UUID.test(id)) throw new RecordError('Record not found.', 404);
+  const rule = STATUS_ACTIONS[action];
+  if (!rule) throw new RecordError('Unknown action.', 400);
+  return withTransaction(async (client) => {
+    const current = (await client.query('select * from certificate_requests where id = $1 for update', [id])).rows[0];
+    if (!current) throw new RecordError('Record not found.', 404);
+    if (current.version !== version) {
+      throw new RecordError('This record changed since you opened it. Reload and try again.', 409);
+    }
+    if (!rule.from.includes(current.status)) {
+      throw new RecordError('This record’s status has changed. Reload to see it.', 409);
+    }
+    const to: RecordStatus = rule.to ?? (current.source === 'public' ? 'submitted' : 'approved');
+    const { rows } = await client.query(
+      `update certificate_requests set status = $2, updated_at = now(), version = version + 1
+       where id = $1 returning *`,
+      [id, to],
+    );
+    const detail: Record<string, unknown> = { from: current.status, to };
+    if (change.reason) detail.reason = change.reason;
+    if (change.note) detail.note = change.note;
+    await recordAudit(id, actor, action, detail, client);
+    return toRecord(rows[0]);
+  });
+}
+
+/**
+ * Other open or issued records that look like the same sacrament (same date
+ * and same name), e.g. a family submitting the form twice.
+ */
+export async function findPossibleDuplicates(record: CertificateRecord): Promise<RecordSummary[]> {
+  const dateKey = SACRAMENT_DATE_FIELD[record.type];
+  const date = record.officeData[dateKey];
+  const nameKey = record.type === 'marriage' ? 'groom_name_en' : 'baptized_name_en';
+  const name = (record.officeData[nameKey] ?? '').trim().toLowerCase();
+  if (!date || !name) return [];
+  const rows = await query(
+    `select id, type, status, office_data, registry_number, updated_at from certificate_requests
+     where id <> $1 and type = $2 and status not in ('declined', 'voided')
+       and office_data->>$3 = $4 and lower(trim(office_data->>$5)) = $6
+     order by created_at limit 5`,
+    [record.id, record.type, dateKey, date, nameKey, name],
+  );
+  return rows.map((r) => ({
+    id: r.id,
+    type: r.type,
+    status: r.status,
+    name: displayName(r.type, r.office_data ?? {}),
+    sacramentDate: (r.office_data ?? {})[dateKey] ?? '',
+    registryNumber: r.registry_number,
+    updatedAt: iso(r.updated_at)!,
+  }));
 }

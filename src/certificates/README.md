@@ -38,6 +38,20 @@ link, and removing an address there also ends its existing sessions. Sessions la
 - Records stay editable after issue for corrections; the number and certificate
   date don't change, and every change is in the record's history (`audit_events`).
 
+Review actions (`/api/office/records/[id]/status`, rules in `lib/office/status.ts`):
+
+| Action | From | To |
+| --- | --- | --- |
+| Mark ready to issue | New submission, Needs information | Ready to issue |
+| Ask for more information (note; optionally emailed to the family, replies to info@) | New submission, Ready to issue | Needs information |
+| Decline (duplicate / spam / not going ahead / other) | any not issued | Declined (read-only) |
+| Reopen | Declined | New submission (online) or Ready to issue (office) |
+| Void (reason required) | Issued | Voided (read-only; PDF watermarked VOID; number never reused) |
+
+Records with the same name and sacrament date show a "Possible duplicate" warning.
+Outside production, the family email goes to info@ instead (preview databases are
+copies of production).
+
 ## Public forms (`/forms/baptism`, `/forms/marriage`)
 
 Fields are defined in `intake.ts` (based on the paper intake forms). On submit

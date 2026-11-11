@@ -21,12 +21,25 @@ const STATUS_STYLE: Record<string, string> = {
   voided: 'bg-gray-200 text-gray-700',
 };
 
+const VIEWS = [
+  { id: 'todo', label: 'To do', statuses: ['submitted', 'needs_info', 'approved'] },
+  { id: 'issued', label: 'Issued', statuses: ['issued'] },
+  { id: 'closed', label: 'Declined / voided', statuses: ['declined', 'voided'] },
+  { id: 'all', label: 'All', statuses: [] as string[] },
+];
+
 export default function OfficeHome({ email, records }: Props) {
   const [filter, setFilter] = useState('');
+  const [view, setView] = useState('all');
   const q = filter.trim().toLowerCase();
+  const inView = (id: string) => {
+    const v = VIEWS.find((x) => x.id === id)!;
+    return v.statuses.length ? records.filter((r) => v.statuses.includes(r.status)) : records;
+  };
+  // Searching looks across every status.
   const shown = q
     ? records.filter((r) => `${r.name} ${r.registryNumber ?? ''}`.toLowerCase().includes(q))
-    : records;
+    : inView(view);
 
   return (
     <OfficeLayout title='Records' email={email}>
@@ -53,6 +66,20 @@ export default function OfficeHome({ email, records }: Props) {
             placeholder='Search by name or registry number'
             className='w-full sm:w-80 border border-gray-300 rounded-lg px-3 py-2 mb-3'
           />
+          <div className='flex flex-wrap gap-2 mb-3' role='group' aria-label='Show'>
+            {VIEWS.map((v) => (
+              <button
+                key={v.id}
+                onClick={() => setView(v.id)}
+                aria-pressed={!q && view === v.id}
+                className={`rounded-full px-3 py-1 text-sm border ${
+                  !q && view === v.id ? 'bg-primary text-white border-primary' : 'bg-white text-gray-700 border-gray-300'
+                }`}
+              >
+                {v.label} <span className='opacity-70'>{inView(v.id).length}</span>
+              </button>
+            ))}
+          </div>
           <div className='bg-white rounded-xl border border-gray-200 overflow-x-auto'>
             <table className='w-full text-sm'>
               <thead className='text-left text-gray-500 border-b'>
@@ -66,6 +93,13 @@ export default function OfficeHome({ email, records }: Props) {
                 </tr>
               </thead>
               <tbody>
+                {shown.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className='px-4 py-6 text-center text-gray-500'>
+                      Nothing here.
+                    </td>
+                  </tr>
+                )}
                 {shown.map((r) => (
                   <tr key={r.id} className='border-b last:border-0 hover:bg-gray-50'>
                     <td className='px-4 py-2'>

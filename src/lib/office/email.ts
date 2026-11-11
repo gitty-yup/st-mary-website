@@ -144,6 +144,43 @@ export async function sendSubmissionNotice(s: SubmissionSummary): Promise<string
 }
 
 /**
+ * From the office to the family: what's still needed. The message is written
+ * by signed-in office staff. Outside production it goes to the office address
+ * instead (preview databases can hold copies of real families' records).
+ */
+export async function sendNeedsInfoEmail(r: {
+  type: CertificateType;
+  sacramentDate: string;
+  contactName: string | null;
+  contactEmail: string;
+  message: string;
+}): Promise<{ to: string; test: boolean }> {
+  const test = process.env.VERCEL_ENV !== 'production';
+  const to = test ? OFFICE_ADDRESS : r.contactEmail;
+  const kind = KIND[r.type];
+  const date = formatCertificateDate(r.sacramentDate);
+  const about = `your ${kind} information${date ? ` (${kind} on ${date})` : ''}`;
+  const greeting = r.contactName ? `Dear ${r.contactName},` : 'Hello,';
+  const testNote = test ? `[Test site: this would have gone to the family's address.]\n\n` : '';
+  const paragraphs = r.message.split(/\n{2,}/).map((p) => `<p style="margin:0 0 16px;">${escapeHtml(p).replace(/\n/g, '<br>')}</p>`).join('');
+  await send({
+    to: [to],
+    replyTo: OFFICE_ADDRESS,
+    subject: `${test ? '[TEST] ' : ''}About ${about}`,
+    html: layout(
+      'A little more information, please',
+      `${test ? `<p style="margin:0 0 16px;color:#C84B2F;">${escapeHtml(testNote.trim())}</p>` : ''}
+       <p style="margin:0 0 16px;">${escapeHtml(greeting)}</p>
+       <p style="margin:0 0 16px;">Thank you for submitting ${escapeHtml(about)}. Before we can prepare the church records and certificate, we need the following:</p>
+       <div style="margin:0 0 16px;padding:12px 16px;border-left:3px solid #C84B2F;background:#faf7f5;">${paragraphs}</div>
+       <p style="margin:0;">Please reply to this email or call the parish office at ${OFFICE_PHONE}.</p>`,
+    ),
+    text: `${testNote}${greeting}\n\nThank you for submitting ${about}. Before we can prepare the church records and certificate, we need the following:\n\n${r.message}\n\nPlease reply to this email or call the parish office at ${OFFICE_PHONE}.`,
+  });
+  return { to, test };
+}
+
+/**
  * To the family: receipt only. Deliberately echoes nothing they typed except
  * the date, so the form can't be used to send arbitrary text to arbitrary
  * addresses.

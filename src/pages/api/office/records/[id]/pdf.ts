@@ -17,7 +17,8 @@ export default officeRoute(['GET'], async (req, res, session) => {
     registryNumber: record.registryNumber,
     certificateDate: record.certificateDate ?? parishToday(),
   });
-  const bytes = await renderCertificate(record.type, data, { preview });
+  const voided = record.status === 'voided';
+  const bytes = await renderCertificate(record.type, data, { preview, watermark: voided ? 'VOID - NOT VALID' : undefined });
   if (!preview) await recordAudit(record.id, session.email, 'download');
-  sendPdf(res, bytes, (preview ? 'PREVIEW - ' : '') + certificateFilename(record.type, data), req.query.download === '1');
+  sendPdf(res, bytes, (voided ? 'VOID - ' : preview ? 'PREVIEW - ' : '') + certificateFilename(record.type, data), req.query.download === '1');
 });

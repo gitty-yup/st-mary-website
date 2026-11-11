@@ -272,16 +272,20 @@ function drawLeftParagraph(
   }
 }
 
-function drawWatermark(ctx: Ctx) {
+function drawWatermark(ctx: Ctx, text = PREVIEW_WATERMARK) {
   const size = 46;
   const angle = 24;
   const font = ctx.fonts.engBold;
-  const half = runWidth(ctx, font, PREVIEW_WATERMARK, size) / 2;
+  const half = runWidth(ctx, font, text, size) / 2;
   const rad = (angle * Math.PI) / 180;
-  ctx.page.drawText(PREVIEW_WATERMARK, {
+  ctx.page.drawText(text, {
     x: PAGE_W / 2 - half * Math.cos(rad),
     y: PAGE_H / 2 - half * Math.sin(rad),
-    size, font, color: rgb(0.75, 0.75, 0.75), opacity: 0.18, rotate: degrees(angle),
+    size, font, rotate: degrees(angle),
+    // Preview: faint, so the layout can be judged. Anything else (VOID): unmistakable.
+    ...(text === PREVIEW_WATERMARK
+      ? { color: rgb(0.75, 0.75, 0.75), opacity: 0.18 }
+      : { color: rgb(0.75, 0.1, 0.1), opacity: 0.45 }),
   });
 }
 
@@ -354,7 +358,7 @@ export async function renderBaptismCertificate(
     drawField(ctx, T.lowerLabelsEn[i], lowerEn[i], RIGHT_X, y, RIGHT_END, 'engItalic', 'engBold', 8.1, 8.8, ENG_VALUE_X);
   });
 
-  if (options.preview) drawWatermark(ctx);
+  if (options.preview) drawWatermark(ctx, options.watermark);
   return doc.save();
 }
 
@@ -422,7 +426,7 @@ export async function renderMarriageCertificate(
   drawField(ctx, T.signatureHy, d.signature_hy, LEFT_X, 48, LEFT_END, 'arm', 'armBold', 8.2, 8.8, ARM_VALUE_X);
   drawField(ctx, T.signatureEn, d.signature_en, RIGHT_X, 48, RIGHT_END, 'engItalic', 'engBold', 8.1, 8.8, ENG_VALUE_X);
 
-  if (options.preview) drawWatermark(ctx);
+  if (options.preview) drawWatermark(ctx, options.watermark);
   return doc.save();
 }
 

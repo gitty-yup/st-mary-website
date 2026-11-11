@@ -59,4 +59,6 @@ export interface MarriageCertificateData {
 export interface RenderOptions {
   /** Draw the diagonal "PREVIEW - NOT ISSUED" watermark. */
   preview: boolean;
+  /** Watermark text when `preview` is set (default "PREVIEW - NOT ISSUED"). */
+  watermark?: string;
 }

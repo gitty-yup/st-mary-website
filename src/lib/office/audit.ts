@@ -9,7 +9,13 @@ export type AuditAction =
   | 'issue'
   | 'download'
   | 'submit'
-  | 'notify';
+  | 'notify'
+  | 'approve'
+  | 'needs_info'
+  | 'decline'
+  | 'reopen'
+  | 'void'
+  | 'email';
 
 export async function recordAudit(
   requestId: string | null,

@@ -11,7 +11,8 @@ import {
 } from '@/certificates/fields';
 import type { CertificateType } from '@/certificates/types';
 import type { AuditEntry, CertificateRecord } from '@/lib/office/records';
-import { STATUS_LABELS } from '@/lib/office/status';
+import { DECLINE_REASONS, STATUS_LABELS } from '@/lib/office/status';
+import StatusActions from './StatusActions';
 
 interface Unsupported {
   key: string;
@@ -27,7 +28,7 @@ interface Props {
 }
 
 const inputClass =
-  'w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent';
+  'w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-800 bg-white disabled:bg-gray-100 disabled:text-gray-600 focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent';
 
 export default function CertificateEditor({ type, record: initialRecord, audit: initialAudit, initialData }: Props) {
   const router = useRouter();
@@ -43,6 +44,14 @@ export default function CertificateEditor({ type, record: initialRecord, audit: 
 
   const dirty = useMemo(() => dataKeys(type).some((k) => (data[k] ?? '') !== (saved[k] ?? '')), [data, saved, type]);
   const issued = record?.status === 'issued' && !!record.registryNumber;
+  /** Declined (until reopened) and voided records are read-only. */
+  const locked = record?.status === 'declined' || record?.status === 'voided';
+  const canIssue = !!record && !issued && !locked;
+  // Why the record is in its current state (latest matching history entry).
+  const statusEntry =
+    record && ['needs_info', 'declined', 'voided'].includes(record.status)
+      ? [...audit].reverse().find((a) => a.detail?.to === record.status)
+      : undefined;
   const badKeys = new Set(unsupported.map((u) => u.key));
 
   useEffect(() => {
@@ -172,11 +181,11 @@ export default function CertificateEditor({ type, record: initialRecord, audit: 
       <div className='space-y-6 min-w-0'>
         {CERTIFICATE_FIELDS[type].map((section) => {
           const body = (
-            <div className='space-y-4'>
+            <fieldset disabled={locked} className='space-y-4 min-w-0'>
               {section.fields.map((f) => (
                 <FieldRow key={f.key} field={f} data={data} set={set} bad={badKeys} />
               ))}
-            </div>
+            </fieldset>
           );
           return section.parish ? (
             <details key={section.title} className='bg-white rounded-xl border border-gray-200 p-5'>
@@ -205,6 +214,17 @@ export default function CertificateEditor({ type, record: initialRecord, audit: 
               Certificate date {formatCertificateDate(record.certificateDate)}
             </div>
           )}
+          {statusEntry && (
+            <div className='text-sm bg-gray-50 rounded-lg p-3 whitespace-pre-line'>
+              {typeof statusEntry.detail.reason === 'string' && (
+                <div className='font-semibold'>{DECLINE_REASONS[statusEntry.detail.reason] ?? statusEntry.detail.reason}</div>
+              )}
+              {typeof statusEntry.detail.note === 'string' && <div>{statusEntry.detail.note}</div>}
+              <div className='text-xs text-gray-500 mt-1'>
+                {statusEntry.actor} · {new Date(statusEntry.createdAt).toLocaleDateString('en-US', { dateStyle: 'medium' })}
+              </div>
+            </div>
+          )}
 
           {error && <div className='text-sm text-error bg-red-50 rounded-lg p-3'>{error}</div>}
           {unsupported.length > 0 && (
@@ -216,23 +236,41 @@ export default function CertificateEditor({ type, record: initialRecord, audit: 
               ))}
             </ul>
           )}
+          {locked && (
+            <p className='text-xs text-gray-500'>
+              {record?.status === 'declined' ? 'Read-only. Reopen to edit or issue.' : 'Read-only. Its registry number is never reused.'}
+            </p>
+          )}
           {notice && !dirty && <div className='text-sm text-success'>{notice}</div>}
 
           <div className='flex flex-col gap-2 pt-1'>
-            <button
-              onClick={save}
-              disabled={!!busy || (!!record && !dirty)}
-              className='bg-primary text-white rounded-lg px-4 py-2 font-semibold disabled:opacity-40'
-            >
-              {busy === 'save' ? 'Saving…' : record ? (dirty ? 'Save changes' : 'All changes saved') : 'Save'}
-            </button>
-            <button
-              onClick={preview}
-              disabled={!!busy}
-              className='border border-primary text-primary rounded-lg px-4 py-2 font-semibold disabled:opacity-40'
-            >
-              {busy === 'preview' ? 'Preparing…' : 'Preview PDF'}
-            </button>
+            {!locked && (
+              <button
+                onClick={save}
+                disabled={!!busy || (!!record && !dirty)}
+                className='bg-primary text-white rounded-lg px-4 py-2 font-semibold disabled:opacity-40'
+              >
+                {busy === 'save' ? 'Saving…' : record ? (dirty ? 'Save changes' : 'All changes saved') : 'Save'}
+              </button>
+            )}
+            {record?.status === 'voided' ? (
+              <a
+                href={`/api/office/records/${record.id}/pdf`}
+                target='_blank'
+                rel='noreferrer'
+                className='text-center border border-primary text-primary rounded-lg px-4 py-2 font-semibold'
+              >
+                View voided certificate
+              </a>
+            ) : (
+              <button
+                onClick={preview}
+                disabled={!!busy}
+                className='border border-primary text-primary rounded-lg px-4 py-2 font-semibold disabled:opacity-40'
+              >
+                {busy === 'preview' ? 'Preparing…' : 'Preview PDF'}
+              </button>
+            )}
 
             {record && issued && (
               <>
@@ -254,7 +292,7 @@ export default function CertificateEditor({ type, record: initialRecord, audit: 
               </>
             )}
 
-            {record && !issued && !confirmIssue && (
+            {canIssue && !confirmIssue && (
               <button
                 onClick={() => setConfirmIssue(true)}
                 disabled={!!busy || dirty}
@@ -263,11 +301,26 @@ export default function CertificateEditor({ type, record: initialRecord, audit: 
                 Issue certificate…
               </button>
             )}
-            {record && !issued && dirty && <p className='text-xs text-gray-500'>Save your changes before issuing.</p>}
+            {canIssue && dirty && <p className='text-xs text-gray-500'>Save your changes before issuing.</p>}
             {!record && <p className='text-xs text-gray-500'>Save first; then you can issue the certificate.</p>}
           </div>
 
-          {record && !issued && confirmIssue && (
+          {record && !confirmIssue && (
+            <StatusActions
+              key={`${record.id}-${record.status}`}
+              record={record}
+              dirty={dirty}
+              onChanged={(r, a, message) => {
+                setRecord(r);
+                setAudit(a);
+                setNotice(message);
+                setError('');
+                setUnsupported([]);
+              }}
+            />
+          )}
+
+          {canIssue && confirmIssue && (
             <div className='border-t pt-3 space-y-2 text-sm'>
               <p>
                 Issuing assigns the next registry number for{' '}
@@ -337,6 +390,22 @@ function describe(type: CertificateType, a: AuditEntry): string {
     }
     case 'issue':
       return `Issued as ${a.detail.registryNumber}`;
+    case 'approve':
+      return 'Marked ready to issue';
+    case 'needs_info':
+      return `Asked for more information: ${a.detail.note ?? ''}`;
+    case 'decline': {
+      const reason = DECLINE_REASONS[String(a.detail.reason)] ?? 'Declined';
+      return `Declined (${reason.toLowerCase()})${a.detail.note ? `: ${a.detail.note}` : ''}`;
+    }
+    case 'reopen':
+      return 'Reopened';
+    case 'void':
+      return `Voided: ${a.detail.note ?? ''}`;
+    case 'email':
+      return a.detail.sent
+        ? `Emailed the family${a.detail.test ? ' (test site: sent to info@ instead)' : ''}`
+        : 'Email to the family FAILED; contact them directly';
     case 'download':
       return 'Opened the issued certificate';
     case 'update': {
