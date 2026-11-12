@@ -5,13 +5,6 @@
   background-position: center;
 }
 
-.devotional-bg {
-  background-image: url(../assets/backgrounds/devotional.webp);
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-}
-
 .message-bg {
   background-image: url(../assets/backgrounds/message.webp);
   background-repeat: no-repeat;
@@ -38,13 +31,6 @@
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center 20%;
-}
-
-.subscriber-bg {
-  background-image: url(../assets/backgrounds/subscriber.webp);
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
 }
 
 .about-header-bg {
@@ -96,14 +82,6 @@
   background-position: center;
 }
 
-.faith-bg {
-  background-image: url(../assets/backgrounds/faith.webp);
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-
-}
-
 .event-header-bg {
   background-image: radial-gradient(ellipse at center, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 70%), url(/hero/events.jpg);
   background-repeat: no-repeat;
@@ -125,43 +103,8 @@
   background-position: center;
 }
 
-.podcast-bg {
-  background-image: url(../assets/backgrounds/podcast.webp);
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-}
-
-.testimony-content-bg {
-  background-image: url(../assets/images/resources/testimony/content-bg.webp);
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-}
-
-.messages-header-bg {
-  background-image: url(../assets/backgrounds/messages.webp);
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-}
-
 .giving-header-bg {
   background-image: radial-gradient(ellipse at center, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 70%), url(/hero/give.jpg);
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-}
-
-.giving-bg {
-  background-image: url(../assets/backgrounds/giving-bg.webp);
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: bottom;
-}
-
-.location-header-bg {
-  background-image: url(../assets/backgrounds/locations.webp);
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
@@ -183,20 +126,6 @@
 
 .feedback-header-bg {
   background-image: url(../assets/backgrounds/feedback.webp);
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-}
-
-.podcast-header-bg {
-  background-image: url(../assets/backgrounds/podcast-header.webp);
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-}
-
-.auth-header-bg {
-  background-image: url(../assets/backgrounds/auth-bg.webp);
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
