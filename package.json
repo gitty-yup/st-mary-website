@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "db:migrate": "node scripts/db-migrate.js",
-    "certificates:samples": "tsx scripts/render-certificate-samples.ts"
+    "certificates:samples": "tsx scripts/render-certificate-samples.ts",
+    "certificates:restore": "tsx scripts/restore-certificates.ts"
   },
   "dependencies": {
     "@formkit/auto-animate": "^0.8.0",

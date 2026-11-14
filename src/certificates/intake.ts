@@ -163,6 +163,20 @@ export function intakeLabel(type: CertificateType, key: string): string {
   return key;
 }
 
+/**
+ * The answer's label as a table column (CSV download, backup Sheet). Labels
+ * used more than once on a form ("Date of birth" for the groom and the bride)
+ * get their section's title: "Groom – Date of birth".
+ */
+export function intakeColumnLabel(type: CertificateType, key: string): string {
+  const label = intakeLabel(type, key);
+  const repeated = intakeKeys(type).filter((k) => intakeLabel(type, k) === label).length > 1;
+  if (!repeated) return label;
+  const base = key.endsWith('_hy') ? key.slice(0, -3) : key;
+  const section = INTAKE_FORMS[type].find((s) => s.fields.some((f) => f.key === key || f.key === base));
+  return section ? `${section.title} – ${label}` : label;
+}
+
 /** Validates and normalizes a public submission. Errors are keyed by field. */
 export function cleanIntake(
   type: CertificateType,

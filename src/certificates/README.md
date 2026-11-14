@@ -61,7 +61,13 @@ Export and backup (`/office/backup`):
   Sheet `CERTIFICATE_BACKUP_SHEET_ID`, using `GOOGLE_SERVICE_ACCOUNT_KEY`. The Sheet is
   owned by the church and shared with the service account as Editor (service accounts
   can't own Drive files). Earlier copies: the Sheet's version history. Failures email
-  info@; "Back up now" on the page runs it on demand.
+  info@; "Back up now" on the page runs it on demand. It won't overwrite the Sheet while
+  any record in it is missing from the database (records are never deleted, so that
+  means the wrong or an empty database).
+- **Restore:** `npm run certificates:restore` rebuilds an empty database from the Sheet
+  (`lib/office/restore.ts`); steps in the [main README](../../README.md#restoring-from-the-backup).
+  Form-answer columns whose label repeats on a form carry their section ("Groom –
+  Date of birth"); the restore also reads older backups where they repeated.
 
 ## Public forms (`/forms/baptism`, `/forms/marriage`)
 

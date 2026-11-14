@@ -87,6 +87,10 @@ by the error shown:
 - *Google rejected the service account key:* the key was deleted or replaced. Create a
   new JSON key for the same service account in Google Cloud, paste it into
   `GOOGLE_SERVICE_ACCOUNT_KEY`, and redeploy. The update-my-info form uses the same key.
+- *N record(s) in the backup Sheet are not in the database:* records are never deleted,
+  so the site is probably connected to the wrong or a new, empty database. The backup
+  stops rather than erase the Sheet. Fix the database (or restore it, below) and the
+  backup resumes.
 
 **Replace a leaked or old key.** Create the new one at the service, update the setting in
 Vercel, redeploy, then delete the old key at the service. `CRON_SECRET` can be any long
@@ -103,6 +107,38 @@ renders every sample certificate and fails if a font is missing a character.
 the long side. Full-size originals of the existing photos are archived outside this
 repository.
 
+## Restoring from the backup
+
+Use this if the certificate database is lost or damaged. If the damage is recent, first
+try Neon's own point-in-time restore (in the Neon console), which is exact but only
+reaches back as far as the Neon plan's history window. Otherwise:
+
+1. **Get the backup.** Open the backup Sheet. For an earlier copy: File → Version history,
+   open the version, File → Make a copy, and use the copy. Download each of the
+   **Baptisms**, **Marriages** and **History** tabs (File → Download → Comma-separated
+   values; it downloads the open tab) into one folder.
+2. **Get an empty database** with the current tables: a new Neon database or branch, then
+   `DATABASE_URL=<new database> npm run db:migrate`.
+3. **Check:** `DATABASE_URL=<new database> npm run certificates:restore -- --csv <folder>`.
+   It reports how many records and history entries it found, and anything it couldn't
+   read exactly. Nothing is written.
+4. **Restore:** run the same command with `--write` at the end. It refuses if the
+   database already has certificate records.
+5. **Connect the site** to the restored database (the `DATABASE_URL…` settings, Production)
+   and redeploy. Open `/office`, check a few records, then press "Back up now".
+
+Instead of CSV files, `--sheet` reads the backup Sheet directly, using
+`GOOGLE_SERVICE_ACCOUNT_KEY` and `CERTIFICATE_BACKUP_SHEET_ID`. For a copy of the Sheet,
+share the copy with the service account and use `--sheet <the copy's ID>`. The office's
+CSV downloads also work with `--csv`, but have no history.
+
+What comes back: every record with its certificate fields, the family's answers, status,
+registry number, certificate date, who issued it, and its full history; numbering
+continues after the highest number restored, so no number is reused. What doesn't: times
+finer than the minute, sign-in sessions (everyone signs in again), and the sign-in,
+backup and export log. Tested on a local copy with every kind of record (Nov 2026): the
+restored records and a fresh backup of them matched the originals exactly.
+
 ## Running it locally
 
 ```sh
@@ -117,4 +153,3 @@ development only). Without a database, the public pages work but the office and 
 
 - The office record list loads the 300 most recently changed records, and its search
   covers only those. Add paging before the office holds that many.
-- Restoring records from the backup Sheet has not been written up or tested yet.

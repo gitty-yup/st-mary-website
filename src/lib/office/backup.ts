@@ -45,11 +45,52 @@ async function sheetsClient() {
   return google.sheets({ version: 'v4', auth: (await auth.getClient()) as any });
 }
 
+/** The values of the named tabs that exist in a Sheet (all cells as text, rows padded to the header). */
+export async function readSheetTabs(spreadsheetId: string, titles: string[]): Promise<Record<string, string[][]>> {
+  const sheets = await sheetsClient();
+  const meta = await sheets.spreadsheets.get({ spreadsheetId, fields: 'sheets.properties(title)' });
+  const present = new Set((meta.data.sheets ?? []).map((s) => s.properties!.title!));
+  const wanted = titles.filter((t) => present.has(t));
+  if (!wanted.length) return {};
+  const { data } = await sheets.spreadsheets.values.batchGet({ spreadsheetId, ranges: wanted.map((t) => `'${t}'`) });
+  return Object.fromEntries(wanted.map((t, i) => [t, padRows(data.valueRanges?.[i]?.values ?? [])]));
+}
+
+/** Cells as text, each row as wide as the header (the API leaves out empty cells at the end of a row). */
+export function padRows(values: unknown[][]): string[][] {
+  const rows = values.map((r) => r.map((c) => (c == null ? '' : String(c))));
+  const width = rows[0]?.length ?? 0;
+  return rows.map((r) => (r.length < width ? [...r, ...Array(width - r.length).fill('')] : r));
+}
+
+/**
+ * Records are never deleted, so every record already in the Sheet must still
+ * be in the database. Returns how many aren't (e.g. the site was connected to
+ * a new, empty database), in which case the backup must not overwrite them.
+ */
+export function recordsMissingFromDatabase(sheetTab: string[][], table: Table): number {
+  const [headers = [], ...rows] = sheetTab;
+  const col = headers.indexOf('Record ID');
+  const idCol = table.headers.indexOf('Record ID');
+  if (col < 0 || idCol < 0) return 0;
+  const inDatabase = new Set(table.rows.map((r) => r[idCol]));
+  return rows.filter((r) => r[col] && !inDatabase.has(r[col])).length;
+}
+
 async function writeTabs(tabs: Record<string, Table>): Promise<void> {
   const sheets = await sheetsClient();
   const spreadsheetId = process.env.CERTIFICATE_BACKUP_SHEET_ID!;
   const meta = await sheets.spreadsheets.get({ spreadsheetId, fields: 'sheets.properties(sheetId,title)' });
   const existing = new Map((meta.data.sheets ?? []).map((s) => [s.properties!.title!, s.properties!.sheetId!]));
+
+  const current = await readSheetTabs(spreadsheetId, ['Baptisms', 'Marriages'].filter((t) => tabs[t]));
+  const missingCount = Object.entries(current).reduce((n, [t, grid]) => n + recordsMissingFromDatabase(grid, tabs[t]), 0);
+  if (missingCount) {
+    throw new Error(
+      `${missingCount} record(s) in the backup Sheet are not in the database, so the backup was not written and the Sheet still has them. ` +
+        'If the database was replaced, restore it from the Sheet first (README: "Restoring from the backup").',
+    );
+  }
 
   const missing = Object.keys(tabs).filter((t) => !existing.has(t));
   if (missing.length) {

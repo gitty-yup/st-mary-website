@@ -4,7 +4,7 @@
  * history of every record.
  */
 import { dataKeys, fieldLabel, type OfficeData } from '@/certificates/fields';
-import { intakeDisplayValue, intakeKeys, intakeLabel } from '@/certificates/intake';
+import { intakeColumnLabel, intakeDisplayValue, intakeKeys } from '@/certificates/intake';
 import type { CertificateType } from '@/certificates/types';
 import { query } from '@/lib/db';
 import { STATUS_LABELS, type RecordStatus } from '@/lib/office/status';
@@ -37,7 +37,7 @@ export async function recordsTable(type: CertificateType): Promise<Table> {
     [type],
   );
   const certKeys = dataKeys(type);
-  // Form answers that aren't already certificate fields (addresses, marital status, notes…).
+  // Everything the family typed on the online form (addresses, marital status, notes…).
   const formKeys = intakeKeys(type);
   const headers = [
     'Registry number',
@@ -50,7 +50,7 @@ export async function recordsTable(type: CertificateType): Promise<Table> {
     'Contact name',
     'Contact email',
     'Contact phone',
-    ...formKeys.map((k) => `Form: ${intakeLabel(type, k)}`),
+    ...formKeys.map((k) => `Form: ${intakeColumnLabel(type, k)}`),
     'Created',
     'Last updated',
     'Record ID',
