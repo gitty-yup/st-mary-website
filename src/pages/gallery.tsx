@@ -1,7 +1,7 @@
 import AppLayout from '@/components/layout/AppLayout';
 import type { GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   TAG_GROUPS,
   monthYear,
@@ -214,8 +214,8 @@ export default function Gallery({ photos, events, tags }: GalleryProps) {
           index={open}
           onIndex={setOpen}
           onClose={() => setOpen(null)}
-          event={shown[open].eventId ? eventById.get(shown[open].eventId!) ?? null : null}
-          tags={shown[open].tagIds.map((id) => tagById.get(id)).filter((t): t is GalleryTag => !!t)}
+          eventFor={(p) => (p.eventId ? eventById.get(p.eventId) ?? null : null)}
+          tagsFor={(p) => p.tagIds.map((id) => tagById.get(id)).filter((t): t is GalleryTag => !!t)}
           onEvent={(slug) => update({ ...NO_FILTERS, event: slug })}
           onTag={(t) => update({ ...NO_FILTERS, [t.group]: t.slug })}
         />
@@ -242,21 +242,87 @@ function FilterSelect(props: { label: string; value: string; all: string; option
   );
 }
 
+const SLIDE_MS = 280;
+
+interface Gesture {
+  x0: number;
+  y0: number;
+  t0: number;
+  /** Decided after the first few pixels: sideways (next/previous) or down (close). */
+  axis: '' | 'x' | 'y';
+}
+
+/**
+ * Full-size photo viewer. On touch screens the photo follows the finger: a
+ * quick flick or a drag across a fifth of the screen moves to the next or
+ * previous photo (anything less springs back), and a drag down closes it.
+ * Neighbouring photos are already loaded, so they slide in straight away.
+ * Pinch-zoom still works; swiping pauses while zoomed in.
+ */
 function Lightbox(props: {
   photos: GalleryPhoto[];
   index: number;
-  event: GalleryEvent | null;
-  tags: GalleryTag[];
+  eventFor: (p: GalleryPhoto) => GalleryEvent | null;
+  tagsFor: (p: GalleryPhoto) => GalleryTag[];
   onIndex: (i: number) => void;
   onClose: () => void;
   onEvent: (slug: string) => void;
   onTag: (t: GalleryTag) => void;
 }) {
   const { photos, index, onIndex, onClose } = props;
-  const photo = photos[index];
+  const n = photos.length;
+  const many = n > 1;
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
-  const touchX = useRef<number | null>(null);
-  const go = useCallback((step: number) => onIndex((index + step + photos.length) % photos.length), [index, photos.length, onIndex]);
+  const gesture = useRef<Gesture | null>(null);
+  const busy = useRef(false);
+  const justSwiped = useRef(false);
+  const [zoomed, setZoomed] = useState(false);
+
+  /** Moves the photo strip (x: sideways, y: down) and dims the backdrop as it's pulled down. */
+  const place = useCallback((x: number, y: number, ms = 0) => {
+    const track = trackRef.current;
+    const overlay = overlayRef.current;
+    if (!track || !overlay) return;
+    const ease = 'cubic-bezier(0.22, 0.61, 0.36, 1)';
+    track.style.transition = ms ? `transform ${ms}ms ${ease}` : 'none';
+    track.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+    overlay.style.transition = ms ? `background-color ${ms}ms ${ease}` : 'none';
+    overlay.style.backgroundColor = `rgba(0, 0, 0, ${0.92 * (1 - Math.min(1, Math.max(0, y) / (window.innerHeight * 0.8)))})`;
+  }, []);
+
+  // A new photo is centred without animation (the strip has already slid there).
+  useLayoutEffect(() => place(0, 0), [index, place]);
+
+  const motionMs = () => (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 0 : SLIDE_MS);
+
+  const go = useCallback(
+    (step: 1 | -1) => {
+      if (!many || busy.current) return;
+      const next = (index + step + n) % n;
+      const ms = motionMs();
+      if (!ms) return onIndex(next);
+      busy.current = true;
+      place(-step * window.innerWidth, 0, ms);
+      window.setTimeout(() => {
+        busy.current = false;
+        onIndex(next);
+      }, ms);
+    },
+    [many, index, n, onIndex, place],
+  );
+
+  const close = useCallback(
+    (slideDown = false) => {
+      const ms = slideDown ? motionMs() : 0;
+      if (!ms) return onClose();
+      busy.current = true;
+      place(0, window.innerHeight, ms);
+      window.setTimeout(onClose, ms);
+    },
+    [onClose, place],
+  );
 
   useEffect(() => {
     const before = document.activeElement as HTMLElement | null;
@@ -271,70 +337,190 @@ function Lightbox(props: {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') close();
       if (e.key === 'ArrowRight') go(1);
       if (e.key === 'ArrowLeft') go(-1);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [go, onClose]);
+  }, [go, close]);
 
-  const many = photos.length > 1;
+  // Pinch-zoomed in: let the browser pan the zoomed photo instead of swiping.
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const check = () => setZoomed(vv.scale > 1.05);
+    vv.addEventListener('resize', check);
+    return () => vv.removeEventListener('resize', check);
+  }, []);
+
+  function onTouchStart(e: React.TouchEvent) {
+    if (busy.current || zoomed || e.touches.length !== 1) {
+      gesture.current = null;
+      return;
+    }
+    const t = e.touches[0];
+    gesture.current = { x0: t.clientX, y0: t.clientY, t0: Date.now(), axis: '' };
+  }
+
+  function onTouchMove(e: React.TouchEvent) {
+    const g = gesture.current;
+    if (!g) return;
+    if (e.touches.length !== 1) {
+      // A second finger: it's a pinch, not a swipe.
+      gesture.current = null;
+      place(0, 0, motionMs());
+      return;
+    }
+    const dx = e.touches[0].clientX - g.x0;
+    const dy = e.touches[0].clientY - g.y0;
+    if (!g.axis) {
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+      g.axis = Math.abs(dx) >= Math.abs(dy) ? 'x' : 'y';
+    }
+    if (g.axis === 'x') place(many ? dx : dx / 4, 0);
+    else place(0, dy > 0 ? dy : dy / 4);
+  }
+
+  function onTouchEnd(e: React.TouchEvent) {
+    const g = gesture.current;
+    gesture.current = null;
+    if (!g || !g.axis) return;
+    // The finger lifting after a swipe mustn't count as a tap on the backdrop (which closes).
+    justSwiped.current = true;
+    window.setTimeout(() => (justSwiped.current = false), 400);
+    const t = e.changedTouches[0];
+    const dx = t.clientX - g.x0;
+    const dy = t.clientY - g.y0;
+    const ms = Math.max(1, Date.now() - g.t0);
+    if (g.axis === 'x') {
+      const flick = Math.abs(dx) > 25 && Math.abs(dx) / ms > 0.35;
+      if (many && (flick || Math.abs(dx) > window.innerWidth * 0.2)) go(dx < 0 ? 1 : -1);
+      else place(0, 0, motionMs());
+    } else {
+      const flick = dy > 30 && dy / ms > 0.45;
+      if (flick || dy > window.innerHeight * 0.18) close(true);
+      else place(0, 0, motionMs());
+    }
+  }
+
+  function onTouchCancel() {
+    gesture.current = null;
+    place(0, 0, motionMs());
+  }
+
+  // The photo, and its neighbours either side (loaded in advance, ready to slide in).
+  const slots = many ? [-1, 0, 1] : [0];
+  const arrow =
+    'absolute top-1/2 -translate-y-1/2 z-10 w-11 h-11 md:w-12 md:h-12 rounded-full bg-black/45 hover:bg-black/70 text-white text-3xl leading-none flex items-center justify-center';
+
   return (
     <div
-      className='fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4'
+      ref={overlayRef}
+      className='fixed inset-0 z-50 overflow-hidden select-none'
+      style={{ backgroundColor: 'rgba(0, 0, 0, 0.92)', touchAction: zoomed ? 'auto' : 'pinch-zoom', overscrollBehavior: 'contain' }}
       role='dialog'
       aria-modal='true'
       aria-label='Photo viewer'
-      onClick={onClose}
-      onTouchStart={(e) => (touchX.current = e.touches[0].clientX)}
-      onTouchEnd={(e) => {
-        const dx = e.changedTouches[0].clientX - (touchX.current ?? e.changedTouches[0].clientX);
-        if (many && Math.abs(dx) > 50) go(dx < 0 ? 1 : -1);
-        touchX.current = null;
-      }}
+      onClick={() => !justSwiped.current && close()}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+      onTouchCancel={onTouchCancel}
     >
-      <button ref={closeRef} onClick={onClose} className='absolute top-3 right-4 text-white text-4xl leading-none hover:text-secondary p-2' aria-label='Close'>
+      <div ref={trackRef} className='absolute inset-0' style={{ willChange: 'transform' }}>
+        {slots.map((slot) => {
+          const at = (index + slot + n) % n;
+          const photo = photos[at];
+          const event = props.eventFor(photo);
+          const tags = props.tagsFor(photo);
+          const current = slot === 0;
+          return (
+            <div
+              // Keyed by photo, so a neighbour that becomes the current photo keeps its loaded image.
+              key={n === 2 ? `slot${slot}` : photo.id}
+              className='absolute inset-0 flex flex-col items-center justify-center px-3 md:px-20 py-14'
+              style={{ transform: `translateX(${slot * 100}%)` }}
+              aria-hidden={!current}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={photo.src}
+                alt={photoAlt(photo, event)}
+                draggable={false}
+                decoding='async'
+                onClick={(e) => e.stopPropagation()}
+                className='max-w-full max-h-[calc(100dvh-12rem)] min-h-0 rounded-lg object-contain block'
+              />
+              <div className='mt-3 text-center text-gray-200 text-sm space-y-2 max-w-3xl' onClick={(e) => e.stopPropagation()}>
+                {photo.caption && <p className='text-base text-white'>{photo.caption}</p>}
+                <p className='text-gray-400'>
+                  {monthYear(photo.takenOn)}
+                  {event && (
+                    <>
+                      {' · '}
+                      <button tabIndex={current ? 0 : -1} onClick={() => props.onEvent(event.slug)} className='underline hover:text-white'>
+                        {event.title}
+                      </button>
+                    </>
+                  )}
+                  {many && <span className='ml-2'>({at + 1} of {n})</span>}
+                </p>
+                {tags.length > 0 && (
+                  <p className='flex flex-wrap gap-2 justify-center'>
+                    {tags.map((t) => (
+                      <button
+                        key={t.id}
+                        tabIndex={current ? 0 : -1}
+                        onClick={() => props.onTag(t)}
+                        className='px-3 py-0.5 rounded-full border border-white/40 text-xs hover:bg-white/10'
+                      >
+                        {t.label}
+                      </button>
+                    ))}
+                  </p>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <button
+        ref={closeRef}
+        onClick={(e) => {
+          e.stopPropagation();
+          close();
+        }}
+        aria-label='Close'
+        className='absolute top-2 right-2 md:top-3 md:right-4 z-10 w-11 h-11 rounded-full bg-black/45 hover:bg-black/70 text-white text-3xl leading-none flex items-center justify-center'
+      >
         &times;
       </button>
       {many && (
         <>
-          <button onClick={(e) => { e.stopPropagation(); go(-1); }} aria-label='Previous photo'
-            className='absolute left-1 md:left-4 top-1/2 -translate-y-1/2 text-white text-4xl md:text-5xl hover:text-secondary p-3'>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              go(-1);
+            }}
+            aria-label='Previous photo'
+            className={`${arrow} left-2 md:left-4`}
+          >
             &#8249;
           </button>
-          <button onClick={(e) => { e.stopPropagation(); go(1); }} aria-label='Next photo'
-            className='absolute right-1 md:right-4 top-1/2 -translate-y-1/2 text-white text-4xl md:text-5xl hover:text-secondary p-3'>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              go(1);
+            }}
+            aria-label='Next photo'
+            className={`${arrow} right-2 md:right-4`}
+          >
             &#8250;
           </button>
         </>
       )}
-      <figure className='relative max-w-5xl w-full' onClick={(e) => e.stopPropagation()}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={photo.src} alt={photoAlt(photo, props.event)} className='max-w-full max-h-[78vh] mx-auto rounded-lg object-contain block' />
-        <figcaption className='mt-3 text-center text-gray-200 text-sm space-y-2'>
-          {photo.caption && <p className='text-base text-white'>{photo.caption}</p>}
-          <p className='text-gray-400'>
-            {monthYear(photo.takenOn)}
-            {props.event && (
-              <>
-                {' · '}
-                <button onClick={() => props.onEvent(props.event!.slug)} className='underline hover:text-white'>{props.event.title}</button>
-              </>
-            )}
-            {many && <span className='ml-2'>({index + 1} of {photos.length})</span>}
-          </p>
-          {props.tags.length > 0 && (
-            <p className='flex flex-wrap gap-2 justify-center'>
-              {props.tags.map((t) => (
-                <button key={t.id} onClick={() => props.onTag(t)} className='px-3 py-0.5 rounded-full border border-white/40 text-xs hover:bg-white/10'>
-                  {t.label}
-                </button>
-              ))}
-            </p>
-          )}
-        </figcaption>
-      </figure>
     </div>
   );
 }
