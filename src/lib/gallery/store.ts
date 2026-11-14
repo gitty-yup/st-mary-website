@@ -60,7 +60,7 @@ function toEvent(r: any): GalleryEvent {
 }
 
 function toTag(r: any): GalleryTag {
-  return { id: r.id, group: r.tag_group, slug: r.slug, label: r.label };
+  return { id: r.id, group: r.tag_group, slug: r.slug, label: r.label, filterOnly: !!r.filter_only };
 }
 
 /** Published photos (newest first), and the events and tags they use. */
@@ -75,7 +75,7 @@ export async function publicGallery(): Promise<{ photos: GalleryPhoto[]; events:
   )
     .map(toEvent)
     .filter((e) => eventIds.has(e.id));
-  const tags = (await query('select id, tag_group, slug, label from gallery_tags order by label')).map(toTag).filter((t) => tagIds.has(t.id));
+  const tags = (await query('select id, tag_group, slug, label, filter_only from gallery_tags order by label')).map(toTag).filter((t) => tagIds.has(t.id));
   return { photos, events, tags };
 }
 
@@ -96,7 +96,7 @@ export async function officeGallery(): Promise<{ photos: OfficePhoto[]; events: 
   ).map((r) => ({ ...toEvent(r), photos: r.photos }));
   const tags = (
     await query(
-      `select t.id, t.tag_group, t.slug, t.label, (select count(*)::int from gallery_photo_tags pt where pt.tag_id = t.id) as photos
+      `select t.id, t.tag_group, t.slug, t.label, t.filter_only, (select count(*)::int from gallery_photo_tags pt where pt.tag_id = t.id) as photos
        from gallery_tags t order by t.label`,
     )
   ).map((r) => ({ ...toTag(r), photos: r.photos }));
@@ -187,9 +187,13 @@ async function slugsIn(client: PoolClient, sql: string, params: unknown[] = []):
   return (await client.query(sql, params)).rows.map((r) => r.slug as string);
 }
 
-/** Adds a tag (with `group`) or renames one (with `id`). Renaming keeps its web address. */
+/**
+ * Adds a tag (with `group`) or changes one (with `id`): its name, and whether its
+ * photos show only when it's chosen (`filterOnly`). Renaming keeps its web address.
+ */
 export async function saveTag(input: Record<string, unknown>, actor: string): Promise<GalleryTag> {
   const label = text(input.label, MAX_LABEL, 'a name', true);
+  const filterOnly = typeof input.filterOnly === 'boolean' ? input.filterOnly : null;
   return withTransaction(async (client) => {
     let row;
     if (input.id) {
@@ -197,15 +201,19 @@ export async function saveTag(input: Record<string, unknown>, actor: string): Pr
       const cur = (await client.query('select tag_group from gallery_tags where id = $1', [input.id])).rows[0];
       if (!cur) throw new RecordError('That tag no longer exists. Reload the page.', 409);
       await sameLabel(client, cur.tag_group, label, String(input.id));
-      row = (await client.query('update gallery_tags set label = $2 where id = $1 returning *', [input.id, label])).rows[0];
+      row = (
+        await client.query('update gallery_tags set label = $2, filter_only = coalesce($3, filter_only) where id = $1 returning *', [input.id, label, filterOnly])
+      ).rows[0];
     } else {
       const group = input.group as TagGroup;
       if (!TAG_GROUPS.some((g) => g.key === group)) throw new RecordError('Unknown tag group.', 400);
       await sameLabel(client, group, label);
       const slug = nextSlug(slugify(label), await slugsIn(client, 'select slug from gallery_tags where tag_group = $1', [group]));
-      row = (await client.query('insert into gallery_tags (tag_group, slug, label) values ($1, $2, $3) returning *', [group, slug, label])).rows[0];
+      row = (
+        await client.query('insert into gallery_tags (tag_group, slug, label, filter_only) values ($1, $2, $3, $4) returning *', [group, slug, label, !!filterOnly])
+      ).rows[0];
     }
-    await recordAudit(null, actor, 'gallery', { what: 'tag', id: row.id, group: row.tag_group, label, created: !input.id }, client);
+    await recordAudit(null, actor, 'gallery', { what: 'tag', id: row.id, group: row.tag_group, label, filterOnly: row.filter_only, created: !input.id }, client);
     return toTag(row);
   });
 }

@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   TAG_GROUPS,
+  inMainView,
   monthYear,
   photoAlt,
   type GalleryEvent,
@@ -20,7 +21,7 @@ interface GalleryProps {
 
 /** Filters, as kept in the address (/gallery?year=2018&org=acyo): slugs, or '' for all. */
 type Filters = { year: string; event: string } & Record<TagGroup, string>;
-const NO_FILTERS: Filters = { year: '', event: '', organization: '', occasion: '', people: '' };
+const NO_FILTERS: Filters = { year: '', event: '', organization: '', occasion: '', people: '', collection: '' };
 
 function filtersFromQuery(q: Record<string, string | string[] | undefined>): Filters {
   const one = (v: string | string[] | undefined) => (typeof v === 'string' ? v : '');
@@ -58,18 +59,33 @@ export default function Gallery({ photos, events, tags }: GalleryProps) {
 
   const eventById = useMemo(() => new Map(events.map((e) => [e.id, e])), [events]);
   const tagById = useMemo(() => new Map(tags.map((t) => [t.id, t])), [tags]);
-  const years = useMemo(() => Array.from(new Set(photos.map((p) => p.takenOn.slice(0, 4)))), [photos]);
   const activeEvent = events.find((e) => e.slug === filters.event) ?? null;
 
-  const shown = useMemo(() => {
+  // Photos with an "only when chosen" tag (e.g. flyers) are in view only while that tag is chosen.
+  const filterOnlyIds = useMemo(() => new Set(tags.filter((t) => t.filterOnly).map((t) => t.id)), [tags]);
+  const chosenTagIds = useMemo(
+    () => TAG_GROUPS.map((g) => tags.find((t) => t.group === g.key && t.slug === filters[g.key])?.id).filter((id): id is string => !!id),
+    [tags, filters],
+  );
+  const pool = useMemo(() => photos.filter((p) => inMainView(p, filterOnlyIds, chosenTagIds)), [photos, filterOnlyIds, chosenTagIds]);
+  const poolEvents = useMemo(
+    () => events.filter((e) => e.id === activeEvent?.id || pool.some((p) => p.eventId === e.id)),
+    [events, pool, activeEvent],
+  );
+
+  // Everything the event and tag filters match; the year buttons offer only years found here.
+  const matching = useMemo(() => {
     const wanted = TAG_GROUPS.map((g) => tags.find((t) => t.group === g.key && t.slug === filters[g.key])?.id ?? (filters[g.key] ? 'none' : ''));
-    return photos.filter(
-      (p) =>
-        (!filters.year || p.takenOn.startsWith(filters.year)) &&
-        (!filters.event || (activeEvent && p.eventId === activeEvent.id)) &&
-        wanted.every((id) => !id || p.tagIds.includes(id)),
+    return pool.filter(
+      (p) => (!filters.event || (activeEvent && p.eventId === activeEvent.id)) && wanted.every((id) => !id || p.tagIds.includes(id)),
     );
-  }, [photos, tags, filters, activeEvent]);
+  }, [pool, tags, filters, activeEvent]);
+  const years = useMemo(() => {
+    const found = Array.from(new Set(matching.map((p) => p.takenOn.slice(0, 4))));
+    // Keep the chosen year's button even if nothing matches, so it can be seen and changed.
+    return filters.year && !found.includes(filters.year) ? [...found, filters.year].sort().reverse() : found;
+  }, [matching, filters.year]);
+  const shown = useMemo(() => matching.filter((p) => !filters.year || p.takenOn.startsWith(filters.year)), [matching, filters.year]);
 
   const filtering = Object.values(filters).some(Boolean);
   const byYear = useMemo(() => {
@@ -84,11 +100,13 @@ export default function Gallery({ photos, events, tags }: GalleryProps) {
 
   const eventCards = useMemo(
     () =>
-      events.map((e) => {
-        const own = photos.filter((p) => p.eventId === e.id);
-        return { event: e, count: own.length, cover: own.find((p) => p.id === e.coverPhotoId) ?? own[0] };
-      }),
-    [events, photos],
+      poolEvents
+        .map((e) => {
+          const own = pool.filter((p) => p.eventId === e.id);
+          return { event: e, count: own.length, cover: own.find((p) => p.id === e.coverPhotoId) ?? own[0] };
+        })
+        .filter((c) => c.count > 0),
+    [poolEvents, pool],
   );
 
   return (
@@ -117,9 +135,9 @@ export default function Gallery({ photos, events, tags }: GalleryProps) {
           </div>
 
           <div className='flex flex-wrap gap-3 justify-center mb-6'>
-            {events.length > 0 && (
+            {poolEvents.length > 0 && (
               <FilterSelect label='Event' value={filters.event} onChange={(v) => update({ event: v })} all='All events'
-                options={events.map((e) => ({ value: e.slug, label: e.title }))} />
+                options={poolEvents.map((e) => ({ value: e.slug, label: e.title }))} />
             )}
             {TAG_GROUPS.map((g) => {
               const groupTags = tags.filter((t) => t.group === g.key);

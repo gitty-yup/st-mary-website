@@ -39,6 +39,9 @@ export default function GalleryPhotos(props: Props) {
   const tags = props.tags;
   const years = useMemo(() => Array.from(new Set(photos.map((p) => p.takenOn.slice(0, 4)))), [photos]);
   const eventById = useMemo(() => new Map(events.map((e) => [e.id, e])), [events]);
+  const filterOnlyIds = useMemo(() => new Set(props.tags.filter((t) => t.filterOnly).map((t) => t.id)), [props.tags]);
+  /** Public, but only when a visitor chooses one of its "only when chosen" tags. */
+  const tucked = useCallback((p: OfficePhoto) => isPublic(p) && p.tagIds.some((id) => filterOnlyIds.has(id)), [filterOnlyIds]);
 
   const shown = useMemo(
     () =>
@@ -48,9 +51,15 @@ export default function GalleryPhotos(props: Props) {
           (!filter.event || (filter.event === 'none' ? !p.eventId : p.eventId === filter.event)) &&
           (!filter.tag || (filter.tag === 'untagged' ? !p.tagIds.length : p.tagIds.includes(filter.tag))) &&
           (!filter.status ||
-            (filter.status === 'missing' ? p.fileMissing : filter.status === 'published' ? isPublic(p) : p.status === 'hidden' && !p.fileMissing)),
+            (filter.status === 'missing'
+              ? p.fileMissing
+              : filter.status === 'published'
+                ? isPublic(p)
+                : filter.status === 'tucked'
+                  ? tucked(p)
+                  : p.status === 'hidden' && !p.fileMissing)),
       ),
-    [photos, filter],
+    [photos, filter, tucked],
   );
   const chosen = useMemo(() => photos.filter((p) => selected.has(p.id)), [photos, selected]);
 
@@ -59,6 +68,7 @@ export default function GalleryPhotos(props: Props) {
     untagged: photos.filter((p) => !p.tagIds.length).length,
     noEvent: photos.filter((p) => !p.eventId).length,
     hidden: photos.filter((p) => !isPublic(p)).length,
+    tucked: photos.filter(tucked).length,
   };
 
   function toggle(index: number, shift: boolean) {
@@ -138,7 +148,7 @@ export default function GalleryPhotos(props: Props) {
       <GalleryTabs current='/office/gallery' />
 
       <p className='text-sm text-gray-600 mb-4'>
-        {counts.total} photos · {counts.untagged} without tags · {counts.noEvent} without an event · {counts.hidden} not shown publicly
+        {counts.total} photos · {counts.untagged} without tags · {counts.noEvent} without an event · {counts.hidden} hidden{counts.tucked > 0 && ` · ${counts.tucked} shown only when their tag is chosen`}
       </p>
 
       <div className='flex flex-wrap gap-3 mb-4 text-sm'>
@@ -161,7 +171,7 @@ export default function GalleryPhotos(props: Props) {
           </select>
         </label>
         <Select label='Shown' value={filter.status} onChange={(status) => setFilter({ ...filter, status })}
-          options={[['', 'All'], ['published', 'In the public gallery'], ['hidden', 'Hidden'], ['missing', 'File missing']]} />
+          options={[['', 'All'], ['published', 'In the public gallery'], ['tucked', 'Only when their tag is chosen'], ['hidden', 'Hidden'], ['missing', 'File missing']]} />
       </div>
 
       <div className='flex flex-wrap items-center gap-3 mb-4 text-sm'>
@@ -202,7 +212,7 @@ export default function GalleryPhotos(props: Props) {
                       className={`object-cover w-full h-full ${isPublic(photo) ? '' : 'opacity-40'}`} />
                     {on && <span className='absolute top-1 left-1 bg-primary text-white rounded-full w-6 h-6 text-sm leading-6 text-center'>✓</span>}
                     <span className='absolute bottom-1 left-1 right-1 flex flex-wrap gap-1 justify-start'>
-                      {photo.fileMissing ? <Badge tone='red'>File missing</Badge> : photo.status === 'hidden' && <Badge tone='gray'>Hidden</Badge>}
+                      {photo.fileMissing ? <Badge tone='red'>File missing</Badge> : photo.status === 'hidden' ? <Badge tone='gray'>Hidden</Badge> : tucked(photo) && <Badge tone='gray'>Filter only</Badge>}
                       {photo.tagIds.length > 0 && <Badge>{photo.tagIds.length} {photo.tagIds.length === 1 ? 'tag' : 'tags'}</Badge>}
                       {event && <Badge>Event</Badge>}
                     </span>
@@ -320,6 +330,7 @@ function SelectionPanel(props: {
                         }`}
                       >
                         {t.label}
+                        {t.filterOnly && <span className='ml-1 opacity-70'>· filter only</span>}
                         {have > 0 && !all && <span className='ml-1 opacity-70'>({have})</span>}
                       </button>
                     );

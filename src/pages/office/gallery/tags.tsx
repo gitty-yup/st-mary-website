@@ -49,6 +49,15 @@ export default function GalleryTags(props: Props) {
       return 'Tag renamed.';
     });
 
+  const toggleFilterOnly = (t: CountedTag) =>
+    run(async () => {
+      const { tag } = await sendJson<{ tag: GalleryTag }>('/api/office/gallery/tags', { id: t.id, label: t.label, filterOnly: !t.filterOnly });
+      setTags((all) => all.map((x) => (x.id === tag.id ? { ...x, filterOnly: tag.filterOnly } : x)));
+      return tag.filterOnly
+        ? `Photos tagged “${tag.label}” now show only when a visitor chooses that tag.`
+        : `Photos tagged “${tag.label}” are back in the main gallery view.`;
+    });
+
   const remove = (t: CountedTag) =>
     run(async () => {
       await sendJson(`/api/office/gallery/tags?id=${t.id}`, undefined, 'DELETE');
@@ -61,9 +70,11 @@ export default function GalleryTags(props: Props) {
       <GalleryTabs current='/office/gallery/tags' />
       <p className='text-sm text-gray-600 mb-6 max-w-3xl'>
         Visitors can filter the gallery by these tags. Only tags on at least one photo are shown publicly. Renaming a tag keeps
-        its web address, so links people have shared still work.
+        its web address, so links people have shared still work. Tick <strong>Only when chosen</strong> for tags like
+        “Flyers &amp; posters”: their photos stay out of the main gallery view (years and events too) and appear when a visitor
+        chooses the tag.
       </p>
-      <div className='grid md:grid-cols-3 gap-6'>
+      <div className='grid md:grid-cols-2 gap-6'>
         {TAG_GROUPS.map((g) => (
           <section key={g.key} className='bg-white border border-gray-200 rounded-xl p-4'>
             <h2 className='font-secondary font-semibold text-primary text-lg mb-3'>{g.label}</h2>
@@ -83,7 +94,14 @@ export default function GalleryTags(props: Props) {
                       <Link href={`/office/gallery?tag=${t.id}`} className='text-xs text-gray-500 hover:underline'>
                         {t.photos} {t.photos === 1 ? 'photo' : 'photos'}
                       </Link>
-                      <span className='ml-auto flex gap-3'>
+                      <span className='ml-auto flex flex-wrap gap-x-3 gap-y-1 items-baseline'>
+                        <label
+                          className='flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer'
+                          title='Keep these photos out of the main gallery view; show them only when a visitor chooses this tag'
+                        >
+                          <input type='checkbox' checked={t.filterOnly} disabled={busy} onChange={() => toggleFilterOnly(t)} />
+                          Only when chosen
+                        </label>
                         <button onClick={() => setRenaming({ id: t.id, label: t.label })} className='text-primary hover:underline'>Rename</button>
                         <ConfirmDelete question={t.photos ? `Take it off ${t.photos} photos?` : 'Delete?'} busy={busy} onConfirm={() => remove(t)} />
                       </span>

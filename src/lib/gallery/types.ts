@@ -1,12 +1,13 @@
 // Browser-safe gallery types and helpers.
 
-export type TagGroup = 'organization' | 'occasion' | 'people';
+export type TagGroup = 'organization' | 'occasion' | 'people' | 'collection';
 
 /** Tag groups in display order, with the gallery URL parameter each one uses (/gallery?org=acyo). */
 export const TAG_GROUPS: { key: TagGroup; label: string; param: string }[] = [
   { key: 'organization', label: 'Organization', param: 'org' },
   { key: 'occasion', label: 'Occasion', param: 'occasion' },
   { key: 'people', label: 'People', param: 'people' },
+  { key: 'collection', label: 'Collection', param: 'collection' },
 ];
 
 export type PhotoStatus = 'pending' | 'published' | 'hidden' | 'rejected';
@@ -16,6 +17,8 @@ export interface GalleryTag {
   group: TagGroup;
   slug: string;
   label: string;
+  /** Photos with this tag stay out of the gallery's main view and appear only when the tag is chosen (e.g. flyers). */
+  filterOnly: boolean;
 }
 
 export interface GalleryEvent {
@@ -88,6 +91,15 @@ export function slugify(text: string): string {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 60);
+}
+
+/**
+ * Is the photo in view? Photos with an "only when chosen" tag appear only while
+ * one of those tags is chosen in the filters.
+ */
+export function inMainView(photo: GalleryPhoto, filterOnlyIds: Set<string>, chosenTagIds: string[]): boolean {
+  const tucked = photo.tagIds.filter((id) => filterOnlyIds.has(id));
+  return !tucked.length || tucked.some((id) => chosenTagIds.includes(id));
 }
 
 /** Text a screen reader can use for a photo. */

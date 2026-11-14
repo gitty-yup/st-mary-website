@@ -124,8 +124,12 @@ office change (and hourly as a fallback).
 In the office, **Photos** (`/office/gallery`) is where photos are tagged, put into events,
 captioned, and hidden or shown: select photos (Shift-click for a range), then use the panel
 at the bottom. **Events** and **Tags** manage the lists. Tag groups are Organization,
-Occasion and People. Renaming a tag or event keeps its web address. Every change is in
-`audit_events` (action `gallery`).
+Occasion, People and Collection. Renaming a tag or event keeps its web address. Every change
+is in `audit_events` (action `gallery`).
+
+A tag marked **Only when chosen** (such as Collection → "Flyers & posters") keeps its
+photos out of the main view, including years and events, until a visitor chooses that tag,
+e.g. `/gallery?collection=flyers-and-posters`. Hiding a photo removes it from every view.
 
 A photo whose file is removed from `public/media` drops out of the gallery but keeps its
 tags in the database in case it comes back.
