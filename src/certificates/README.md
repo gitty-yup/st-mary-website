@@ -19,7 +19,6 @@ const bytes = await renderCertificate('baptism', data, { preview: false }); // i
 | `assets/` | Source fonts, font license, Western Diocese logo. |
 | `assets.generated.ts` | Base64 of `assets/`, so Vercel always bundles them. Regenerate with `node scripts/embed-certificate-assets.js`. |
 | `fixtures/samples.json` | Fictional data for layout testing. |
-
 | `fields.ts` | Editable fields per certificate, form sections, input cleaning, date formatting. Browser-safe. |
 | `defaults.ts` | Parish defaults per certificate type. Browser-safe. |
 | `validate.ts` | Finds characters the certificate fonts can't print. |
