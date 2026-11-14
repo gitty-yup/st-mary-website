@@ -37,7 +37,7 @@ export default function OfficeVerify() {
   return (
     <OfficeLayout title='Sign in'>
       <div className='max-w-md mx-auto bg-white rounded-xl border border-gray-200 p-6 mt-8 space-y-4'>
-        <h1 className='font-secondary text-xl font-semibold text-primary'>Certificate Office</h1>
+        <h1 className='font-secondary text-xl font-semibold text-primary'>St. Mary Office</h1>
         <p className='text-gray-700'>Press the button to finish signing in.</p>
         {error && <p className='text-sm text-error'>{error}</p>}
         <button

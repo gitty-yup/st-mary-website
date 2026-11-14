@@ -15,19 +15,44 @@ export const LOGIN_LINK_MINUTES = 20;
 const SESSION_DAYS = 14;
 const MAX_LINKS_PER_HOUR = 5;
 
+/** Parts of the office: certificate records, and the photo gallery. */
+export type OfficeArea = 'certificates' | 'gallery';
+
 export interface OfficeSession {
   email: string;
+  areas: OfficeArea[];
 }
 
-export function officeEmails(): string[] {
-  return (process.env.OFFICE_EMAILS || DEFAULT_OFFICE_EMAILS)
+function emailList(value: string | undefined): string[] {
+  return (value ?? '')
     .split(',')
     .map((e) => e.trim().toLowerCase())
     .filter(Boolean);
 }
 
+export function officeEmails(): string[] {
+  return emailList(process.env.OFFICE_EMAILS || DEFAULT_OFFICE_EMAILS);
+}
+
+/**
+ * OFFICE_EMAILS can use the whole office. GALLERY_EDITORS can only manage
+ * photos: they never see certificate records.
+ */
+export function officeAreas(email: string): OfficeArea[] {
+  const e = email.trim().toLowerCase();
+  if (officeEmails().includes(e)) return ['certificates', 'gallery'];
+  if (emailList(process.env.GALLERY_EDITORS).includes(e)) return ['gallery'];
+  return [];
+}
+
+/** May this address sign in at all? */
 export function isOfficeEmail(email: string): boolean {
-  return officeEmails().includes(email.trim().toLowerCase());
+  return officeAreas(email).length > 0;
+}
+
+/** Where someone lands when they open a part of the office they can't use. */
+function homeFor(areas: OfficeArea[]): string {
+  return areas.includes('certificates') ? '/office' : '/office/gallery';
 }
 
 function newToken(): { token: string; hash: string } {
@@ -90,7 +115,7 @@ export async function redeemLoginToken(token: string, res: NextApiResponse): Pro
   );
   res.setHeader('Set-Cookie', cookieHeader(session.token, SESSION_DAYS * 86400));
   await recordAudit(null, email, 'sign_in');
-  return { email };
+  return { email, areas: officeAreas(email) };
 }
 
 export async function endSession(req: NextApiRequest, res: NextApiResponse): Promise<void> {
@@ -115,17 +140,23 @@ async function sessionFromCookie(cookieHeaderValue: string | undefined): Promise
     [hashToken(token)],
   );
   const email = rows[0]?.email;
-  // Removing an address from OFFICE_EMAILS locks it out immediately.
-  return email && isOfficeEmail(email) ? { email } : null;
+  // Removing an address from OFFICE_EMAILS / GALLERY_EDITORS locks it out immediately.
+  const areas = email ? officeAreas(email) : [];
+  return email && areas.length ? { email, areas } : null;
 }
 
-/** For office pages: returns the session, or a redirect to the sign-in page. */
+/**
+ * For office pages: returns the session, or a redirect to the sign-in page
+ * (not signed in) or to the part of the office this person can use.
+ */
 export async function requireOfficePage(
   ctx: GetServerSidePropsContext,
+  area: OfficeArea = 'certificates',
 ): Promise<{ session: OfficeSession } | { redirect: { destination: string; permanent: false } }> {
   ctx.res.setHeader('Cache-Control', 'private, no-store');
   const session = await sessionFromCookie(ctx.req.headers.cookie);
-  if (session) return { session };
+  if (session?.areas.includes(area)) return { session };
+  if (session) return { redirect: { destination: homeFor(session.areas), permanent: false } };
   const next = encodeURIComponent(ctx.resolvedUrl);
   return { redirect: { destination: `/office/login?next=${next}`, permanent: false } };
 }
@@ -135,7 +166,11 @@ export async function requireOfficePage(
  * null. State-changing requests must come from this site (Origin check), on
  * top of the SameSite=Lax cookie.
  */
-export async function requireOfficeApi(req: NextApiRequest, res: NextApiResponse): Promise<OfficeSession | null> {
+export async function requireOfficeApi(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  area: OfficeArea = 'certificates',
+): Promise<OfficeSession | null> {
   res.setHeader('Cache-Control', 'private, no-store');
   if (req.method !== 'GET' && req.method !== 'HEAD' && !sameOrigin(req)) {
     res.status(403).json({ error: 'Cross-site request refused.' });
@@ -144,6 +179,10 @@ export async function requireOfficeApi(req: NextApiRequest, res: NextApiResponse
   const session = await sessionFromCookie(req.headers.cookie);
   if (!session) {
     res.status(401).json({ error: 'Your session has ended. Please sign in again.' });
+    return null;
+  }
+  if (!session.areas.includes(area)) {
+    res.status(403).json({ error: 'Your sign-in doesn’t include this part of the office.' });
     return null;
   }
   return session;

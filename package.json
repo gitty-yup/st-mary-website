@@ -4,10 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/generate-gallery-manifest.js && node scripts/db-migrate.js && next build",
+    "build": "node scripts/db-migrate.js && node scripts/gallery-sync.js && next build",
     "start": "next start",
     "lint": "next lint",
     "db:migrate": "node scripts/db-migrate.js",
+    "gallery:sync": "node scripts/gallery-sync.js",
     "certificates:samples": "tsx scripts/render-certificate-samples.ts",
     "certificates:restore": "tsx scripts/restore-certificates.ts"
   },
@@ -33,6 +34,7 @@
     "react-click-away-listener": "^2.2.3",
     "react-dom": "18.2.0",
     "resend": "^6.22.0",
+    "sharp": "^0.35.5",
     "tailwindcss": "3.4.19",
     "turndown": "^7.2.4",
     "typescript": "5.0.4"

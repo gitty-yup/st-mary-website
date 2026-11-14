@@ -1,9 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { createLoginLink, sameOrigin } from '@/lib/office/auth';
+import { createLoginLink, officeAreas, sameOrigin } from '@/lib/office/auth';
 import { sendLoginEmail } from '@/lib/office/email';
 
 // Same answer whether or not the address is allowed, so the allowlist can't be probed.
-const GENERIC_OK = { message: 'If that address is allowed to use the certificate office, a sign-in link is on its way.' };
+const GENERIC_OK = { message: 'If that address is allowed to use the office, a sign-in link is on its way.' };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).end();
@@ -14,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
   try {
     const link = await createLoginLink(email, req.body?.next);
-    if (link) await sendLoginEmail(email, link);
+    if (link) await sendLoginEmail(email, link, officeAreas(email).includes('certificates') ? 'certificate office' : 'photo gallery');
     return res.status(200).json(GENERIC_OK);
   } catch (err) {
     console.error('[office login]', err instanceof Error ? err.message : err);

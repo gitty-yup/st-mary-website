@@ -18,7 +18,8 @@ export type AuditAction =
   | 'email'
   | 'export'
   | 'backup'
-  | 'restore';
+  | 'restore'
+  | 'gallery';
 
 export async function recordAudit(
   requestId: string | null,

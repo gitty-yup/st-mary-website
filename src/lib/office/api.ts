@@ -1,18 +1,21 @@
 import type { NextApiHandler, NextApiRequest, NextApiResponse } from 'next';
-import { requireOfficeApi, type OfficeSession } from '@/lib/office/auth';
+import { requireOfficeApi, type OfficeArea, type OfficeSession } from '@/lib/office/auth';
 import { RecordError } from '@/lib/office/records';
 
 type OfficeHandler = (req: NextApiRequest, res: NextApiResponse, session: OfficeSession) => Promise<unknown>;
 
-/** Wraps an office API route: method check, sign-in check, and error handling (no PII in logs). */
-export function officeRoute(methods: string[], handler: OfficeHandler): NextApiHandler {
+/**
+ * Wraps an office API route: method check, sign-in check for one part of the
+ * office (certificates unless stated), and error handling (no PII in logs).
+ */
+export function officeRoute(methods: string[], handler: OfficeHandler, area: OfficeArea = 'certificates'): NextApiHandler {
   return async (req, res) => {
     if (!methods.includes(req.method ?? '')) {
       res.setHeader('Allow', methods.join(', '));
       return res.status(405).json({ error: 'Method not allowed.' });
     }
     try {
-      const session = await requireOfficeApi(req, res);
+      const session = await requireOfficeApi(req, res, area);
       if (!session) return;
       await handler(req, res, session);
     } catch (err) {

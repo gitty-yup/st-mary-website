@@ -65,17 +65,18 @@ function button(href: string, label: string): string {
 
 // --- Office sign-in ----------------------------------------------------------------
 
-export async function sendLoginEmail(to: string, link: string): Promise<void> {
+/** `place`: what they're signing in to ("certificate office", or "photo gallery" for gallery editors). */
+export async function sendLoginEmail(to: string, link: string, place = 'certificate office'): Promise<void> {
   await send({
     to: [to],
-    subject: 'Sign in to the St. Mary certificate office',
+    subject: `Sign in to the St. Mary ${place}`,
     html: layout(
-      'Certificate office sign-in',
+      `${place[0].toUpperCase()}${place.slice(1)} sign-in`,
       `<p style="margin:0 0 24px;">Click the button to sign in.</p>
        ${button(link, 'Sign in')}
        <p style="margin:0;font-size:13px;color:#888;">The link works once and expires in <strong>${LOGIN_LINK_MINUTES} minutes</strong>. If you didn't ask to sign in, you can ignore this email.</p>`,
     ),
-    text: `Use this link to sign in to the St. Mary certificate office:\n\n${link}\n\nThe link works once and expires in ${LOGIN_LINK_MINUTES} minutes. If you didn't ask to sign in, you can ignore this email.`,
+    text: `Use this link to sign in to the St. Mary ${place}:\n\n${link}\n\nThe link works once and expires in ${LOGIN_LINK_MINUTES} minutes. If you didn't ask to sign in, you can ignore this email.`,
   });
 }
 

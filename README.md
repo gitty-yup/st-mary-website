@@ -10,10 +10,12 @@ Next.js 15 (pages router), React 18, TypeScript, Tailwind 3, hosted on Vercel.
 | --- | --- |
 | `src/pages/` | Public pages, `office/` (certificate office), `forms/` (baptism/marriage forms), `api/` |
 | `src/certificates/` | Certificate PDFs, fields and forms. **Its [README](src/certificates/README.md) covers the certificate system in detail.** |
-| `src/lib/office/` | Certificate office: sign-in, records, emails, export, backup |
+| `src/lib/office/` | Office: sign-in, records, emails, export, backup |
+| `src/lib/gallery/`, `src/pages/office/gallery/` | Photo gallery data and its office screens (photos, events, tags) |
 | `db/migrations/` | Database schema (applied automatically on every build) |
 | `content/blog/` | Blog posts (Markdown), edited in `/admin` or imported from Mailchimp |
-| `public/media/YYYY/MM/` | Gallery photos (the gallery lists these folders at build time) |
+| `public/media/YYYY/MM/` | Site photos; each build adds new ones to the gallery (`scripts/gallery-sync.js`) |
+| `public/gallery-thumbs/` | Gallery thumbnails (made by the sync, committed so builds stay quick) |
 | `MIGRATION-NOTES.md` | How the old WordPress site was moved here |
 
 The office's day-to-day use is described in the **Certificate Office Guide** (a shared
@@ -25,9 +27,9 @@ document for Hayr Eremia and the parish office, kept outside this repository).
 - Any other branch gets a **preview** deployment, protected by Vercel sign-in. Previews
   use their own copy of the database (a Neon branch) and send certificate emails only
   to info@, with `[TEST]` in the subject.
-- `npm run build` runs, in order: the gallery list (`scripts/generate-gallery-manifest.js`),
-  pending database migrations (`scripts/db-migrate.js`), then `next build`. A production
-  build with no `DATABASE_URL` fails on purpose.
+- `npm run build` runs, in order: pending database migrations (`scripts/db-migrate.js`),
+  the gallery sync (`scripts/gallery-sync.js`), then `next build`. A production build with
+  no `DATABASE_URL` fails on purpose.
 - Settings (below) are changed in Vercel → Project → Settings → Environment Variables,
   and take effect on the **next deployment** (redeploy after changing one).
 
@@ -51,7 +53,8 @@ Values are secrets: keep them in Vercel only, never in this repository.
 | Setting | Purpose |
 | --- | --- |
 | `DATABASE_URL`, `DATABASE_URL_UNPOOLED`, `POSTGRES_URL` | Neon database (set by the integration). Migrations prefer the unpooled one. |
-| `OFFICE_EMAILS` | Comma-separated addresses allowed to sign in to `/office`. Default: the priest and info@. |
+| `OFFICE_EMAILS` | Comma-separated addresses allowed to use the whole office (certificates and photos). Default: the priest and info@. |
+| `GALLERY_EDITORS` | Comma-separated addresses allowed to manage photos only; they never see certificate records. Default: none. |
 | `CERTIFICATE_NOTIFY_TO`, `CERTIFICATE_NOTIFY_CC` | Who is emailed about new online submissions. Defaults in production: the priest, CC info@. |
 | `RESEND_API_KEY` | Sending email. Unset in local development: emails, including sign-in links, are printed to the console instead. |
 | `CRON_SECRET` | Lets Vercel's cron call the backup and Mailchimp jobs; without it they refuse every request. |
@@ -70,9 +73,10 @@ Values are secrets: keep them in Vercel only, never in this repository.
 
 ## Common tasks
 
-**Give someone access to the certificate office, or remove it.** Edit `OFFICE_EMAILS`
-(Production), then redeploy. A removed address is signed out everywhere on the next
-request. Sign-in is by emailed one-time link; there are no passwords.
+**Give someone access to the office, or remove it.** Edit `OFFICE_EMAILS` (everything) or
+`GALLERY_EDITORS` (photos only) in Production, then redeploy. A removed address is signed
+out everywhere on the next request. Sign-in is by emailed one-time link; there are no
+passwords.
 
 **Change who hears about new submissions.** Set `CERTIFICATE_NOTIFY_TO` / `CERTIFICATE_NOTIFY_CC`
 (comma-separated), then redeploy.
@@ -104,8 +108,27 @@ by hand with `DATABASE_URL=... npm run db:migrate`.
 renders every sample certificate and fails if a font is missing a character.
 
 **Add gallery photos.** Put them in `public/media/YYYY/MM/`, shrunk to at most 2000 px on
-the long side. Full-size originals of the existing photos are archived outside this
-repository.
+the long side, and run `npm run gallery:sync` to make their thumbnails; commit both. The
+next deployment adds them to the gallery, published and untagged; tag them in the office.
+(A build also makes any missing thumbnail, just more slowly.) Full-size originals of the
+existing photos are archived outside this repository.
+
+## Photo gallery
+
+`/gallery` shows published photos newest first, by the date they were taken (camera date,
+else the folder's month), with filters for year, event and tags. Filters are in the address,
+so a link like `/gallery?org=acyo` or `/gallery?event=food-festival-2018` can be shared or
+put on an organization's page. The page is pre-built and rebuilt straight after every
+office change (and hourly as a fallback).
+
+In the office, **Photos** (`/office/gallery`) is where photos are tagged, put into events,
+captioned, and hidden or shown: select photos (Shift-click for a range), then use the panel
+at the bottom. **Events** and **Tags** manage the lists. Tag groups are Organization,
+Occasion and People. Renaming a tag or event keeps its web address. Every change is in
+`audit_events` (action `gallery`).
+
+A photo whose file is removed from `public/media` drops out of the gallery but keeps its
+tags in the database in case it comes back.
 
 ## Restoring from the backup
 
@@ -147,9 +170,12 @@ DATABASE_URL=postgres://... npm run dev
 ```
 
 Without `RESEND_API_KEY`, the office sign-in link is printed in the terminal (local
-development only). Without a database, the public pages work but the office and forms don't.
+development only). Without a database, the public pages work (the gallery is empty) but the office and forms
+don't.
 
 ## Known limits
 
 - The office record list loads the 300 most recently changed records, and its search
   covers only those. Add paging before the office holds that many.
+- The gallery page loads every published photo's details at once (fine for a few thousand
+  photos; past that it needs paging).
