@@ -67,26 +67,103 @@ export function Notice({ message, error, onDone }: { message: string; error?: bo
   );
 }
 
-/** A delete button that asks "Delete? Yes / No" in place (no browser pop-up). */
-export function ConfirmDelete({ label = 'Delete', question, onConfirm, busy }: { label?: string; question: string; onConfirm: () => void; busy?: boolean }) {
-  const [asking, setAsking] = React.useState(false);
-  if (!asking) {
-    return (
-      <button onClick={() => setAsking(true)} className='text-sm text-red-700 hover:underline'>
+/** Taps on the dialog's Delete button this soon after it opens are ignored (a double tap on the button that opened it). */
+const CONFIRM_DELAY_MS = 500;
+
+/**
+ * A delete button that always asks first, in a dialog (not a browser pop-up):
+ * a short question, what will happen, and two large, separate buttons. Cancel
+ * is focused, so Enter, Escape or a tap outside the dialog deletes nothing; the
+ * red button says exactly what it deletes. On phones the dialog sits at the
+ * bottom of the screen with Cancel last, nearest the thumb.
+ */
+export function ConfirmDelete({
+  label = 'Delete',
+  title,
+  message,
+  confirmLabel,
+  onConfirm,
+  busy,
+  className = 'text-sm text-red-700 hover:underline disabled:opacity-50',
+}: {
+  /** The button that opens the dialog. */
+  label?: string;
+  /** The question, e.g. "Delete 3 photos?" */
+  title: string;
+  /** What happens, a sentence or two (or more, e.g. thumbnails). */
+  message?: React.ReactNode;
+  /** The red button, naming what it deletes, e.g. "Delete 3 photos". */
+  confirmLabel: string;
+  onConfirm: () => void | Promise<void>;
+  busy?: boolean;
+  className?: string;
+}) {
+  const dialog = React.useRef<HTMLDialogElement>(null);
+  const cancel = React.useRef<HTMLButtonElement>(null);
+  const openedAt = React.useRef(0);
+  const [working, setWorking] = React.useState(false);
+  const titleId = React.useId();
+
+  function open() {
+    openedAt.current = Date.now();
+    dialog.current?.showModal();
+    cancel.current?.focus();
+  }
+
+  function close() {
+    dialog.current?.close();
+  }
+
+  async function confirm() {
+    if (working || Date.now() - openedAt.current < CONFIRM_DELAY_MS) return;
+    setWorking(true);
+    try {
+      await onConfirm();
+    } finally {
+      setWorking(false);
+      close();
+    }
+  }
+
+  return (
+    <>
+      <button type='button' onClick={open} disabled={busy} className={className}>
         {label}
       </button>
-    );
-  }
-  return (
-    <span className='text-sm'>
-      <span className='text-gray-700'>{question} </span>
-      <button onClick={onConfirm} disabled={busy} className='text-red-700 font-medium hover:underline'>
-        Yes, delete
-      </button>
-      {' · '}
-      <button onClick={() => setAsking(false)} className='text-gray-600 hover:underline'>
-        No
-      </button>
-    </span>
+      <dialog
+        ref={dialog}
+        aria-labelledby={titleId}
+        // A tap on the dimmed background (the dialog element itself, outside its card) cancels.
+        onClick={(e) => e.target === dialog.current && !working && close()}
+        onCancel={(e) => working && e.preventDefault()}
+        className='w-[calc(100%-2rem)] max-w-md mb-4 mt-auto sm:my-auto rounded-2xl p-0 bg-white text-left shadow-2xl backdrop:bg-black/50'
+      >
+        <div className='p-5 sm:p-6'>
+          <h2 id={titleId} className='text-lg font-semibold text-gray-900'>
+            {title}
+          </h2>
+          {message && <div className='mt-2 text-sm text-gray-600 space-y-2'>{message}</div>}
+          <div className='mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end'>
+            <button
+              ref={cancel}
+              type='button'
+              onClick={close}
+              disabled={working}
+              className='min-h-[44px] rounded-lg border border-gray-300 bg-white px-5 text-base sm:text-sm font-medium text-gray-800 hover:bg-gray-50 disabled:opacity-50'
+            >
+              Cancel
+            </button>
+            <button
+              type='button'
+              onClick={confirm}
+              disabled={working}
+              className='min-h-[44px] rounded-lg bg-red-700 px-5 text-base sm:text-sm font-semibold text-white hover:bg-red-800 disabled:opacity-60'
+            >
+              {working ? 'Deleting…' : confirmLabel}
+            </button>
+          </div>
+        </div>
+      </dialog>
+    </>
   );
 }

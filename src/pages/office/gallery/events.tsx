@@ -123,7 +123,20 @@ export default function GalleryEvents(props: Props) {
                     <a href={`/gallery?event=${e.slug}`} target='_blank' rel='noreferrer' className='text-primary hover:underline'>Public page ↗</a>
                   )}
                   <button onClick={() => edit(e)} className='text-primary hover:underline'>Edit</button>
-                  <ConfirmDelete question={e.photos ? `Delete? Its ${e.photos} photos stay in the gallery.` : 'Delete?'} busy={busy} onConfirm={() => remove(e)} />
+                  <ConfirmDelete
+                    title={`Delete the event “${e.title}”?`}
+                    message={
+                      <p>
+                        {e.photos
+                          ? `Its ${e.photos === 1 ? 'photo stays' : `${e.photos} photos stay`} in the gallery, just without an event.`
+                          : 'It has no photos.'}{' '}
+                        This can’t be undone.
+                      </p>
+                    }
+                    confirmLabel='Delete event'
+                    busy={busy}
+                    onConfirm={() => remove(e)}
+                  />
                 </div>
               </div>
             )}

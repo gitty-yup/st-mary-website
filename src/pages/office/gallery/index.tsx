@@ -287,7 +287,7 @@ function SelectionPanel(props: {
   tags: CountedTag[];
   events: CountedEvent[];
   busy: boolean;
-  onApply: (change: PhotoChange, message: string, only?: string[]) => void;
+  onApply: (change: PhotoChange, message: string, only?: string[]) => Promise<void>;
   onCover: (photo: OfficePhoto) => void;
   onClear: () => void;
 }) {
@@ -307,11 +307,7 @@ function SelectionPanel(props: {
   const notDeleted = chosen.filter((p) => !p.deleted);
   const toDelete = notDeleted.filter((p) => !p.usedIn.length);
   const inPosts = notDeleted.length - toDelete.length;
-  const deleteQuestion = !inPosts
-    ? toDelete.length === 1
-      ? 'Delete this photo?'
-      : `Delete these ${toDelete.length} photos?`
-    : `Delete ${toDelete.length} of them? ${inPosts === 1 ? 'One is in a blog post' : `${inPosts} are in blog posts`} and can’t be deleted.`;
+  const photosWord = (k: number) => (k === 1 ? '1 photo' : `${k} photos`);
   const oneEvent = one?.eventId ? props.events.find((e) => e.id === one.eventId) : null;
 
   return (
@@ -341,8 +337,34 @@ function SelectionPanel(props: {
             )}
             {toDelete.length > 0 && (
               <ConfirmDelete
-                question={deleteQuestion}
+                title={toDelete.length === 1 ? 'Delete this photo?' : `Delete ${toDelete.length} photos?`}
+                confirmLabel={`Delete ${photosWord(toDelete.length)}`}
+                className='border border-red-300 text-red-700 rounded-lg px-3 py-1 text-sm hover:bg-red-50 disabled:opacity-50'
                 busy={busy}
+                message={
+                  <>
+                    <span className='flex flex-wrap gap-1.5'>
+                      {toDelete.slice(0, 8).map((p) => (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img key={p.id} src={p.thumb} alt='' className='w-12 h-12 object-cover rounded' />
+                      ))}
+                      {toDelete.length > 8 && (
+                        <span className='w-12 h-12 rounded bg-gray-100 text-gray-600 text-xs flex items-center justify-center'>+{toDelete.length - 8}</span>
+                      )}
+                    </span>
+                    <p>
+                      {toDelete.length === 1 ? 'It leaves' : 'They leave'} the public gallery now. Until the website’s next
+                      update you can undo this under Shown → Deleted; after that {toDelete.length === 1 ? 'it’s' : 'they’re'} gone
+                      for good.
+                    </p>
+                    {inPosts > 0 && (
+                      <p>
+                        {inPosts === 1 ? '1 other selected photo is in a blog post' : `${inPosts} other selected photos are in blog posts`}{' '}
+                        and won’t be deleted.
+                      </p>
+                    )}
+                  </>
+                }
                 onConfirm={() =>
                   onApply(
                     { deleted: true },

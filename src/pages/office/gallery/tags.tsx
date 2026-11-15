@@ -103,7 +103,20 @@ export default function GalleryTags(props: Props) {
                           Only when chosen
                         </label>
                         <button onClick={() => setRenaming({ id: t.id, label: t.label })} className='text-primary hover:underline'>Rename</button>
-                        <ConfirmDelete question={t.photos ? `Take it off ${t.photos} photos?` : 'Delete?'} busy={busy} onConfirm={() => remove(t)} />
+                        <ConfirmDelete
+                          title={`Delete the tag “${t.label}”?`}
+                          message={
+                            <p>
+                              {t.photos
+                                ? `It will be taken off ${t.photos === 1 ? '1 photo' : `${t.photos} photos`}; the photos stay in the gallery.`
+                                : 'No photos have this tag.'}{' '}
+                              This can’t be undone.
+                            </p>
+                          }
+                          confirmLabel='Delete tag'
+                          busy={busy}
+                          onConfirm={() => remove(t)}
+                        />
                       </span>
                     </span>
                   )}
