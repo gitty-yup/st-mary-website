@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   TAG_GROUPS,
+  eventName,
   inMainView,
   monthYear,
   photoAlt,
@@ -137,7 +138,7 @@ export default function Gallery({ photos, events, tags }: GalleryProps) {
           <div className='flex flex-wrap gap-3 justify-center mb-6'>
             {poolEvents.length > 0 && (
               <FilterSelect label='Event' value={filters.event} onChange={(v) => update({ event: v })} all='All events'
-                options={poolEvents.map((e) => ({ value: e.slug, label: e.title }))} />
+                options={poolEvents.map((e) => ({ value: e.slug, label: eventName(e) }))} />
             )}
             {TAG_GROUPS.map((g) => {
               const groupTags = tags.filter((t) => t.group === g.key);

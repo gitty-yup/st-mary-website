@@ -3,7 +3,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import OfficeLayout from '@/components/office/OfficeLayout';
 import { ConfirmDelete, GalleryTabs, Notice, sendJson } from '@/components/office/gallery/shared';
 import { requireOfficePage, type OfficeArea } from '@/lib/office/auth';
-import { MAX_CAPTION, TAG_GROUPS, monthYear, type CountedEvent, type CountedTag, type OfficePhoto, type PhotoChange } from '@/lib/gallery/types';
+import { MAX_CAPTION, TAG_GROUPS, eventName, monthYear, type CountedEvent, type CountedTag, type OfficePhoto, type PhotoChange } from '@/lib/gallery/types';
 
 interface Props {
   email: string;
@@ -137,7 +137,7 @@ export default function GalleryPhotos(props: Props) {
     try {
       await sendJson('/api/office/gallery/events', { id: event.id, coverPhotoId: photo.id });
       setEvents((all) => all.map((e) => (e.id === event.id ? { ...e, coverPhotoId: photo.id } : e)));
-      setNotice({ message: `Cover photo set for ${event.title}.`, error: false });
+      setNotice({ message: `Cover photo set for ${eventName(event)}.`, error: false });
     } catch (err) {
       setNotice({ message: (err as Error).message, error: true });
     } finally {
@@ -165,7 +165,7 @@ export default function GalleryPhotos(props: Props) {
         <Select label='Year' value={filter.year} onChange={(year) => setFilter({ ...filter, year })}
           options={[['', 'All years'], ...years.map((y) => [y, y] as [string, string])]} />
         <Select label='Event' value={filter.event} onChange={(event) => setFilter({ ...filter, event })}
-          options={[['', 'All'], ['none', 'No event'], ...events.map((e) => [e.id, e.title] as [string, string])]} />
+          options={[['', 'All'], ['none', 'No event'], ...events.map((e) => [e.id, eventName(e)] as [string, string])]} />
         <label className='flex items-center gap-2'>
           <span className='text-gray-600'>Tag</span>
           <select value={filter.tag} onChange={(e) => setFilter({ ...filter, tag: e.target.value })} className='border border-gray-300 rounded-lg px-2 py-1.5 bg-white max-w-[14rem]'>
@@ -428,14 +428,14 @@ function SelectionPanel(props: {
                 onChange={(e) => {
                   const v = e.target.value;
                   const ev = props.events.find((x) => x.id === v);
-                  onApply({ eventId: v === 'none' ? null : v }, ev ? `Added ${what} to ${ev.title}.` : `Removed ${what} from their event.`);
+                  onApply({ eventId: v === 'none' ? null : v }, ev ? `Added ${what} to ${eventName(ev)}.` : `Removed ${what} from their event.`);
                 }}
                 className='mt-1 w-full border border-gray-300 rounded-lg px-2 py-1.5 bg-white'
               >
                 {!sameEvent && <option value=''>(different events)</option>}
                 <option value='none'>No event</option>
                 {props.events.map((e) => (
-                  <option key={e.id} value={e.id}>{e.title}</option>
+                  <option key={e.id} value={e.id}>{eventName(e)}</option>
                 ))}
               </select>
             </label>

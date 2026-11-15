@@ -94,11 +94,25 @@ export function monthYear(iso: string | null | undefined): string {
   return m ? `${MONTHS[Number(m[2]) - 1] ?? ''} ${m[1]}`.trim() : '';
 }
 
-/** Lower-case ASCII words joined by hyphens ("Mommy & Me" → "mommy-and-me"); empty if nothing is left. */
+/**
+ * An event's name for lists that show no date: the title, plus its year when the
+ * title doesn't already say it ("Armenian Festival (2018)"), so events that share
+ * a name can be told apart.
+ */
+export function eventName(event: Pick<GalleryEvent, 'title' | 'eventDate'>): string {
+  const year = event.eventDate?.slice(0, 4);
+  return year && !event.title.includes(year) ? `${event.title} (${year})` : event.title;
+}
+
+/**
+ * Lower-case ASCII words joined by hyphens ("Mommy & Me" → "mommy-and-me",
+ * "Children’s Class" → "childrens-class"); empty if nothing is left.
+ */
 export function slugify(text: string): string {
   return text
     .normalize('NFKD')
     .replace(/[\u0300-\u036f]/g, '')
+    .replace(/['’]/g, '')
     .toLowerCase()
     .replace(/&/g, ' and ')
     .replace(/[^a-z0-9]+/g, '-')
