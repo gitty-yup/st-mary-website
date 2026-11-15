@@ -134,6 +134,18 @@ e.g. `/gallery?collection=flyers-and-posters`. Hiding a photo removes it from ev
 A photo whose file is removed from `public/media` drops out of the gallery but keeps its
 tags in the database in case it comes back.
 
+**Deleting** a photo in the office (Photos → select → Delete) takes it out of the gallery at
+once; it waits under Shown → Deleted, where it can be undone. Its files come off the website
+at the next deployment: on Vercel, `scripts/gallery-sync.js` removes the photo and its
+thumbnail from the build's copy of `public/` and marks it removed (no more undo). Each build
+also records which blog posts and pages show each photo; a deleted photo that one of them
+still shows keeps its file, and the office says so. Local builds never delete files.
+
+The files stay in the repository (and its public history) until someone removes them. The
+build log lists them ("Still in the repository: …"); `git rm` those paths in the next
+commit. Leave the database rows, so the photo never comes back. For a takedown request,
+also scrub the file from the git history.
+
 ## Restoring from the backup
 
 Use this if the certificate database is lost or damaged. If the damage is recent, first

@@ -1,7 +1,7 @@
 import type { GetServerSideProps } from 'next';
 import React, { useCallback, useMemo, useState } from 'react';
 import OfficeLayout from '@/components/office/OfficeLayout';
-import { GalleryTabs, Notice, sendJson } from '@/components/office/gallery/shared';
+import { ConfirmDelete, GalleryTabs, Notice, sendJson } from '@/components/office/gallery/shared';
 import { requireOfficePage, type OfficeArea } from '@/lib/office/auth';
 import { MAX_CAPTION, TAG_GROUPS, monthYear, type CountedEvent, type CountedTag, type OfficePhoto, type PhotoChange } from '@/lib/gallery/types';
 
@@ -20,11 +20,11 @@ interface Filter {
   event: string;
   /** '' all, 'untagged', or a tag ID */
   tag: string;
-  /** '' all, 'published', 'hidden', 'missing' */
+  /** '' all (not deleted), 'published', 'tucked', 'hidden', 'missing', 'deleted' */
   status: string;
 }
 
-const isPublic = (p: OfficePhoto) => p.status === 'published' && !p.fileMissing;
+const isPublic = (p: OfficePhoto) => p.status === 'published' && !p.fileMissing && !p.deleted;
 
 export default function GalleryPhotos(props: Props) {
   const [photos, setPhotos] = useState(props.photos);
@@ -50,25 +50,30 @@ export default function GalleryPhotos(props: Props) {
           (!filter.year || p.takenOn.startsWith(filter.year)) &&
           (!filter.event || (filter.event === 'none' ? !p.eventId : p.eventId === filter.event)) &&
           (!filter.tag || (filter.tag === 'untagged' ? !p.tagIds.length : p.tagIds.includes(filter.tag))) &&
-          (!filter.status ||
-            (filter.status === 'missing'
-              ? p.fileMissing
-              : filter.status === 'published'
-                ? isPublic(p)
-                : filter.status === 'tucked'
-                  ? tucked(p)
-                  : p.status === 'hidden' && !p.fileMissing)),
+          (filter.status === 'deleted'
+            ? p.deleted
+            : !p.deleted &&
+              (!filter.status ||
+                (filter.status === 'missing'
+                  ? p.fileMissing
+                  : filter.status === 'published'
+                    ? isPublic(p)
+                    : filter.status === 'tucked'
+                      ? tucked(p)
+                      : p.status === 'hidden' && !p.fileMissing))),
       ),
     [photos, filter, tucked],
   );
   const chosen = useMemo(() => photos.filter((p) => selected.has(p.id)), [photos, selected]);
 
+  const kept = photos.filter((p) => !p.deleted);
   const counts = {
-    total: photos.length,
-    untagged: photos.filter((p) => !p.tagIds.length).length,
-    noEvent: photos.filter((p) => !p.eventId).length,
-    hidden: photos.filter((p) => !isPublic(p)).length,
-    tucked: photos.filter(tucked).length,
+    total: kept.length,
+    untagged: kept.filter((p) => !p.tagIds.length).length,
+    noEvent: kept.filter((p) => !p.eventId).length,
+    hidden: kept.filter((p) => !isPublic(p)).length,
+    tucked: kept.filter(tucked).length,
+    deleted: photos.length - kept.length,
   };
 
   function toggle(index: number, shift: boolean) {
@@ -110,9 +115,12 @@ export default function GalleryPhotos(props: Props) {
             eventId: change.eventId !== undefined ? change.eventId : p.eventId,
             status: change.status ?? p.status,
             caption: change.caption ?? p.caption,
+            deleted: change.deleted ?? p.deleted,
           };
         }),
       );
+      // Deleted photos leave the list (and undone ones leave the Deleted list), so let them go.
+      if (change.deleted !== undefined) setSelected(new Set());
       setNotice({ message: res.refreshed ? message : `${message} The public gallery will catch up within the hour.`, error: false });
     } catch (err) {
       setNotice({ message: (err as Error).message, error: true });
@@ -149,6 +157,7 @@ export default function GalleryPhotos(props: Props) {
 
       <p className='text-sm text-gray-600 mb-4'>
         {counts.total} photos · {counts.untagged} without tags · {counts.noEvent} without an event · {counts.hidden} hidden{counts.tucked > 0 && ` · ${counts.tucked} shown only when their tag is chosen`}
+        {counts.deleted > 0 && ` · ${counts.deleted} deleted`}
       </p>
 
       <div className='flex flex-wrap gap-3 mb-4 text-sm'>
@@ -171,8 +180,15 @@ export default function GalleryPhotos(props: Props) {
           </select>
         </label>
         <Select label='Shown' value={filter.status} onChange={(status) => setFilter({ ...filter, status })}
-          options={[['', 'All'], ['published', 'In the public gallery'], ['tucked', 'Only when their tag is chosen'], ['hidden', 'Hidden'], ['missing', 'File missing']]} />
+          options={[['', 'All'], ['published', 'In the public gallery'], ['tucked', 'Only when their tag is chosen'], ['hidden', 'Hidden'], ['missing', 'File missing'], ['deleted', 'Deleted']]} />
       </div>
+      {filter.status === 'deleted' && (
+        <p className='text-sm text-gray-700 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 mb-4'>
+          These photos are out of the gallery. Their files come off the website at its next update; until then you can
+          select them and choose <strong>Undo delete</strong>. A photo that a blog post still shows keeps its file, so it
+          stays here.
+        </p>
+      )}
 
       <div className='flex flex-wrap items-center gap-3 mb-4 text-sm'>
         <span className='text-gray-700'>
@@ -204,7 +220,12 @@ export default function GalleryPhotos(props: Props) {
                     key={photo.id}
                     onClick={(e) => toggle(index, e.shiftKey)}
                     aria-pressed={on}
-                    title={[monthYear(photo.takenOn), event?.title, tagNames.join(', ')].filter(Boolean).join(' · ')}
+                    title={[
+                      monthYear(photo.takenOn),
+                      event?.title,
+                      tagNames.join(', '),
+                      photo.usedIn.length ? `Also in: ${photo.usedIn.map((u) => u.title).join('; ')}` : '',
+                    ].filter(Boolean).join(' · ')}
                     className={`relative aspect-square overflow-hidden rounded bg-gray-200 focus:outline-none focus:ring-2 focus:ring-secondary ${on ? 'ring-4 ring-primary' : ''}`}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -212,7 +233,7 @@ export default function GalleryPhotos(props: Props) {
                       className={`object-cover w-full h-full ${isPublic(photo) ? '' : 'opacity-40'}`} />
                     {on && <span className='absolute top-1 left-1 bg-primary text-white rounded-full w-6 h-6 text-sm leading-6 text-center'>✓</span>}
                     <span className='absolute bottom-1 left-1 right-1 flex flex-wrap gap-1 justify-start'>
-                      {photo.fileMissing ? <Badge tone='red'>File missing</Badge> : photo.status === 'hidden' ? <Badge tone='gray'>Hidden</Badge> : tucked(photo) && <Badge tone='gray'>Filter only</Badge>}
+                      {photo.deleted ? <Badge tone='red'>Deleted</Badge> : photo.fileMissing ? <Badge tone='red'>File missing</Badge> : photo.status === 'hidden' ? <Badge tone='gray'>Hidden</Badge> : tucked(photo) && <Badge tone='gray'>Filter only</Badge>}
                       {photo.tagIds.length > 0 && <Badge>{photo.tagIds.length} {photo.tagIds.length === 1 ? 'tag' : 'tags'}</Badge>}
                       {event && <Badge>Event</Badge>}
                     </span>
@@ -278,7 +299,17 @@ function SelectionPanel(props: {
   const eventIds = Array.from(new Set(chosen.map((p) => p.eventId ?? 'none')));
   const sameEvent = eventIds.length === 1 ? eventIds[0] : '';
   const anyShown = chosen.some(isPublic);
-  const anyHidden = chosen.some((p) => p.status === 'hidden');
+  const anyHidden = chosen.some((p) => p.status === 'hidden' && !p.deleted);
+  const anyDeleted = chosen.some((p) => p.deleted);
+  const toDelete = chosen.filter((p) => !p.deleted);
+  const inPosts = toDelete.filter((p) => p.usedIn.length).length;
+  const deleteQuestion =
+    (toDelete.length === 1 ? 'Delete this photo?' : `Delete these ${toDelete.length} photos?`) +
+    (!inPosts
+      ? ''
+      : toDelete.length === 1
+        ? ' It’s also in a blog post, which will keep showing it.'
+        : ` ${inPosts === 1 ? 'One is' : `${inPosts} are`} also in blog posts, which will keep showing them.`);
   const oneEvent = one?.eventId ? props.events.find((e) => e.id === one.eventId) : null;
 
   return (
@@ -287,7 +318,13 @@ function SelectionPanel(props: {
         <div className='flex flex-wrap items-center gap-3 mb-3'>
           <strong className='text-gray-800'>{n} selected</strong>
           <button onClick={props.onClear} className='text-sm text-primary hover:underline'>Clear selection</button>
-          <span className='ml-auto flex gap-2'>
+          <span className='ml-auto flex flex-wrap items-center justify-end gap-x-3 gap-y-2'>
+            {anyDeleted && (
+              <button disabled={busy} onClick={() => onApply({ deleted: false }, `Undid the delete for ${what}.`)}
+                className='border border-primary text-primary rounded-lg px-3 py-1 text-sm hover:bg-primary hover:text-white disabled:opacity-50'>
+                Undo delete
+              </button>
+            )}
             {anyShown && (
               <button disabled={busy} onClick={() => onApply({ status: 'hidden' }, `Hidden ${what} from the public gallery.`)}
                 className='border border-gray-400 rounded-lg px-3 py-1 text-sm hover:bg-gray-100 disabled:opacity-50'>
@@ -299,6 +336,18 @@ function SelectionPanel(props: {
                 className='border border-primary text-primary rounded-lg px-3 py-1 text-sm hover:bg-primary hover:text-white disabled:opacity-50'>
                 Show in gallery
               </button>
+            )}
+            {toDelete.length > 0 && (
+              <ConfirmDelete
+                question={deleteQuestion}
+                busy={busy}
+                onConfirm={() =>
+                  onApply(
+                    { deleted: true },
+                    `Deleted ${toDelete.length === 1 ? 'the photo' : `${toDelete.length} photos`}. To undo, choose Shown → Deleted (until the next site update).`,
+                  )
+                }
+              />
             )}
           </span>
         </div>
@@ -382,6 +431,18 @@ function SelectionPanel(props: {
                 <p className='text-xs text-gray-500'>
                   {monthYear(one.takenOn)} · <code className='select-all'>{one.src}</code>
                 </p>
+                {one.usedIn.length > 0 && (
+                  <p className='text-xs text-gray-600'>
+                    Also in:{' '}
+                    {one.usedIn.map((u, i) => (
+                      <React.Fragment key={`${u.href ?? ''}${u.title}`}>
+                        {i > 0 && '; '}
+                        {u.href ? <a href={u.href} target='_blank' rel='noreferrer' className='text-primary hover:underline'>{u.title}</a> : u.title}
+                      </React.Fragment>
+                    ))}
+                    {one.deleted && ' — so its file stays on the website.'}
+                  </p>
+                )}
               </>
             )}
           </div>

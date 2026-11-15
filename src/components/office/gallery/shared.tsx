@@ -51,7 +51,7 @@ export function GalleryTabs({ current }: { current: string }) {
 export function Notice({ message, error, onDone }: { message: string; error?: boolean; onDone: () => void }) {
   React.useEffect(() => {
     if (!message || error) return;
-    const t = setTimeout(onDone, 3000);
+    const t = setTimeout(onDone, Math.max(3000, message.length * 60)); // long messages stay long enough to read
     return () => clearTimeout(t);
   }, [message, error, onDone]);
   if (!message) return null;

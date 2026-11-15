@@ -43,10 +43,21 @@ export interface GalleryPhoto {
   tagIds: string[];
 }
 
+/** A blog post or page of the website that shows a photo. */
+export interface PhotoUse {
+  title: string;
+  /** The page's address, if it has one (blog posts do). */
+  href: string | null;
+}
+
 export interface OfficePhoto extends GalleryPhoto {
   status: PhotoStatus;
   source: 'site' | 'upload';
   fileMissing: boolean;
+  /** Deleted in the office; can be undone until the next site update removes its files. */
+  deleted: boolean;
+  /** Blog posts and pages that show it (as of the last site update). */
+  usedIn: PhotoUse[];
 }
 
 export interface CountedTag extends GalleryTag {
@@ -66,6 +77,8 @@ export interface PhotoChange {
   status?: 'published' | 'hidden';
   /** Only when changing one photo. */
   caption?: string;
+  /** true deletes; false undoes a delete (only before the next site update). On its own, not with other changes. */
+  deleted?: boolean;
 }
 
 export const MAX_CAPTION = 300;

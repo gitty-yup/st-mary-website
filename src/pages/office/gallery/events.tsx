@@ -140,7 +140,9 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
   const auth = await requireOfficePage(ctx, 'gallery');
   if ('redirect' in auth) return auth;
   const { officeGallery } = await import('@/lib/gallery/store');
-  const { photos, events } = await officeGallery();
+  const data = await officeGallery();
+  const photos = data.photos.filter((p) => !p.deleted);
+  const events = data.events;
   const covers: Record<string, string> = {};
   for (const e of events) {
     const cover = photos.find((p) => p.id === e.coverPhotoId) ?? photos.find((p) => p.eventId === e.id);

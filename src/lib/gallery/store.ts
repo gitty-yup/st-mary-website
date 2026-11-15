@@ -1,6 +1,6 @@
 /**
  * Gallery data: what the public gallery shows, and the office's edits (tags,
- * events, captions, hide/publish). Every office change is logged in
+ * events, captions, hide/publish, delete). Every office change is logged in
  * audit_events as action 'gallery'.
  */
 import type { PoolClient } from 'pg';
@@ -30,7 +30,7 @@ const MAX_BATCH = 1000;
 
 const PHOTO_SQL = `
   select p.id, p.src, p.thumb_src, p.width, p.height, p.taken_on::text as taken_on, p.caption, p.event_id,
-         p.status, p.source, p.file_missing,
+         p.status, p.source, p.file_missing, p.deleted_at is not null as deleted, p.used_in,
          coalesce(array_agg(pt.tag_id::text order by pt.tag_id) filter (where pt.tag_id is not null), '{}') as tag_ids
   from gallery_photos p left join gallery_photo_tags pt on pt.photo_id = p.id`;
 
@@ -66,7 +66,7 @@ function toTag(r: any): GalleryTag {
 /** Published photos (newest first), and the events and tags they use. */
 export async function publicGallery(): Promise<{ photos: GalleryPhoto[]; events: GalleryEvent[]; tags: GalleryTag[] }> {
   const photos = (
-    await query(`${PHOTO_SQL} where p.status = 'published' and not p.file_missing group by p.id order by p.taken_on desc, p.src`)
+    await query(`${PHOTO_SQL} where p.status = 'published' and not p.file_missing and p.deleted_at is null group by p.id order by p.taken_on desc, p.src`)
   ).map(toPhoto);
   const eventIds = new Set(photos.map((p) => p.eventId).filter(Boolean));
   const tagIds = new Set(photos.flatMap((p) => p.tagIds));
@@ -79,24 +79,32 @@ export async function publicGallery(): Promise<{ photos: GalleryPhoto[]; events:
   return { photos, events, tags };
 }
 
-/** Everything, for the office: all photos (hidden too), all events and tags with their photo counts. */
+/**
+ * Everything, for the office: all photos (hidden and deleted too, but not those whose
+ * files a site update has removed), all events and tags with their photo counts.
+ */
 export async function officeGallery(): Promise<{ photos: OfficePhoto[]; events: CountedEvent[]; tags: CountedTag[] }> {
-  const photos = (await query(`${PHOTO_SQL} group by p.id order by p.taken_on desc, p.src`)).map((r) => ({
-    ...toPhoto(r),
-    status: r.status,
-    source: r.source,
-    fileMissing: r.file_missing,
-  }));
+  const photos = (await query(`${PHOTO_SQL} where p.files_removed_at is null group by p.id order by p.taken_on desc, p.src`)).map(
+    (r): OfficePhoto => ({
+      ...toPhoto(r),
+      status: r.status,
+      source: r.source,
+      fileMissing: r.file_missing,
+      deleted: r.deleted,
+      usedIn: Array.isArray(r.used_in) ? r.used_in : [],
+    }),
+  );
   const events = (
     await query(
       `select e.id, e.slug, e.title, e.event_date::text as event_date, e.description, e.cover_photo_id,
-              (select count(*)::int from gallery_photos p where p.event_id = e.id) as photos
+              (select count(*)::int from gallery_photos p where p.event_id = e.id and p.deleted_at is null) as photos
        from gallery_events e order by e.event_date desc nulls last, e.title`,
     )
   ).map((r) => ({ ...toEvent(r), photos: r.photos }));
   const tags = (
     await query(
-      `select t.id, t.tag_group, t.slug, t.label, t.filter_only, (select count(*)::int from gallery_photo_tags pt where pt.tag_id = t.id) as photos
+      `select t.id, t.tag_group, t.slug, t.label, t.filter_only, (select count(*)::int from gallery_photo_tags pt join gallery_photos p on p.id = pt.photo_id
+               where pt.tag_id = t.id and p.deleted_at is null) as photos
        from gallery_tags t order by t.label`,
     )
   ).map((r) => ({ ...toTag(r), photos: r.photos }));
@@ -141,11 +149,19 @@ export async function updatePhotos(photoIds: unknown, input: Record<string, unkn
     if (ids.length !== 1) throw new RecordError('Captions are set one photo at a time.', 400);
     change.caption = text(input.caption, MAX_CAPTION, 'the caption');
   }
+  if (input.deleted !== undefined) {
+    if (typeof input.deleted !== 'boolean') throw new RecordError('Unknown change.', 400);
+    if (Object.keys(change).length) throw new RecordError('Delete photos on their own, without other changes.', 400);
+    change.deleted = input.deleted;
+  }
   if (!Object.keys(change).length) throw new RecordError('Nothing to change.', 400);
 
   return withTransaction(async (client) => {
-    const found = await client.query('select id from gallery_photos where id = any($1::uuid[])', [ids]);
+    const found = await client.query('select id, src, files_removed_at from gallery_photos where id = any($1::uuid[])', [ids]);
     if (found.rowCount !== ids.length) throw new RecordError('Some of those photos no longer exist. Reload the page.', 409);
+    if (change.deleted === false && found.rows.some((r) => r.files_removed_at)) {
+      throw new RecordError('Some of these photos were already removed from the website at its last update, so they can’t be brought back here. Reload the page.', 409);
+    }
     const tagCheck = [...add, ...remove];
     if (tagCheck.length) {
       const t = await client.query('select count(*)::int as n from gallery_tags where id = any($1::uuid[])', [tagCheck]);
@@ -170,8 +186,11 @@ export async function updatePhotos(photoIds: unknown, input: Record<string, unkn
     if (change.eventId !== undefined) sets.push(`event_id = $${params.push(change.eventId)}`);
     if (change.status) sets.push(`status = $${params.push(change.status)}`);
     if (change.caption !== undefined) sets.push(`caption = $${params.push(change.caption)}`);
+    if (change.deleted !== undefined) sets.push(change.deleted ? 'deleted_at = coalesce(deleted_at, now())' : 'deleted_at = null');
     await client.query(`update gallery_photos set ${sets.join(', ')} where id = any($1::uuid[])`, params);
-    await recordAudit(null, actor, 'gallery', { what: 'photos', count: ids.length, ids: ids.slice(0, 50), ...change }, client);
+    // Deleted photos drop out of the office, so the log keeps their file names.
+    const files = change.deleted !== undefined ? { files: found.rows.map((r) => r.src as string).slice(0, 50) } : {};
+    await recordAudit(null, actor, 'gallery', { what: 'photos', count: ids.length, ids: ids.slice(0, 50), ...change, ...files }, client);
     return ids.length;
   });
 }

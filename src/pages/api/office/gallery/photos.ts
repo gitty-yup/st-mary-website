@@ -2,7 +2,7 @@ import { officeRoute } from '@/lib/office/api';
 import { refreshGallery } from '@/lib/gallery/refresh';
 import { updatePhotos } from '@/lib/gallery/store';
 
-/** POST { ids, change: { addTagIds?, removeTagIds?, eventId?, status?, caption? } } */
+/** POST { ids, change: { addTagIds?, removeTagIds?, eventId?, status?, caption? } or { deleted: true | false } } */
 export default officeRoute(
   ['POST'],
   async (req, res, session) => {
