@@ -157,8 +157,15 @@ export async function updatePhotos(photoIds: unknown, input: Record<string, unkn
   if (!Object.keys(change).length) throw new RecordError('Nothing to change.', 400);
 
   return withTransaction(async (client) => {
-    const found = await client.query('select id, src, files_removed_at from gallery_photos where id = any($1::uuid[])', [ids]);
+    const found = await client.query('select id, src, files_removed_at, used_in from gallery_photos where id = any($1::uuid[])', [ids]);
     if (found.rowCount !== ids.length) throw new RecordError('Some of those photos no longer exist. Reload the page.', 409);
+    // A photo a blog post or page shows can't be deleted; the next site update after it's
+    // taken out of the post (or the post is deleted) clears used_in and allows it.
+    const inPosts = change.deleted ? found.rows.filter((r) => Array.isArray(r.used_in) && r.used_in.length).length : 0;
+    if (inPosts) {
+      const who = ids.length === 1 ? 'This photo is' : inPosts === 1 ? 'One of these photos is' : `${inPosts} of these photos are`;
+      throw new RecordError(`${who} in a blog post, so ${inPosts === 1 ? 'it' : 'they'} can’t be deleted. Take ${inPosts === 1 ? 'it' : 'them'} out of the post first.`, 409);
+    }
     if (change.deleted === false && found.rows.some((r) => r.files_removed_at)) {
       throw new RecordError('Some of these photos were already removed from the website at its last update, so they can’t be brought back here. Reload the page.', 409);
     }

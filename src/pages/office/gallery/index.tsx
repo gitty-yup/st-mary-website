@@ -96,11 +96,12 @@ export default function GalleryPhotos(props: Props) {
     setSelected((prev) => new Set([...Array.from(prev), ...ids]));
   }
 
-  async function apply(change: PhotoChange, message: string) {
+  /** Applies a change to the selected photos (or to `only`, some of them). */
+  async function apply(change: PhotoChange, message: string, only?: string[]) {
     if (!chosen.length) return;
     setBusy(true);
     try {
-      const ids = chosen.map((p) => p.id);
+      const ids = only ?? chosen.map((p) => p.id);
       const res = await sendJson<{ updated: number; refreshed: boolean }>('/api/office/gallery/photos', { ids, change });
       const idSet = new Set(ids);
       setPhotos((all) =>
@@ -185,8 +186,8 @@ export default function GalleryPhotos(props: Props) {
       {filter.status === 'deleted' && (
         <p className='text-sm text-gray-700 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 mb-4'>
           These photos are out of the gallery. Their files come off the website at its next update; until then you can
-          select them and choose <strong>Undo delete</strong>. A photo that a blog post still shows keeps its file, so it
-          stays here.
+          select them and choose <strong>Undo delete</strong>. If a blog post starts using a deleted photo, its file is
+          kept and it stays listed here.
         </p>
       )}
 
@@ -236,6 +237,7 @@ export default function GalleryPhotos(props: Props) {
                       {photo.deleted ? <Badge tone='red'>Deleted</Badge> : photo.fileMissing ? <Badge tone='red'>File missing</Badge> : photo.status === 'hidden' ? <Badge tone='gray'>Hidden</Badge> : tucked(photo) && <Badge tone='gray'>Filter only</Badge>}
                       {photo.tagIds.length > 0 && <Badge>{photo.tagIds.length} {photo.tagIds.length === 1 ? 'tag' : 'tags'}</Badge>}
                       {event && <Badge>Event</Badge>}
+                      {photo.usedIn.length > 0 && <Badge>In a post</Badge>}
                     </span>
                   </button>
                 );
@@ -285,7 +287,7 @@ function SelectionPanel(props: {
   tags: CountedTag[];
   events: CountedEvent[];
   busy: boolean;
-  onApply: (change: PhotoChange, message: string) => void;
+  onApply: (change: PhotoChange, message: string, only?: string[]) => void;
   onCover: (photo: OfficePhoto) => void;
   onClear: () => void;
 }) {
@@ -301,15 +303,15 @@ function SelectionPanel(props: {
   const anyShown = chosen.some(isPublic);
   const anyHidden = chosen.some((p) => p.status === 'hidden' && !p.deleted);
   const anyDeleted = chosen.some((p) => p.deleted);
-  const toDelete = chosen.filter((p) => !p.deleted);
-  const inPosts = toDelete.filter((p) => p.usedIn.length).length;
-  const deleteQuestion =
-    (toDelete.length === 1 ? 'Delete this photo?' : `Delete these ${toDelete.length} photos?`) +
-    (!inPosts
-      ? ''
-      : toDelete.length === 1
-        ? ' It’s also in a blog post, which will keep showing it.'
-        : ` ${inPosts === 1 ? 'One is' : `${inPosts} are`} also in blog posts, which will keep showing them.`);
+  // Photos that a blog post shows can't be deleted (until they're taken out of the post).
+  const notDeleted = chosen.filter((p) => !p.deleted);
+  const toDelete = notDeleted.filter((p) => !p.usedIn.length);
+  const inPosts = notDeleted.length - toDelete.length;
+  const deleteQuestion = !inPosts
+    ? toDelete.length === 1
+      ? 'Delete this photo?'
+      : `Delete these ${toDelete.length} photos?`
+    : `Delete ${toDelete.length} of them? ${inPosts === 1 ? 'One is in a blog post' : `${inPosts} are in blog posts`} and can’t be deleted.`;
   const oneEvent = one?.eventId ? props.events.find((e) => e.id === one.eventId) : null;
 
   return (
@@ -345,9 +347,15 @@ function SelectionPanel(props: {
                   onApply(
                     { deleted: true },
                     `Deleted ${toDelete.length === 1 ? 'the photo' : `${toDelete.length} photos`}. To undo, choose Shown → Deleted (until the next site update).`,
+                    toDelete.map((p) => p.id),
                   )
                 }
               />
+            )}
+            {!toDelete.length && inPosts > 0 && (
+              <span className='text-sm text-gray-500' title='Take the photo out of the blog post first; once the site has updated, it can be deleted here.'>
+                {inPosts === 1 ? 'In a blog post, so it can’t be deleted' : 'In blog posts, so they can’t be deleted'}
+              </span>
             )}
           </span>
         </div>
@@ -433,14 +441,16 @@ function SelectionPanel(props: {
                 </p>
                 {one.usedIn.length > 0 && (
                   <p className='text-xs text-gray-600'>
-                    Also in:{' '}
+                    In {one.usedIn.length === 1 ? 'a blog post' : 'blog posts'}:{' '}
                     {one.usedIn.map((u, i) => (
                       <React.Fragment key={`${u.href ?? ''}${u.title}`}>
                         {i > 0 && '; '}
                         {u.href ? <a href={u.href} target='_blank' rel='noreferrer' className='text-primary hover:underline'>{u.title}</a> : u.title}
                       </React.Fragment>
                     ))}
-                    {one.deleted && ' — so its file stays on the website.'}
+                    {one.deleted
+                      ? ' — so its file stays on the website.'
+                      : '. To delete it, first take it out of the post (or delete the post); once the site has updated, you can delete it here.'}
                   </p>
                 )}
               </>

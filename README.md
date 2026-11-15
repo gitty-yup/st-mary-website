@@ -137,9 +137,13 @@ tags in the database in case it comes back.
 **Deleting** a photo in the office (Photos → select → Delete) takes it out of the gallery at
 once; it waits under Shown → Deleted, where it can be undone. Its files come off the website
 at the next deployment: on Vercel, `scripts/gallery-sync.js` removes the photo and its
-thumbnail from the build's copy of `public/` and marks it removed (no more undo). Each build
-also records which blog posts and pages show each photo; a deleted photo that one of them
-still shows keeps its file, and the office says so. Local builds never delete files.
+thumbnail from the build's copy of `public/` and marks it removed (no more undo). Local
+builds never delete files.
+
+Each build also records which blog posts and pages show each photo (`used_in`). Those photos
+can't be deleted (the office marks them "In a post" and the API refuses); once a post stops
+using a photo, or the post is deleted, the next build clears the mark and deletion is
+allowed. If a post starts using a photo that's already deleted, the build keeps its file.
 
 The files stay in the repository (and its public history) until someone removes them. The
 build log lists them ("Still in the repository: …"); `git rm` those paths in the next
