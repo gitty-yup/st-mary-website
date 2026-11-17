@@ -45,6 +45,7 @@ document for Hayr Eremia and the parish office, kept outside this repository).
 | Mailchimp | Sent newsletters are imported as blog posts (daily cron, plus a webhook) |
 | Geocodio | Address check on the update-my-info form |
 | Cloudflare Turnstile | Optional "verify you are human" check on the baptism/marriage forms |
+| Cloudflare R2 | Private storage for full-size original photos (bucket `st-mary-photos`); see Photo gallery |
 
 ## Settings (environment variables)
 
@@ -70,6 +71,7 @@ Values are secrets: keep them in Vercel only, never in this repository.
 | `GITHUB_PAT` | Lets the Mailchimp import commit blog posts to this repository |
 | `MAILCHIMP_API_KEY`, `MAILCHIMP_WEBHOOK_SECRET` | Mailchimp import |
 | `GEOCODIO_API_KEY` | Address check |
+| `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET` | Cloudflare R2 storage for original photos: an account API token with Object Read & Write on that one bucket. Without them, "Download original" says originals aren't set up. (`R2_ENDPOINT` replaces the Cloudflare address, for testing only.) |
 
 ## Common tasks
 
@@ -148,7 +150,32 @@ allowed. If a post starts using a photo that's already deleted, the build keeps 
 The files stay in the repository (and its public history) until someone removes them. The
 build log lists them ("Still in the repository: …"); `git rm` those paths in the next
 commit. Leave the database rows, so the photo never comes back. For a takedown request,
-also scrub the file from the git history.
+also scrub the file from the git history, and remove the original from R2 (below).
+
+### Full-size originals (Cloudflare R2)
+
+The website only has web-size copies. The full-size originals are kept privately in
+Cloudflare R2 (bucket `st-mary-photos`; nothing in it is public). In the office, select one
+photo and choose **Download original**: the site checks the photo is in storage and hands
+the browser a link that works for 5 minutes (`/api/office/gallery/original`,
+`src/lib/storage/r2.ts`).
+
+`archive/2026-11-12/` holds the website's images as they were before they were shrunk
+(the `photo-originals` folder, same layout as this project, with its `CHECKSUMS.sha256`).
+A photo at `/media/2018/04/x.jpg` has its original at
+`archive/2026-11-12/public/media/2018/04/x.jpg`. Originals keep their camera details,
+including location, which is another reason the bucket stays private.
+
+To copy the archive into R2 (or check it's all there), run in Terminal:
+
+    node scripts/upload-photo-originals.js <path to the photo-originals folder>
+
+It checks the folder against `CHECKSUMS.sha256` first, asks for the R2 keys without showing
+the secret, skips files already stored, and ends by comparing every stored file with the
+folder. Running it again is safe.
+
+To remove an original (for example, for a takedown request), delete it in the Cloudflare
+dashboard: R2 → `st-mary-photos` → find the file by its path → Delete.
 
 ## Restoring from the backup
 

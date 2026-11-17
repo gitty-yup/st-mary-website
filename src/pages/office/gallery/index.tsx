@@ -145,6 +145,23 @@ export default function GalleryPhotos(props: Props) {
     }
   }
 
+  /** Downloads the full-size original from the private storage. */
+  async function downloadOriginal(photo: OfficePhoto) {
+    setBusy(true);
+    try {
+      const res = await fetch(`/api/office/gallery/original?id=${encodeURIComponent(photo.id)}`);
+      const data = (await res.json().catch(() => ({}))) as { url?: string; size?: number; error?: string };
+      if (!res.ok || !data.url) throw new Error(data.error || 'Something went wrong. Please try again.');
+      window.location.assign(data.url);
+      const mb = (data.size ?? 0) / 1_000_000;
+      setNotice({ message: `Downloading the original (${mb >= 1 ? `${mb.toFixed(1)} MB` : `${Math.max(1, Math.round(mb * 1000))} KB`}).`, error: false });
+    } catch (err) {
+      setNotice({ message: (err as Error).message, error: true });
+    } finally {
+      setBusy(false);
+    }
+  }
+
   const byYear: { year: string; items: { photo: OfficePhoto; index: number }[] }[] = [];
   shown.forEach((photo, index) => {
     const year = photo.takenOn.slice(0, 4);
@@ -256,6 +273,7 @@ export default function GalleryPhotos(props: Props) {
           busy={busy}
           onApply={apply}
           onCover={makeCover}
+          onOriginal={downloadOriginal}
           onClear={() => setSelected(new Set())}
         />
       )}
@@ -289,6 +307,7 @@ function SelectionPanel(props: {
   busy: boolean;
   onApply: (change: PhotoChange, message: string, only?: string[]) => Promise<void>;
   onCover: (photo: OfficePhoto) => void;
+  onOriginal: (photo: OfficePhoto) => void;
   onClear: () => void;
 }) {
   const { chosen, busy, onApply } = props;
@@ -456,7 +475,11 @@ function SelectionPanel(props: {
                       {oneEvent.coverPhotoId === one.id ? 'Cover of its event' : 'Use as event cover'}
                     </button>
                   )}
-                  <a href={one.src} target='_blank' rel='noreferrer' className='text-primary hover:underline'>Full size ↗</a>
+                  <a href={one.src} target='_blank' rel='noreferrer' className='text-primary hover:underline' title='The copy the website shows'>Open ↗</a>
+                  <button disabled={busy} onClick={() => props.onOriginal(one)} className='text-primary hover:underline disabled:opacity-50 disabled:no-underline'
+                    title='The full-size photo as it was taken, from the private storage'>
+                    Download original
+                  </button>
                 </div>
                 <p className='text-xs text-gray-500'>
                   {monthYear(one.takenOn)} · <code className='select-all'>{one.src}</code>

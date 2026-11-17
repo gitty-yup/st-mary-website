@@ -128,6 +128,13 @@ function text(value: unknown, max: number, what: string, required = false): stri
   return s;
 }
 
+/** A photo's file on the website and where it came from, or null if there's no such photo. */
+export async function photoFile(id: unknown): Promise<{ src: string; source: 'site' | 'upload' } | null> {
+  if (typeof id !== 'string' || !UUID.test(id)) return null;
+  const rows = await query<{ src: string; source: 'site' | 'upload' }>('select src, source from gallery_photos where id = $1', [id]);
+  return rows[0] ?? null;
+}
+
 /** Applies one change to one or more photos. Returns how many photos it touched. */
 export async function updatePhotos(photoIds: unknown, input: Record<string, unknown>, actor: string): Promise<number> {
   const ids = uuids(photoIds, 'photos');
