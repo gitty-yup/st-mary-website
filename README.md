@@ -11,7 +11,7 @@ Next.js 15 (pages router), React 18, TypeScript, Tailwind 3, hosted on Vercel.
 | `src/pages/` | Public pages, `office/` (certificate office), `forms/` (baptism/marriage forms), `api/` |
 | `src/certificates/` | Certificate PDFs, fields and forms. **Its [README](src/certificates/README.md) covers the certificate system in detail.** |
 | `src/lib/office/` | Office: sign-in, records, emails, export, backup |
-| `src/lib/gallery/`, `src/pages/office/gallery/` | Photo gallery data and its office screens (photos, events, tags) |
+| `src/lib/gallery/`, `src/pages/office/gallery/` | Photo gallery data and its office screens (photos, review, events, tags, people); `src/pages/share-photos.tsx` is where people send photos |
 | `db/migrations/` | Database schema (applied automatically on every build) |
 | `content/blog/` | Blog posts (Markdown), edited in `/admin` or imported from Mailchimp |
 | `public/media/YYYY/MM/` | Site photos; each build adds new ones to the gallery (`scripts/gallery-sync.js`) |
@@ -37,7 +37,7 @@ document for Hayr Eremia and the parish office, kept outside this repository).
 
 | Service | Used for |
 | --- | --- |
-| Vercel | Hosting, preview deployments, the two daily cron jobs (`vercel.json`), settings |
+| Vercel | Hosting, preview deployments, the three daily cron jobs (`vercel.json`), settings |
 | Neon Postgres | Certificate records, office sign-in, history (via the Vercel integration) |
 | Resend | All email: office sign-in links, submission notices, family emails, update-my-info links |
 | Google Cloud service account | Writes to Google Sheets: the certificate backup Sheet and the parishioner Sheet |
@@ -45,7 +45,7 @@ document for Hayr Eremia and the parish office, kept outside this repository).
 | Mailchimp | Sent newsletters are imported as blog posts (daily cron, plus a webhook) |
 | Geocodio | Address check on the update-my-info form |
 | Cloudflare Turnstile | Optional "verify you are human" check on the baptism/marriage forms |
-| Cloudflare R2 | Private storage for full-size original photos (bucket `st-mary-photos`); see Photo gallery |
+| Cloudflare R2 | Private storage for full-size original photos and for photos people share (bucket `st-mary-photos`); see Photo gallery |
 
 ## Settings (environment variables)
 
@@ -55,7 +55,7 @@ Values are secrets: keep them in Vercel only, never in this repository.
 | --- | --- |
 | `DATABASE_URL`, `DATABASE_URL_UNPOOLED`, `POSTGRES_URL` | Neon database (set by the integration). Migrations prefer the unpooled one. |
 | `OFFICE_EMAILS` | Comma-separated addresses allowed to use the whole office (certificates and photos). Default: the priest and info@. |
-| `GALLERY_EDITORS` | Comma-separated addresses allowed to manage photos only; they never see certificate records. Default: none. |
+| `GALLERY_EDITORS` | Comma-separated addresses allowed to manage photos only (and review and share them); they never see certificate records. Default: none. People who only share or review photos are added in the office instead (Photos → People). |
 | `CERTIFICATE_NOTIFY_TO`, `CERTIFICATE_NOTIFY_CC` | Who is emailed about new online submissions. Defaults in production: the priest, CC info@. |
 | `RESEND_API_KEY` | Sending email. Unset in local development: emails, including sign-in links, are printed to the console instead. |
 | `CRON_SECRET` | Lets Vercel's cron call the backup and Mailchimp jobs; without it they refuse every request. |
@@ -78,7 +78,8 @@ Values are secrets: keep them in Vercel only, never in this repository.
 **Give someone access to the office, or remove it.** Edit `OFFICE_EMAILS` (everything) or
 `GALLERY_EDITORS` (photos only) in Production, then redeploy. A removed address is signed
 out everywhere on the next request. Sign-in is by emailed one-time link; there are no
-passwords.
+passwords. People who share photos, and leaders who review them, are managed in the office
+under Photos → People, with no redeploy.
 
 **Change who hears about new submissions.** Set `CERTIFICATE_NOTIFY_TO` / `CERTIFICATE_NOTIFY_CC`
 (comma-separated), then redeploy.
@@ -176,6 +177,60 @@ folder. Running it again is safe.
 
 To remove an original (for example, for a takedown request), delete it in the Cloudflare
 dashboard: R2 → `st-mary-photos` → find the file by its path → Delete.
+
+### Shared photos (/share-photos)
+
+People the office adds under **Photos → People** can send photos from a phone or computer at
+`/share-photos`. An **uploader** only shares; their photos wait for review. A **leader** also
+reviews (Photos → Review, the only office page they see) and their own photos go straight in,
+as do photos from the office and `GALLERY_EDITORS`. Adding someone emails an invitation;
+removing them signs them out at once (`gallery_people`; areas in `src/lib/office/auth.ts`).
+
+How a photo travels (`src/lib/gallery/sharing.ts`, `src/pages/api/office/gallery/upload.ts`):
+
+1. The page asks for a link (`start`): checks type (JPEG, PNG, WebP; HEIC is refused with
+   how to convert it), size (30 MB), the event, and 300 photos a day per person.
+2. The browser PUTs the file straight to R2 with that signed link (15 minutes; it fixes the
+   Content-Type). This needs the bucket's CORS policy (below); nothing passes through Vercel,
+   whose functions take at most 4.5 MB.
+3. `finish`: the site reads the original, makes the web copy (JPEG, at most 2000 px) and
+   thumbnail (WebP, 480 px short side), both turned upright and without camera details
+   (location included), takes the date from the camera (else the day it was sent), and adds
+   the photo to `gallery_photos` (`source` `upload`, status `pending` or `published`).
+
+R2 layout: `uploads/originals|web|thumbs/YYYY/MM/<photo id>.*` on the live site,
+`test/uploads/…` on previews and local runs. The site serves the web copy and thumbnail at
+`/api/gallery-photos/<id>/web.jpg` and `…/thumb.webp`: public (cached an hour) once in the
+gallery; while waiting, hidden or deleted, only to the office, reviewers and the sender.
+**Download original** gives the file exactly as sent.
+
+Review (`/office/gallery/review`): approve (published at once) or turn down (status
+`rejected`; its three files are removed straight away, so it can't be undone). A deleted
+shared photo can be undone for 30 days; then the daily job removes its files, original
+included.
+
+The daily job (`/api/cron/photos`, 15:00 UTC) removes those files, clears uploads that
+never finished (`gallery_uploads` older than a day), and emails the reviewers (office,
+`GALLERY_EDITORS`, leaders) when photos are waiting. Outside production that email goes to
+info@ only.
+
+**R2 CORS policy** (bucket → Settings → CORS policy), so browsers may send files to it:
+
+    [
+      {
+        "AllowedOrigins": [
+          "https://www.stmaryarmenianchurch.com",
+          "https://st-mary-website-git-gallery-gitty-yups-projects.vercel.app"
+        ],
+        "AllowedMethods": ["PUT"],
+        "AllowedHeaders": ["content-type"],
+        "MaxAgeSeconds": 3600
+      }
+    ]
+
+The bare domain redirects to www, so it isn't needed. The second origin is the `gallery`
+branch's preview; add others to test from another branch (a commit's own preview address
+won't work).
 
 ## Restoring from the backup
 

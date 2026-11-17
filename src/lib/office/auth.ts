@@ -7,16 +7,15 @@ import crypto from 'crypto';
 import type { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from 'next';
 import { query } from '@/lib/db';
 import { recordAudit } from '@/lib/office/audit';
-import { safeOfficePath } from '@/lib/office/nav';
+import { homeFor, safeOfficePath, type OfficeArea } from '@/lib/office/nav';
+
+export type { OfficeArea } from '@/lib/office/nav';
 
 const DEFAULT_OFFICE_EMAILS = 'freremia@gmail.com,info@stmaryarmenianchurch.com';
 const COOKIE = 'stm_office';
 export const LOGIN_LINK_MINUTES = 20;
 const SESSION_DAYS = 14;
 const MAX_LINKS_PER_HOUR = 5;
-
-/** Parts of the office: certificate records, and the photo gallery. */
-export type OfficeArea = 'certificates' | 'gallery';
 
 export interface OfficeSession {
   email: string;
@@ -34,25 +33,29 @@ export function officeEmails(): string[] {
   return emailList(process.env.OFFICE_EMAILS || DEFAULT_OFFICE_EMAILS);
 }
 
+/** Addresses that manage photos (GALLERY_EDITORS) but never see certificate records. */
+export function galleryEditorEmails(): string[] {
+  return emailList(process.env.GALLERY_EDITORS);
+}
+
 /**
- * OFFICE_EMAILS can use the whole office. GALLERY_EDITORS can only manage
- * photos: they never see certificate records.
+ * OFFICE_EMAILS can use the whole office. GALLERY_EDITORS can only manage photos:
+ * they never see certificate records. People the office added on Photos → People
+ * can share photos, and leaders among them can also review what others share.
  */
-export function officeAreas(email: string): OfficeArea[] {
+export async function officeAreas(email: string): Promise<OfficeArea[]> {
   const e = email.trim().toLowerCase();
-  if (officeEmails().includes(e)) return ['certificates', 'gallery'];
-  if (emailList(process.env.GALLERY_EDITORS).includes(e)) return ['gallery'];
+  if (officeEmails().includes(e)) return ['certificates', 'gallery', 'people', 'review', 'share'];
+  if (galleryEditorEmails().includes(e)) return ['gallery', 'review', 'share'];
+  const rows = await query<{ role: string }>('select role from gallery_people where email = $1 and removed_at is null', [e]);
+  if (rows[0]?.role === 'leader') return ['review', 'share'];
+  if (rows[0]?.role === 'uploader') return ['share'];
   return [];
 }
 
 /** May this address sign in at all? */
-export function isOfficeEmail(email: string): boolean {
-  return officeAreas(email).length > 0;
-}
-
-/** Where someone lands when they open a part of the office they can't use. */
-function homeFor(areas: OfficeArea[]): string {
-  return areas.includes('certificates') ? '/office' : '/office/gallery';
+export async function isOfficeEmail(email: string): Promise<boolean> {
+  return (await officeAreas(email)).length > 0;
 }
 
 function newToken(): { token: string; hash: string } {
@@ -80,7 +83,7 @@ export function siteBaseUrl(): string {
  */
 export async function createLoginLink(email: string, next?: string | null): Promise<string | null> {
   const normalized = email.trim().toLowerCase();
-  if (!isOfficeEmail(normalized)) return null;
+  if (!(await isOfficeEmail(normalized))) return null;
   const [{ count }] = await query<{ count: string }>(
     "select count(*) from office_login_tokens where email = $1 and created_at > now() - interval '1 hour'",
     [normalized],
@@ -106,7 +109,8 @@ export async function redeemLoginToken(token: string, res: NextApiResponse): Pro
     [hashToken(token)],
   );
   const email = rows[0]?.email;
-  if (!email || !isOfficeEmail(email)) return null;
+  const areas = email ? await officeAreas(email) : [];
+  if (!email || !areas.length) return null;
   const session = newToken();
   await query(
     `insert into office_sessions (token_hash, email, expires_at)
@@ -115,7 +119,7 @@ export async function redeemLoginToken(token: string, res: NextApiResponse): Pro
   );
   res.setHeader('Set-Cookie', cookieHeader(session.token, SESSION_DAYS * 86400));
   await recordAudit(null, email, 'sign_in');
-  return { email, areas: officeAreas(email) };
+  return { email, areas };
 }
 
 export async function endSession(req: NextApiRequest, res: NextApiResponse): Promise<void> {
@@ -130,7 +134,8 @@ export async function endSession(req: NextApiRequest, res: NextApiResponse): Pro
   res.setHeader('Set-Cookie', cookieHeader('', 0));
 }
 
-async function sessionFromCookie(cookieHeaderValue: string | undefined): Promise<OfficeSession | null> {
+/** The signed-in person (and what they can use), or null. */
+export async function sessionFromCookie(cookieHeaderValue: string | undefined): Promise<OfficeSession | null> {
   const token = readCookie(cookieHeaderValue);
   if (!token || token.length > 100) return null;
   const rows = await query<{ email: string }>(
@@ -140,9 +145,15 @@ async function sessionFromCookie(cookieHeaderValue: string | undefined): Promise
     [hashToken(token)],
   );
   const email = rows[0]?.email;
-  // Removing an address from OFFICE_EMAILS / GALLERY_EDITORS locks it out immediately.
-  const areas = email ? officeAreas(email) : [];
+  // Removing an address from OFFICE_EMAILS / GALLERY_EDITORS, or someone from
+  // Photos → People, locks them out immediately.
+  const areas = email ? await officeAreas(email) : [];
   return email && areas.length ? { email, areas } : null;
+}
+
+/** Signs someone out everywhere (when the office removes them from Photos → People). */
+export async function endSessionsFor(email: string): Promise<void> {
+  await query('update office_sessions set revoked_at = now() where email = $1 and revoked_at is null', [email.trim().toLowerCase()]);
 }
 
 /**

@@ -91,7 +91,7 @@ export default function GalleryEvents(props: Props) {
 
   return (
     <OfficeLayout title='Photo events' email={props.email} areas={props.areas}>
-      <GalleryTabs current='/office/gallery/events' />
+      <GalleryTabs current='/office/gallery/events' areas={props.areas} />
       <p className='text-sm text-gray-600 mb-4 max-w-3xl'>
         An event groups photos into an album in the public gallery, such as “Madagh 2026”. Events with no photos don’t
         appear publicly. To add photos to an event, select them on the Photos tab and choose the event.

@@ -31,6 +31,7 @@ const MAX_BATCH = 1000;
 const PHOTO_SQL = `
   select p.id, p.src, p.thumb_src, p.width, p.height, p.taken_on::text as taken_on, p.caption, p.event_id,
          p.status, p.source, p.file_missing, p.deleted_at is not null as deleted, p.used_in,
+         coalesce(nullif(p.uploader_name, ''), p.uploaded_by) as shared_by,
          coalesce(array_agg(pt.tag_id::text order by pt.tag_id) filter (where pt.tag_id is not null), '{}') as tag_ids
   from gallery_photos p left join gallery_photo_tags pt on pt.photo_id = p.id`;
 
@@ -81,10 +82,13 @@ export async function publicGallery(): Promise<{ photos: GalleryPhoto[]; events:
 
 /**
  * Everything, for the office: all photos (hidden and deleted too, but not those whose
- * files a site update has removed), all events and tags with their photo counts.
+ * files have been removed, nor shared photos waiting for review or turned down), all
+ * events and tags with their photo counts.
  */
 export async function officeGallery(): Promise<{ photos: OfficePhoto[]; events: CountedEvent[]; tags: CountedTag[] }> {
-  const photos = (await query(`${PHOTO_SQL} where p.files_removed_at is null group by p.id order by p.taken_on desc, p.src`)).map(
+  const photos = (
+    await query(`${PHOTO_SQL} where p.files_removed_at is null and p.status in ('published', 'hidden') group by p.id order by p.taken_on desc, p.src`)
+  ).map(
     (r): OfficePhoto => ({
       ...toPhoto(r),
       status: r.status,
@@ -92,19 +96,21 @@ export async function officeGallery(): Promise<{ photos: OfficePhoto[]; events: 
       fileMissing: r.file_missing,
       deleted: r.deleted,
       usedIn: Array.isArray(r.used_in) ? r.used_in : [],
+      sharedBy: r.source === 'upload' ? r.shared_by : null,
     }),
   );
   const events = (
     await query(
       `select e.id, e.slug, e.title, e.event_date::text as event_date, e.description, e.cover_photo_id,
-              (select count(*)::int from gallery_photos p where p.event_id = e.id and p.deleted_at is null) as photos
+              (select count(*)::int from gallery_photos p
+                where p.event_id = e.id and p.deleted_at is null and p.status in ('published', 'hidden')) as photos
        from gallery_events e order by e.event_date desc nulls last, e.title`,
     )
   ).map((r) => ({ ...toEvent(r), photos: r.photos }));
   const tags = (
     await query(
       `select t.id, t.tag_group, t.slug, t.label, t.filter_only, (select count(*)::int from gallery_photo_tags pt join gallery_photos p on p.id = pt.photo_id
-               where pt.tag_id = t.id and p.deleted_at is null) as photos
+               where pt.tag_id = t.id and p.deleted_at is null and p.status in ('published', 'hidden')) as photos
        from gallery_tags t order by t.label`,
     )
   ).map((r) => ({ ...toTag(r), photos: r.photos }));
@@ -128,11 +134,21 @@ function text(value: unknown, max: number, what: string, required = false): stri
   return s;
 }
 
-/** A photo's file on the website and where it came from, or null if there's no such photo. */
-export async function photoFile(id: unknown): Promise<{ src: string; source: 'site' | 'upload' } | null> {
+/** A photo's files: where it came from, its file on the website, and (if shared) its original in storage. Null if there's no such photo. */
+export async function photoFile(id: unknown): Promise<{
+  src: string;
+  source: 'site' | 'upload';
+  originalKey: string | null;
+  originalName: string | null;
+  filesRemoved: boolean;
+} | null> {
   if (typeof id !== 'string' || !UUID.test(id)) return null;
-  const rows = await query<{ src: string; source: 'site' | 'upload' }>('select src, source from gallery_photos where id = $1', [id]);
-  return rows[0] ?? null;
+  const rows = await query(
+    'select src, source, original_key, original_name, files_removed_at is not null as files_removed from gallery_photos where id = $1',
+    [id],
+  );
+  const r = rows[0];
+  return r ? { src: r.src, source: r.source, originalKey: r.original_key, originalName: r.original_name, filesRemoved: r.files_removed } : null;
 }
 
 /** Applies one change to one or more photos. Returns how many photos it touched. */
@@ -164,7 +180,11 @@ export async function updatePhotos(photoIds: unknown, input: Record<string, unkn
   if (!Object.keys(change).length) throw new RecordError('Nothing to change.', 400);
 
   return withTransaction(async (client) => {
-    const found = await client.query('select id, src, files_removed_at, used_in from gallery_photos where id = any($1::uuid[])', [ids]);
+    // Shared photos waiting for review (or turned down) are changed on the Review page, not here.
+    const found = await client.query(
+      "select id, src, files_removed_at, used_in from gallery_photos where id = any($1::uuid[]) and status in ('published', 'hidden')",
+      [ids],
+    );
     if (found.rowCount !== ids.length) throw new RecordError('Some of those photos no longer exist. Reload the page.', 409);
     // A photo a blog post or page shows can't be deleted; the next site update after it's
     // taken out of the post (or the post is deleted) clears used_in and allows it.
@@ -174,7 +194,7 @@ export async function updatePhotos(photoIds: unknown, input: Record<string, unkn
       throw new RecordError(`${who} in a blog post, so ${inPosts === 1 ? 'it' : 'they'} can’t be deleted. Take ${inPosts === 1 ? 'it' : 'them'} out of the post first.`, 409);
     }
     if (change.deleted === false && found.rows.some((r) => r.files_removed_at)) {
-      throw new RecordError('Some of these photos were already removed from the website at its last update, so they can’t be brought back here. Reload the page.', 409);
+      throw new RecordError('Some of these photos’ files have already been removed, so they can’t be brought back here. Reload the page.', 409);
     }
     const tagCheck = [...add, ...remove];
     if (tagCheck.length) {

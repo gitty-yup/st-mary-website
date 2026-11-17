@@ -5,18 +5,20 @@ import { StorageError, archiveKey, downloadLink, storedSize } from '@/lib/storag
 
 /**
  * GET ?id=<photo id> → { url, filename, size }: a link, good for a few minutes, that
- * downloads the photo's full-size original from the private storage (R2).
+ * downloads the photo's full-size original from the private storage (R2): the
+ * 2026-11-12 archive for the website's own photos, or the file as it was sent for a
+ * shared photo.
  */
 export default officeRoute(
   ['GET'],
   async (req, res) => {
     const photo = await photoFile(req.query.id);
     if (!photo) throw new RecordError('That photo isn’t in the gallery.', 404);
-    const key = photo.source === 'site' ? archiveKey(photo.src) : null;
+    const key = photo.filesRemoved ? null : photo.source === 'site' ? archiveKey(photo.src) : photo.originalKey;
     try {
       const size = key ? await storedSize(key) : null;
       if (!key || size === null) throw new RecordError('There’s no full-size original of this photo in storage.', 404);
-      const filename = photo.src.split('/').pop() || 'photo.jpg';
+      const filename = (photo.source === 'upload' ? photo.originalName : photo.src.split('/').pop()) || 'photo.jpg';
       res.status(200).json({ url: await downloadLink(key, filename), filename, size });
     } catch (err) {
       if (err instanceof StorageError) throw new RecordError(err.message, err.status);

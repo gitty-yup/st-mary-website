@@ -54,10 +54,15 @@ export interface OfficePhoto extends GalleryPhoto {
   status: PhotoStatus;
   source: 'site' | 'upload';
   fileMissing: boolean;
-  /** Deleted in the office; can be undone until the next site update removes its files. */
+  /**
+   * Deleted in the office; can be undone until its files are removed (the website's own
+   * photos: at the next site update; shared photos: after 30 days).
+   */
   deleted: boolean;
   /** Blog posts and pages that show it (as of the last site update). */
   usedIn: PhotoUse[];
+  /** For a shared photo, who sent it (name, else address). */
+  sharedBy: string | null;
 }
 
 export interface CountedTag extends GalleryTag {

@@ -14,7 +14,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
   try {
     const link = await createLoginLink(email, req.body?.next);
-    if (link) await sendLoginEmail(email, link, officeAreas(email).includes('certificates') ? 'certificate office' : 'photo gallery');
+    if (link) {
+      const areas = await officeAreas(email);
+      const place = areas.includes('certificates')
+        ? 'certificate office'
+        : areas.includes('gallery')
+          ? 'photo gallery'
+          : areas.includes('review')
+            ? 'photo review'
+            : null;
+      await sendLoginEmail(email, link, place);
+    }
     return res.status(200).json(GENERIC_OK);
   } catch (err) {
     console.error('[office login]', err instanceof Error ? err.message : err);

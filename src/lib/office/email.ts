@@ -65,18 +65,88 @@ function button(href: string, label: string): string {
 
 // --- Office sign-in ----------------------------------------------------------------
 
-/** `place`: what they're signing in to ("certificate office", or "photo gallery" for gallery editors). */
-export async function sendLoginEmail(to: string, link: string, place = 'certificate office'): Promise<void> {
+/**
+ * `place`: what they're signing in to ("certificate office", "photo gallery" for gallery
+ * editors, "photo review" for leaders), or null for people who only share photos.
+ */
+export async function sendLoginEmail(to: string, link: string, place: string | null = 'certificate office'): Promise<void> {
+  const subject = place ? `Sign in to the St. Mary ${place}` : 'Sign in to share photos with St. Mary';
+  const heading = place ? `${place[0].toUpperCase()}${place.slice(1)} sign-in` : 'Share photos';
+  const lead = place ? 'Click the button to sign in.' : 'Click the button to sign in and send your photos.';
   await send({
     to: [to],
-    subject: `Sign in to the St. Mary ${place}`,
+    subject,
     html: layout(
-      `${place[0].toUpperCase()}${place.slice(1)} sign-in`,
-      `<p style="margin:0 0 24px;">Click the button to sign in.</p>
+      heading,
+      `<p style="margin:0 0 24px;">${lead}</p>
        ${button(link, 'Sign in')}
        <p style="margin:0;font-size:13px;color:#888;">The link works once and expires in <strong>${LOGIN_LINK_MINUTES} minutes</strong>. If you didn't ask to sign in, you can ignore this email.</p>`,
     ),
-    text: `Use this link to sign in to the St. Mary ${place}:\n\n${link}\n\nThe link works once and expires in ${LOGIN_LINK_MINUTES} minutes. If you didn't ask to sign in, you can ignore this email.`,
+    text: `${place ? `Use this link to sign in to the St. Mary ${place}` : 'Use this link to sign in and share photos with St. Mary'}:\n\n${link}\n\nThe link works once and expires in ${LOGIN_LINK_MINUTES} minutes. If you didn't ask to sign in, you can ignore this email.`,
+  });
+}
+
+// --- Photo sharing ---------------------------------------------------------------------
+
+const testPrefix = () => (process.env.VERCEL_ENV === 'production' ? '' : '[TEST] ');
+
+/** To someone the office added on Photos → People: what they can do and where. */
+export async function sendPhotoInvitation(to: string, name: string, role: 'uploader' | 'leader'): Promise<void> {
+  const share = `${siteBaseUrl()}/share-photos`;
+  const review = `${siteBaseUrl()}/office/gallery/review`;
+  const hello = `Dear ${name},`;
+  const signIn = `To sign in, enter this email address (${to}) and we'll email you a link. There's no password.`;
+  if (role === 'leader') {
+    await send({
+      to: [to],
+      replyTo: OFFICE_ADDRESS,
+      subject: `${testPrefix()}You're invited to review photos for St. Mary`,
+      html: layout(
+        'Review shared photos',
+        `<p style="margin:0 0 16px;">${escapeHtml(hello)}</p>
+         <p style="margin:0 0 16px;">St. Mary Armenian Apostolic Church invites you to help look after the photo gallery on its website. When parishioners share photos, you can approve them for the gallery or turn them down. You can also share your own photos, which go straight into the gallery.</p>
+         ${button(review, 'Review photos')}
+         <p style="margin:0 0 16px;">To share photos, go to <a href="${escapeHtml(share)}">${escapeHtml(share.replace(/^https?:\/\//, ''))}</a>.</p>
+         <p style="margin:0 0 16px;">${escapeHtml(signIn)} On days when photos are waiting, you'll get a short email.</p>
+         <p style="margin:0;font-size:13px;color:#888;">Questions? Reply to this email or call the parish office at ${OFFICE_PHONE}.</p>`,
+      ),
+      text: `${hello}\n\nSt. Mary Armenian Apostolic Church invites you to help look after the photo gallery on its website. When parishioners share photos, you can approve them for the gallery or turn them down. You can also share your own photos, which go straight into the gallery.\n\nReview photos: ${review}\nShare photos: ${share}\n\n${signIn} On days when photos are waiting, you'll get a short email.\n\nQuestions? Reply to this email or call the parish office at ${OFFICE_PHONE}.`,
+    });
+    return;
+  }
+  await send({
+    to: [to],
+    replyTo: OFFICE_ADDRESS,
+    subject: `${testPrefix()}You're invited to share photos with St. Mary`,
+    html: layout(
+      'Share your photos',
+      `<p style="margin:0 0 16px;">${escapeHtml(hello)}</p>
+       <p style="margin:0 0 16px;">St. Mary Armenian Apostolic Church invites you to share your photos of parish life for the photo gallery on its website. You can send them straight from your phone.</p>
+       ${button(share, 'Share photos')}
+       <p style="margin:0 0 16px;">${escapeHtml(signIn)} The parish office looks at each photo before it appears in the gallery.</p>
+       <p style="margin:0;font-size:13px;color:#888;">Questions? Reply to this email or call the parish office at ${OFFICE_PHONE}.</p>`,
+    ),
+    text: `${hello}\n\nSt. Mary Armenian Apostolic Church invites you to share your photos of parish life for the photo gallery on its website. You can send them straight from your phone:\n\n${share}\n\n${signIn} The parish office looks at each photo before it appears in the gallery.\n\nQuestions? Reply to this email or call the parish office at ${OFFICE_PHONE}.`,
+  });
+}
+
+/** The daily note to reviewers when shared photos are waiting. */
+export async function sendReviewDigest(to: string[], waiting: { from: string; photos: number }[]): Promise<void> {
+  const total = waiting.reduce((n, w) => n + w.photos, 0);
+  const url = `${siteBaseUrl()}/office/gallery/review`;
+  const lines = waiting.map((w) => `${w.from}: ${w.photos} ${w.photos === 1 ? 'photo' : 'photos'}`);
+  const what = total === 1 ? '1 shared photo is' : `${total} shared photos are`;
+  await send({
+    to,
+    subject: `${testPrefix()}${total === 1 ? '1 photo' : `${total} photos`} waiting for review`,
+    html: layout(
+      'Photos waiting for review',
+      `<p style="margin:0 0 16px;">${what} waiting for someone to approve them for the gallery or turn them down.</p>
+       <ul style="margin:0 0 24px;padding-left:20px;">${lines.map((l) => `<li>${escapeHtml(l)}</li>`).join('')}</ul>
+       ${button(url, 'Review photos')}
+       <p style="margin:0;font-size:13px;color:#888;">Any one reviewer is enough; this email comes on days when photos are waiting.</p>`,
+    ),
+    text: `${what} waiting for someone to approve them for the gallery or turn them down.\n\n${lines.join('\n')}\n\nReview photos: ${url}\n\nAny one reviewer is enough; this email comes on days when photos are waiting.`,
   });
 }
 

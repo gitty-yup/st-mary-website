@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import React from 'react';
+import type { OfficeArea } from '@/lib/office/nav';
 
 /** Sends JSON to an office API. Resolves to the response data, or throws with the server's message. */
 export async function sendJson<T = any>(url: string, body?: unknown, method = 'POST'): Promise<T> {
@@ -19,25 +20,48 @@ export async function sendJson<T = any>(url: string, body?: unknown, method = 'P
   return data as T;
 }
 
-const TABS = [
-  { href: '/office/gallery', label: 'Photos' },
-  { href: '/office/gallery/events', label: 'Events' },
-  { href: '/office/gallery/tags', label: 'Tags' },
+const TABS: { href: string; label: string; area: OfficeArea }[] = [
+  { href: '/office/gallery', label: 'Photos', area: 'gallery' },
+  { href: '/office/gallery/review', label: 'Review', area: 'review' },
+  { href: '/office/gallery/events', label: 'Events', area: 'gallery' },
+  { href: '/office/gallery/tags', label: 'Tags', area: 'gallery' },
+  { href: '/office/gallery/people', label: 'People', area: 'people' },
 ];
 
-export function GalleryTabs({ current }: { current: string }) {
+/**
+ * The photo office's tabs, those this person can use. Review shows how many shared
+ * photos are waiting (`waiting`, or asked of the server).
+ */
+export function GalleryTabs({ current, areas, waiting }: { current: string; areas: OfficeArea[]; waiting?: number }) {
+  const [count, setCount] = React.useState<number | null>(waiting ?? null);
+  const canReview = areas.includes('review');
+  React.useEffect(() => {
+    if (waiting !== undefined) return setCount(waiting);
+    if (!canReview) return;
+    let live = true;
+    fetch('/api/office/gallery/review')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => live && d && setCount(d.waiting))
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, [waiting, canReview]);
   return (
-    <div className='flex flex-wrap items-center gap-2 mb-6 border-b border-gray-200'>
-      {TABS.map((t) => (
+    <div className='flex flex-wrap items-center gap-x-1 gap-y-2 mb-6 border-b border-gray-200'>
+      {TABS.filter((t) => areas.includes(t.area)).map((t) => (
         <Link
           key={t.href}
           href={t.href}
           aria-current={current === t.href ? 'page' : undefined}
-          className={`px-4 py-2 -mb-px border-b-2 text-sm font-medium ${
+          className={`px-3 sm:px-4 py-2 -mb-px border-b-2 text-sm font-medium ${
             current === t.href ? 'border-primary text-primary' : 'border-transparent text-gray-600 hover:text-primary'
           }`}
         >
           {t.label}
+          {t.href === '/office/gallery/review' && !!count && (
+            <span className='ml-1.5 inline-block min-w-[1.25rem] rounded-full bg-secondary px-1.5 text-center text-xs leading-5 text-white'>{count}</span>
+          )}
         </Link>
       ))}
       <a href='/gallery' target='_blank' rel='noreferrer' className='ml-auto text-sm text-primary underline hover:no-underline pb-2'>
@@ -85,6 +109,7 @@ export function ConfirmDelete({
   onConfirm,
   busy,
   className = 'text-sm text-red-700 hover:underline disabled:opacity-50',
+  workingLabel = 'Deleting…',
 }: {
   /** The button that opens the dialog. */
   label?: string;
@@ -97,6 +122,8 @@ export function ConfirmDelete({
   onConfirm: () => void | Promise<void>;
   busy?: boolean;
   className?: string;
+  /** The red button's words while it works. */
+  workingLabel?: string;
 }) {
   const dialog = React.useRef<HTMLDialogElement>(null);
   const cancel = React.useRef<HTMLButtonElement>(null);
@@ -159,7 +186,7 @@ export function ConfirmDelete({
               disabled={working}
               className='min-h-[44px] rounded-lg bg-red-700 px-5 text-base sm:text-sm font-semibold text-white hover:bg-red-800 disabled:opacity-60'
             >
-              {working ? 'Deleting…' : confirmLabel}
+              {working ? workingLabel : confirmLabel}
             </button>
           </div>
         </div>

@@ -171,7 +171,7 @@ export default function GalleryPhotos(props: Props) {
 
   return (
     <OfficeLayout title='Photos' email={props.email} areas={props.areas}>
-      <GalleryTabs current='/office/gallery' />
+      <GalleryTabs current='/office/gallery' areas={props.areas} />
 
       <p className='text-sm text-gray-600 mb-4'>
         {counts.total} photos · {counts.untagged} without tags · {counts.noEvent} without an event · {counts.hidden} hidden{counts.tucked > 0 && ` · ${counts.tucked} shown only when their tag is chosen`}
@@ -202,9 +202,10 @@ export default function GalleryPhotos(props: Props) {
       </div>
       {filter.status === 'deleted' && (
         <p className='text-sm text-gray-700 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 mb-4'>
-          These photos are out of the gallery. Their files come off the website at its next update; until then you can
-          select them and choose <strong>Undo delete</strong>. If a blog post starts using a deleted photo, its file is
-          kept and it stays listed here.
+          These photos are out of the gallery. Select them and choose <strong>Undo delete</strong> to bring them back,
+          until their files are removed: the website’s own photos at its next update, and photos people shared 30 days
+          after they were deleted (originals included). If a blog post starts using a deleted photo, its file is kept and
+          it stays listed here.
         </p>
       )}
 
@@ -326,6 +327,14 @@ function SelectionPanel(props: {
   const notDeleted = chosen.filter((p) => !p.deleted);
   const toDelete = notDeleted.filter((p) => !p.usedIn.length);
   const inPosts = notDeleted.length - toDelete.length;
+  // How long a delete can be undone: the website's own photos until its next update, shared photos for 30 days.
+  const sharedCount = toDelete.filter((p) => p.source === 'upload').length;
+  const undoFor =
+    sharedCount === 0
+      ? 'until the website’s next update'
+      : sharedCount === toDelete.length
+        ? 'for 30 days'
+        : 'until the website’s next update for its own photos, and for 30 days for shared ones';
   const photosWord = (k: number) => (k === 1 ? '1 photo' : `${k} photos`);
   const oneEvent = one?.eventId ? props.events.find((e) => e.id === one.eventId) : null;
 
@@ -372,9 +381,9 @@ function SelectionPanel(props: {
                       )}
                     </span>
                     <p>
-                      {toDelete.length === 1 ? 'It leaves' : 'They leave'} the public gallery now. Until the website’s next
-                      update you can undo this under Shown → Deleted; after that {toDelete.length === 1 ? 'it’s' : 'they’re'} gone
-                      for good.
+                      {toDelete.length === 1 ? 'It leaves' : 'They leave'} the public gallery now. You can undo this under
+                      Shown → Deleted {undoFor}; after that {toDelete.length === 1 ? 'it’s' : 'they’re'} gone for good
+                      {sharedCount > 0 && ', shared originals included'}.
                     </p>
                     {inPosts > 0 && (
                       <p>
@@ -387,7 +396,7 @@ function SelectionPanel(props: {
                 onConfirm={() =>
                   onApply(
                     { deleted: true },
-                    `Deleted ${toDelete.length === 1 ? 'the photo' : `${toDelete.length} photos`}. To undo, choose Shown → Deleted (until the next site update).`,
+                    `Deleted ${toDelete.length === 1 ? 'the photo' : `${toDelete.length} photos`}. To undo, choose Shown → Deleted${sharedCount === toDelete.length ? ' (for 30 days)' : sharedCount ? '' : ' (until the next site update)'}.`,
                     toDelete.map((p) => p.id),
                   )
                 }
@@ -482,7 +491,8 @@ function SelectionPanel(props: {
                   </button>
                 </div>
                 <p className='text-xs text-gray-500'>
-                  {monthYear(one.takenOn)} · <code className='select-all'>{one.src}</code>
+                  {monthYear(one.takenOn)}
+                  {one.sharedBy ? <> · Shared by {one.sharedBy}</> : <> · <code className='select-all'>{one.src}</code></>}
                 </p>
                 {one.usedIn.length > 0 && (
                   <p className='text-xs text-gray-600'>

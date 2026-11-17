@@ -67,7 +67,7 @@ export default function GalleryTags(props: Props) {
 
   return (
     <OfficeLayout title='Photo tags' email={props.email} areas={props.areas}>
-      <GalleryTabs current='/office/gallery/tags' />
+      <GalleryTabs current='/office/gallery/tags' areas={props.areas} />
       <p className='text-sm text-gray-600 mb-6 max-w-3xl'>
         Visitors can filter the gallery by these tags. Only tags on at least one photo are shown publicly. Renaming a tag keeps
         its web address, so links people have shared still work. Tick <strong>Only when chosen</strong> for tags like
