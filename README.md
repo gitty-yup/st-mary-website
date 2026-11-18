@@ -217,9 +217,28 @@ shared photo can be undone for 30 days; then the daily job removes its files, or
 included.
 
 The daily job (`/api/cron/photos`, 15:00 UTC) removes those files, clears uploads that
-never finished (`gallery_uploads` older than a day), and emails the reviewers (office,
-`GALLERY_EDITORS`, leaders) when photos are waiting. Outside production that email goes to
-info@ only.
+never finished (`gallery_uploads` older than a day), deletes event-link passes that ran out
+over two days ago, and emails the reviewers (office, `GALLERY_EDITORS`, leaders) when
+photos are waiting. Outside production that email goes to info@ only.
+
+### Event links (/event-photos/&lt;code&gt;)
+
+The office (the `people` area: `OFFICE_EMAILS` only) makes a link for one event on
+**Photos → Links** (`src/lib/gallery/links.ts`, `gallery_links`): a random 10-character
+code, working through the end of a chosen day (1–30 days, Pacific time) and for a chosen
+number of photos (up to 1000). The office can end it early; deleting the event removes it.
+
+Anyone with the link gives their name and passes Cloudflare Turnstile (the same
+`TURNSTILE_SECRET_KEY` / `NEXT_PUBLIC_TURNSTILE_SITE_KEY` as the website forms; with no key
+set, the check is skipped). They get a pass: an `stm_photo_pass` cookie for that link, for
+12 hours or until an hour after the link expires (`gallery_link_passes`, only its hash
+stored). With it, `/api/event-photos/<code>` takes `start`/`finish` like the signed-in
+upload route, through the same `startUpload`/`finishUpload` (a `Sender` without an email).
+Their photos always go to the link's event and always wait for review; they're stored with
+`uploaded_by` null, `uploader_name` the name they gave, and `link_id`/`link_pass_id`.
+Uploads in progress count toward the link's number. Ending a link lets photos already on
+their way finish for 15 minutes. Review and the Photos panel show these senders as
+"Name (event link)".
 
 **R2 CORS policy** (bucket → Settings → CORS policy), so browsers may send files to it:
 

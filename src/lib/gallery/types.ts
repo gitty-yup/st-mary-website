@@ -86,6 +86,20 @@ export interface PhotoChange {
   deleted?: boolean;
 }
 
+/** Event links: how many days one can work (through the end of that day, Pacific time). */
+export const LINK_DAYS = [1, 3, 7, 14, 30];
+export const LINK_DAYS_DEFAULT = 7;
+/** Event links: how many photos one can take. */
+export const LINK_PHOTOS = [50, 100, 200, 500, 1000];
+export const LINK_PHOTOS_DEFAULT = 200;
+
+const linkDay = new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'America/Los_Angeles' });
+
+/** The last day an event link works, e.g. "Mon, Nov 24" (it stops at midnight after it). */
+export function linkLastDay(expiresAt: string): string {
+  return linkDay.format(new Date(new Date(expiresAt).getTime() - 1000));
+}
+
 export const MAX_CAPTION = 300;
 export const MAX_LABEL = 60;
 export const MAX_TITLE = 100;

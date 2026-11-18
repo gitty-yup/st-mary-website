@@ -31,7 +31,8 @@ const MAX_BATCH = 1000;
 const PHOTO_SQL = `
   select p.id, p.src, p.thumb_src, p.width, p.height, p.taken_on::text as taken_on, p.caption, p.event_id,
          p.status, p.source, p.file_missing, p.deleted_at is not null as deleted, p.used_in,
-         coalesce(nullif(p.uploader_name, ''), p.uploaded_by) as shared_by,
+         case when p.uploaded_by is null then p.uploader_name || ' (event link)'
+              else coalesce(nullif(p.uploader_name, ''), p.uploaded_by) end as shared_by,
          coalesce(array_agg(pt.tag_id::text order by pt.tag_id) filter (where pt.tag_id is not null), '{}') as tag_ids
   from gallery_photos p left join gallery_photo_tags pt on pt.photo_id = p.id`;
 

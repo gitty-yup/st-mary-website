@@ -17,6 +17,7 @@ export default function OfficeLayout({
   email,
   areas = ['certificates', 'gallery', 'people', 'review', 'share'],
   brand,
+  brandHref,
   children,
 }: {
   title: string;
@@ -26,6 +27,8 @@ export default function OfficeLayout({
   areas?: OfficeArea[];
   /** Overrides the name in the header (e.g. on the photo sharing page before sign-in). */
   brand?: string;
+  /** Where the name in the header goes (e.g. the website's home page from an event link). */
+  brandHref?: string;
   children: React.ReactNode;
 }) {
   const router = useRouter();
@@ -43,7 +46,7 @@ export default function OfficeLayout({
       <HeadElement pageTitle={`${title} · St. Mary ${name}`} noIndex />
       <header className='bg-primary text-white'>
         <div className='max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center gap-x-6 gap-y-2'>
-          <Link href={email ? homeFor(areas) : signInPage} className='font-secondary font-semibold text-lg whitespace-nowrap'>
+          <Link href={brandHref ?? (email ? homeFor(areas) : signInPage)} className='font-secondary font-semibold text-lg whitespace-nowrap'>
             {name}
           </Link>
           {email && (

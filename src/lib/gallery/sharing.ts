@@ -204,6 +204,23 @@ async function nameFor(email: string): Promise<string> {
   return rows[0]?.name ?? '';
 }
 
+/** Who is sending photos: someone signed in, or someone with an event link (links.ts). */
+export interface Sender {
+  /** Their address (uploaded_by); null for someone with an event link. */
+  email: string | null;
+  name: string;
+  /** Their photos go straight into the gallery (the office, photo helpers, leaders). */
+  publishes: boolean;
+  /** Who the history log says did it. */
+  actor: string;
+  /** Someone with an event link: the link, their pass, and the link's event. */
+  link?: { id: string; passId: string; eventId: string; maxPhotos: number };
+}
+
+export async function senderFor(session: OfficeSession): Promise<Sender> {
+  return { email: session.email, name: await nameFor(session.email), publishes: publishes(session), actor: session.email };
+}
+
 export interface UploadStart {
   id: string;
   /** PUT the file here, with this Content-Type. */
@@ -213,15 +230,18 @@ export interface UploadStart {
   event?: { id: string; name: string; created: boolean };
 }
 
-/** Step 1 of sending a photo: checks it and returns a link the phone sends the file to. */
-export async function startUpload(session: OfficeSession, input: Record<string, unknown>): Promise<UploadStart> {
+/**
+ * Step 1 of sending a photo: checks it and returns a link the phone sends the file to.
+ * With an event link the photo always goes to the link's event.
+ */
+export async function startUpload(sender: Sender, input: Record<string, unknown>): Promise<UploadStart> {
   const name = (typeof input.name === 'string' ? input.name : '').replace(/[\u0000-\u001f\u007f]/g, '').slice(0, 200) || 'photo';
   const bytes = Number(input.size);
   if (!Number.isInteger(bytes) || bytes <= 0) throw new RecordError('That file is empty.', 400);
   if (bytes > MAX_PHOTO_BYTES) throw new RecordError(`That photo is larger than ${MAX_PHOTO_MB} MB, the most the website accepts.`, 413);
   const contentType = contentTypeFor(name, typeof input.type === 'string' ? input.type : '');
   const batchId = uuid(input.batchId, 'batch');
-  let eventId = input.eventId ? uuid(input.eventId, 'event') : null;
+  let eventId = sender.link ? sender.link.eventId : input.eventId ? uuid(input.eventId, 'event') : null;
   if (eventId && !(await query('select 1 from gallery_events where id = $1', [eventId])).length) {
     throw new RecordError('That event no longer exists. Reload the page.', 409);
   }
@@ -229,17 +249,29 @@ export async function startUpload(session: OfficeSession, input: Record<string, 
   const suggested = !eventId && input.newEvent ? newEventInput(input.newEvent) : null;
   const caption = clean(input.caption, MAX_CAPTION, 'the caption');
   if (!storageReady()) throw new RecordError('Photo sharing isn’t set up on this website yet.', 503);
+  const passId = sender.link?.passId ?? null;
   const [{ n }] = await query<{ n: number }>(
-    `select (select count(*) from gallery_uploads where uploaded_by = $1 and created_at > now() - interval '1 day')
-          + (select count(*) from gallery_photos where source = 'upload' and uploaded_by = $1 and created_at > now() - interval '1 day') as n`,
-    [session.email],
+    `select (select count(*) from gallery_uploads where (uploaded_by = $1 or link_pass_id = $2) and created_at > now() - interval '1 day')
+          + (select count(*) from gallery_photos where source = 'upload' and (uploaded_by = $1 or link_pass_id = $2)
+               and created_at > now() - interval '1 day') as n`,
+    [sender.email, passId],
   );
   if (Number(n) >= MAX_PER_DAY) {
     throw new RecordError(`You’ve sent ${MAX_PER_DAY} photos today, the most for one day. Please send the rest tomorrow.`, 429);
   }
+  if (sender.link) {
+    // Photos on their way count too, so a link can't take more than its number.
+    const [{ taken }] = await query<{ taken: number }>(
+      `select (select count(*) from gallery_uploads where link_id = $1) + (select count(*) from gallery_photos where link_id = $1) as taken`,
+      [sender.link.id],
+    );
+    if (Number(taken) >= sender.link.maxPhotos) {
+      throw new RecordError('This link has received all the photos it can take. Thank you!', 429);
+    }
+  }
   let event: UploadStart['event'];
-  if (suggested && publishes(session)) {
-    event = await findOrCreateEvent(suggested.title, suggested.date, session.email);
+  if (suggested && sender.publishes) {
+    event = await findOrCreateEvent(suggested.title, suggested.date, sender.actor);
     eventId = event.id;
   }
   const suggestion = suggested && !eventId ? suggested : null;
@@ -248,9 +280,12 @@ export async function startUpload(session: OfficeSession, input: Record<string, 
   const key = `${uploadPrefix()}originals/${month}/${id}.${EXTENSIONS[contentType]}`;
   await query(
     `insert into gallery_uploads (id, uploaded_by, uploader_name, batch_id, original_key, original_name, content_type, bytes, event_id, caption,
-                                  suggested_event_title, suggested_event_date)
-     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
-    [id, session.email, await nameFor(session.email), batchId, key, name, contentType, bytes, eventId, caption, suggestion?.title ?? null, suggestion?.date ?? null],
+                                  suggested_event_title, suggested_event_date, link_id, link_pass_id)
+     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
+    [
+      id, sender.email, sender.name, batchId, key, name, contentType, bytes, eventId, caption,
+      suggestion?.title ?? null, suggestion?.date ?? null, sender.link?.id ?? null, passId,
+    ],
   );
   return { id, url: await uploadLink(key, contentType), contentType, ...(event ? { event } : {}) };
 }
@@ -317,11 +352,12 @@ export interface UploadedPhoto {
  * Step 2, once the file has arrived in R2: prepares the photo and adds it to the
  * gallery, waiting for review unless the sender can review. Safe to call again.
  */
-export async function finishUpload(session: OfficeSession, idValue: unknown): Promise<UploadedPhoto> {
+export async function finishUpload(sender: Sender, idValue: unknown): Promise<UploadedPhoto> {
   const id = uuid(idValue, 'upload');
-  const done = await query('select status, thumb_src from gallery_photos where id = $1 and uploaded_by = $2', [id, session.email]);
+  const mine = [id, sender.email, sender.link?.passId ?? null];
+  const done = await query('select status, thumb_src from gallery_photos where id = $1 and (uploaded_by = $2 or link_pass_id = $3)', mine);
   if (done[0]) return { id, status: done[0].status, thumb: done[0].thumb_src };
-  const [up] = await query('select * from gallery_uploads where id = $1 and uploaded_by = $2', [id, session.email]);
+  const [up] = await query('select * from gallery_uploads where id = $1 and (uploaded_by = $2 or link_pass_id = $3)', mine);
   if (!up) throw new RecordError('That upload has expired. Please send the photo again.', 404);
 
   const discard = async () => {
@@ -352,7 +388,7 @@ export async function finishUpload(session: OfficeSession, idValue: unknown): Pr
   await putObject(webKey, prepared.web, 'image/jpeg');
   await putObject(thumbKey, prepared.thumb, 'image/webp');
 
-  const publish = publishes(session);
+  const publish = sender.publishes;
   const status = publish ? 'published' : 'pending';
   const thumb = `/api/gallery-photos/${id}/thumb.webp`;
   await withTransaction(async (client) => {
@@ -360,20 +396,26 @@ export async function finishUpload(session: OfficeSession, idValue: unknown): Pr
       `insert into gallery_photos (id, source, src, thumb_src, width, height, taken_on, caption, status, event_id,
                                    original_key, web_key, thumb_key, original_name, original_bytes,
                                    uploaded_by, uploader_name, batch_id, reviewed_by, reviewed_at,
-                                   suggested_event_title, suggested_event_date)
-       values ($1, 'upload', $2, $3, $4, $5, $6::date, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
+                                   suggested_event_title, suggested_event_date, link_id, link_pass_id)
+       values ($1, 'upload', $2, $3, $4, $5, $6::date, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
        on conflict (id) do nothing`,
       [
         // No camera date: the day it was sent, in the parish's time zone (the database runs on UTC).
         id, `/api/gallery-photos/${id}/web.jpg`, thumb, prepared.width, prepared.height, prepared.takenOn ?? parishToday(), up.caption, status, up.event_id,
         up.original_key, webKey, thumbKey, up.original_name, size,
-        session.email, up.uploader_name, up.batch_id, publish ? session.email : null, publish ? new Date() : null,
-        up.suggested_event_title, up.suggested_event_date,
+        sender.email, up.uploader_name, up.batch_id, publish ? sender.actor : null, publish ? new Date() : null,
+        up.suggested_event_title, up.suggested_event_date, up.link_id, up.link_pass_id,
       ],
     );
     await client.query('delete from gallery_uploads where id = $1', [id]);
     if (added.rowCount) {
-      await recordAudit(null, session.email, 'gallery', { what: 'upload', id, status, eventId: up.event_id, file: up.original_name, bytes: size }, client);
+      await recordAudit(
+        null,
+        sender.actor,
+        'gallery',
+        { what: 'upload', id, status, eventId: up.event_id, file: up.original_name, bytes: size, ...(up.link_id ? { linkId: up.link_id } : {}) },
+        client,
+      );
     }
   });
   return { id, status, thumb };
@@ -396,7 +438,10 @@ export interface PendingPhoto {
   newEvent: boolean;
   /** Who sent it: their name, else their address. */
   from: string;
-  email: string;
+  /** Their address; null if they used an event link. */
+  email: string | null;
+  /** Sent with an event link (by someone not signed in). */
+  viaLink: boolean;
   batchId: string;
   sentAt: string;
   fileName: string;
@@ -425,8 +470,9 @@ export async function pendingPhotos(): Promise<PendingPhoto[]> {
       eventId: r.event_id,
       eventName: title ? (year && !title.includes(year) ? `${title} (${year})` : title) : null,
       newEvent,
-      from: r.uploader_name || r.uploaded_by,
+      from: r.uploader_name || r.uploaded_by || 'Someone',
       email: r.uploaded_by,
+      viaLink: !r.uploaded_by,
       batchId: r.batch_id,
       sentAt: iso(r.created_at)!,
       fileName: r.original_name ?? '',
@@ -575,8 +621,11 @@ export async function dailyPhotoJob(): Promise<DailyResult> {
     }
     if (removed || cleared) await recordAudit(null, 'daily photo job', 'gallery', { what: 'cleanup', removedPhotos: removed, unfinishedUploads: cleared });
   }
+  // Event-link passes that ran out (their unfinished uploads were cleared above).
+  await query("delete from gallery_link_passes where expires_at < now() - interval '2 days'");
   const waiting = await query<{ from: string; photos: number }>(
-    `select coalesce(nullif(uploader_name, ''), uploaded_by) as from, count(*)::int as photos
+    `select case when uploaded_by is null then uploader_name || ' (event link)' else coalesce(nullif(uploader_name, ''), uploaded_by) end as from,
+            count(*)::int as photos
      from gallery_photos where status = 'pending' and deleted_at is null group by 1 order by 2 desc, 1`,
   );
   return { removed, cleared, waiting, reviewers: waiting.length ? await reviewerEmails() : [] };

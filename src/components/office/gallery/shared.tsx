@@ -26,6 +26,7 @@ const TABS: { href: string; label: string; area: OfficeArea }[] = [
   { href: '/office/gallery/events', label: 'Events', area: 'gallery' },
   { href: '/office/gallery/tags', label: 'Tags', area: 'gallery' },
   { href: '/office/gallery/people', label: 'People', area: 'people' },
+  { href: '/office/gallery/links', label: 'Links', area: 'people' },
 ];
 
 /**

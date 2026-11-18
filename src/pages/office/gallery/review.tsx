@@ -124,14 +124,17 @@ export default function ReviewPhotos(props: Props) {
           return (
             <section key={b.id} className='mb-8'>
               <div className='flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-2'>
-                <h2 className='font-semibold text-gray-900'>{first.from}</h2>
+                <h2 className='font-semibold text-gray-900'>
+                  {first.from}
+                  {first.viaLink && <LinkBadge />}
+                </h2>
                 <span className='text-sm text-gray-600'>
                   {photosWord(b.photos.length)} · sent {sentFormat.format(new Date(first.sentAt))} ·{' '}
                   {first.eventName ? <>for <strong>{first.eventName}</strong></> : 'no event chosen'}
                   {first.newEvent && <NewEventBadge />}
                 </span>
                 <button onClick={() => setSelected((prev) => new Set([...Array.from(prev), ...b.photos.map((p) => p.id)]))} className='text-sm text-primary hover:underline'>
-                  Select these {b.photos.length}
+                  {b.photos.length === 1 ? 'Select it' : `Select these ${b.photos.length}`}
                 </button>
               </div>
               {first.newEvent && (
@@ -221,7 +224,8 @@ export default function ReviewPhotos(props: Props) {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={current.src} alt='' className='mx-auto max-h-[60vh] w-auto rounded bg-gray-100' />
             <p className='mt-3 text-sm text-gray-700'>
-              From <strong>{current.from}</strong> · taken {monthYear(current.takenOn)} ·{' '}
+              From <strong>{current.from}</strong>
+              {current.viaLink && <LinkBadge />} · taken {monthYear(current.takenOn)} ·{' '}
               {current.eventName ? <>for {current.eventName}</> : 'no event chosen'}
               {current.newEvent && <NewEventBadge />}
               {current.fileName && <span className='text-gray-500'> · {current.fileName}</span>}
@@ -256,6 +260,15 @@ export default function ReviewPhotos(props: Props) {
 
 function NewEventBadge() {
   return <span className='ml-1.5 inline-block rounded bg-secondary/15 px-1.5 text-xs font-medium text-secondary align-middle'>new event</span>;
+}
+
+/** Sent with an event link: the name is what they typed (not someone the parish invited). */
+function LinkBadge() {
+  return (
+    <span className='ml-1.5 inline-block rounded bg-gray-100 px-1.5 text-xs font-medium text-gray-700 align-middle' title='Sent with an event link, without signing in'>
+      event link
+    </span>
+  );
 }
 
 function TurnDownMessage({ photos }: { photos: PendingPhoto[] }) {

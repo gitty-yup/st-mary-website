@@ -1,18 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { INTAKE_FORMS, cleanIntake, type IntakeField } from '@/certificates/intake';
 import type { CertificateType } from '@/certificates/types';
-
-const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
-
-declare global {
-  interface Window {
-    turnstile?: {
-      render: (el: HTMLElement, opts: Record<string, unknown>) => string;
-      reset: (id?: string) => void;
-    };
-    __stmTurnstileReady?: () => void;
-  }
-}
+import { TURNSTILE_SITE_KEY as SITE_KEY, useTurnstile } from '@/components/forms/useTurnstile';
 
 const inputClass =
   'w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent';
@@ -231,40 +220,3 @@ function Field({
   );
 }
 
-/** Loads Cloudflare Turnstile when a site key is configured. */
-function useTurnstile() {
-  const ref = useRef<HTMLDivElement>(null);
-  const widget = useRef<string>();
-  const [token, setToken] = useState('');
-
-  useEffect(() => {
-    if (!SITE_KEY) return;
-    const render = () => {
-      if (!ref.current || !window.turnstile || widget.current) return;
-      widget.current = window.turnstile.render(ref.current, {
-        sitekey: SITE_KEY,
-        callback: (t: string) => setToken(t),
-        'expired-callback': () => setToken(''),
-        'error-callback': () => setToken(''),
-      });
-    };
-    if (window.turnstile) return render();
-    window.__stmTurnstileReady = render;
-    if (!document.getElementById('cf-turnstile')) {
-      const s = document.createElement('script');
-      s.id = 'cf-turnstile';
-      s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=__stmTurnstileReady';
-      s.async = true;
-      document.head.appendChild(s);
-    }
-  }, []);
-
-  return {
-    ref,
-    token,
-    reset: () => {
-      setToken('');
-      if (widget.current) window.turnstile?.reset(widget.current);
-    },
-  };
-}
