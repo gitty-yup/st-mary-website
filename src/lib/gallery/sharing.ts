@@ -12,11 +12,13 @@
  */
 import crypto from 'crypto';
 import sharp from 'sharp';
+import { isIsoDate } from '@/certificates/fields';
 import { query, withTransaction } from '@/lib/db';
 import { recordAudit } from '@/lib/office/audit';
 import { endSessionsFor, galleryEditorEmails, officeEmails, type OfficeSession } from '@/lib/office/auth';
-import { RecordError } from '@/lib/office/records';
-import { MAX_CAPTION } from '@/lib/gallery/types';
+import { RecordError, parishToday } from '@/lib/office/records';
+import { saveEventWith } from '@/lib/gallery/store';
+import { MAX_CAPTION, MAX_TITLE, eventName } from '@/lib/gallery/types';
 import { deleteObject, getObject, putObject, storageReady, storedSize, uploadLink, uploadPrefix } from '@/lib/storage/r2';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -144,6 +146,43 @@ export async function reviewerEmails(): Promise<string[]> {
   return Array.from(new Set([...officeEmails(), ...galleryEditorEmails(), ...leaders.map((l) => l.email)]));
 }
 
+// --- Events named while sharing ---------------------------------------------------------
+
+/** Can this person's photos (and new events) go straight into the gallery? */
+const publishes = (session: OfficeSession) => session.areas.includes('review') || session.areas.includes('gallery');
+
+/** A new event typed on the share page: { title, date }, checked. */
+function newEventInput(value: unknown): { title: string; date: string } {
+  const v = (value ?? {}) as Record<string, unknown>;
+  const title = clean(v.title, MAX_TITLE, 'the event’s name', true);
+  const date = typeof v.date === 'string' ? v.date : '';
+  if (!isIsoDate(date)) throw new RecordError('Enter the event’s date.', 400);
+  if (date > new Date(Date.now() + 86_400_000).toISOString().slice(0, 10)) throw new RecordError('The event’s date can’t be in the future.', 400);
+  return { title, date };
+}
+
+/**
+ * The event with this name and date, created if there's none yet (same rules as the
+ * Events page: its web address is the name and year). Two photos sent at the same
+ * moment can't create it twice.
+ */
+export async function findOrCreateEvent(title: string, date: string, actor: string): Promise<{ id: string; name: string; created: boolean }> {
+  return withTransaction(async (client) => {
+    await client.query('select pg_advisory_xact_lock(hashtext($1))', [`gallery-event|${title.toLowerCase()}|${date}`]);
+    const found = await client.query(
+      'select id, title, event_date::text as event_date from gallery_events where lower(title) = lower($1) and event_date = $2::date order by created_at limit 1',
+      [title, date],
+    );
+    if (found.rows[0]) {
+      const e = found.rows[0];
+      return { id: e.id, name: eventName({ title: e.title, eventDate: e.event_date }), created: false };
+    }
+    // On the same connection: a second one could wait forever while this holds the lock.
+    const e = await saveEventWith(client, { title, eventDate: date }, actor);
+    return { id: e.id, name: eventName(e), created: true };
+  });
+}
+
 // --- Uploads ----------------------------------------------------------------------------
 
 function contentTypeFor(name: string, type: string): string {
@@ -170,6 +209,8 @@ export interface UploadStart {
   /** PUT the file here, with this Content-Type. */
   url: string;
   contentType: string;
+  /** A new event named for these photos that now exists (office and leaders). */
+  event?: { id: string; name: string; created: boolean };
 }
 
 /** Step 1 of sending a photo: checks it and returns a link the phone sends the file to. */
@@ -180,10 +221,12 @@ export async function startUpload(session: OfficeSession, input: Record<string, 
   if (bytes > MAX_PHOTO_BYTES) throw new RecordError(`That photo is larger than ${MAX_PHOTO_MB} MB, the most the website accepts.`, 413);
   const contentType = contentTypeFor(name, typeof input.type === 'string' ? input.type : '');
   const batchId = uuid(input.batchId, 'batch');
-  const eventId = input.eventId ? uuid(input.eventId, 'event') : null;
+  let eventId = input.eventId ? uuid(input.eventId, 'event') : null;
   if (eventId && !(await query('select 1 from gallery_events where id = $1', [eventId])).length) {
     throw new RecordError('That event no longer exists. Reload the page.', 409);
   }
+  // A new event: created now for the office and leaders; a suggestion for review otherwise.
+  const suggested = !eventId && input.newEvent ? newEventInput(input.newEvent) : null;
   const caption = clean(input.caption, MAX_CAPTION, 'the caption');
   if (!storageReady()) throw new RecordError('Photo sharing isn’t set up on this website yet.', 503);
   const [{ n }] = await query<{ n: number }>(
@@ -194,15 +237,22 @@ export async function startUpload(session: OfficeSession, input: Record<string, 
   if (Number(n) >= MAX_PER_DAY) {
     throw new RecordError(`You’ve sent ${MAX_PER_DAY} photos today, the most for one day. Please send the rest tomorrow.`, 429);
   }
+  let event: UploadStart['event'];
+  if (suggested && publishes(session)) {
+    event = await findOrCreateEvent(suggested.title, suggested.date, session.email);
+    eventId = event.id;
+  }
+  const suggestion = suggested && !eventId ? suggested : null;
   const id = crypto.randomUUID();
   const month = new Date().toISOString().slice(0, 7).replace('-', '/');
   const key = `${uploadPrefix()}originals/${month}/${id}.${EXTENSIONS[contentType]}`;
   await query(
-    `insert into gallery_uploads (id, uploaded_by, uploader_name, batch_id, original_key, original_name, content_type, bytes, event_id, caption)
-     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-    [id, session.email, await nameFor(session.email), batchId, key, name, contentType, bytes, eventId, caption],
+    `insert into gallery_uploads (id, uploaded_by, uploader_name, batch_id, original_key, original_name, content_type, bytes, event_id, caption,
+                                  suggested_event_title, suggested_event_date)
+     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+    [id, session.email, await nameFor(session.email), batchId, key, name, contentType, bytes, eventId, caption, suggestion?.title ?? null, suggestion?.date ?? null],
   );
-  return { id, url: await uploadLink(key, contentType), contentType };
+  return { id, url: await uploadLink(key, contentType), contentType, ...(event ? { event } : {}) };
 }
 
 /** DateTimeOriginal from a raw EXIF block ("YYYY:MM:DD HH:MM:SS") as YYYY-MM-DD, or null. Same as scripts/gallery-sync.js. */
@@ -302,20 +352,23 @@ export async function finishUpload(session: OfficeSession, idValue: unknown): Pr
   await putObject(webKey, prepared.web, 'image/jpeg');
   await putObject(thumbKey, prepared.thumb, 'image/webp');
 
-  const publish = session.areas.includes('review') || session.areas.includes('gallery');
+  const publish = publishes(session);
   const status = publish ? 'published' : 'pending';
   const thumb = `/api/gallery-photos/${id}/thumb.webp`;
   await withTransaction(async (client) => {
     const added = await client.query(
       `insert into gallery_photos (id, source, src, thumb_src, width, height, taken_on, caption, status, event_id,
                                    original_key, web_key, thumb_key, original_name, original_bytes,
-                                   uploaded_by, uploader_name, batch_id, reviewed_by, reviewed_at)
-       values ($1, 'upload', $2, $3, $4, $5, coalesce($6::date, current_date), $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
+                                   uploaded_by, uploader_name, batch_id, reviewed_by, reviewed_at,
+                                   suggested_event_title, suggested_event_date)
+       values ($1, 'upload', $2, $3, $4, $5, $6::date, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
        on conflict (id) do nothing`,
       [
-        id, `/api/gallery-photos/${id}/web.jpg`, thumb, prepared.width, prepared.height, prepared.takenOn, up.caption, status, up.event_id,
+        // No camera date: the day it was sent, in the parish's time zone (the database runs on UTC).
+        id, `/api/gallery-photos/${id}/web.jpg`, thumb, prepared.width, prepared.height, prepared.takenOn ?? parishToday(), up.caption, status, up.event_id,
         up.original_key, webKey, thumbKey, up.original_name, size,
         session.email, up.uploader_name, up.batch_id, publish ? session.email : null, publish ? new Date() : null,
+        up.suggested_event_title, up.suggested_event_date,
       ],
     );
     await client.query('delete from gallery_uploads where id = $1', [id]);
@@ -337,8 +390,10 @@ export interface PendingPhoto {
   takenOn: string;
   caption: string;
   eventId: string | null;
-  /** The event's name with its year, as lists show it. */
+  /** The event's name with its year, as lists show it (or the new event they named). */
   eventName: string | null;
+  /** The sender named a new event: approving creates it (or uses one with the same name and date). */
+  newEvent: boolean;
   /** Who sent it: their name, else their address. */
   from: string;
   email: string;
@@ -350,12 +405,15 @@ export interface PendingPhoto {
 export async function pendingPhotos(): Promise<PendingPhoto[]> {
   const rows = await query(
     `select p.id, p.src, p.thumb_src, p.width, p.height, p.taken_on::text as taken_on, p.caption, p.event_id,
-            e.title as event_title, e.event_date::text as event_date, p.uploaded_by, p.uploader_name, p.batch_id, p.created_at, p.original_name
+            e.title as event_title, e.event_date::text as event_date, p.uploaded_by, p.uploader_name, p.batch_id, p.created_at, p.original_name,
+            p.suggested_event_title, p.suggested_event_date
      from gallery_photos p left join gallery_events e on e.id = p.event_id
      where p.status = 'pending' and p.deleted_at is null order by p.created_at, p.id`,
   );
   return rows.map((r) => {
-    const year = r.event_date?.slice(0, 4);
+    const newEvent = !r.event_id && !!r.suggested_event_title;
+    const title = newEvent ? r.suggested_event_title : r.event_title;
+    const year = (newEvent ? r.suggested_event_date : r.event_date)?.slice(0, 4);
     return {
       id: r.id,
       src: r.src,
@@ -365,7 +423,8 @@ export async function pendingPhotos(): Promise<PendingPhoto[]> {
       takenOn: r.taken_on,
       caption: r.caption,
       eventId: r.event_id,
-      eventName: r.event_title ? (year && !r.event_title.includes(year) ? `${r.event_title} (${year})` : r.event_title) : null,
+      eventName: title ? (year && !title.includes(year) ? `${title} (${year})` : title) : null,
+      newEvent,
       from: r.uploader_name || r.uploaded_by,
       email: r.uploaded_by,
       batchId: r.batch_id,
@@ -385,23 +444,61 @@ async function removeFiles(row: Record<string, unknown>): Promise<void> {
   for (const key of [row.original_key, row.web_key, row.thumb_key]) if (typeof key === 'string' && key) await deleteObject(key);
 }
 
+export interface ReviewResult {
+  reviewed: number;
+  /** New events the approved photos named, now in the gallery (with their year). */
+  events: string[];
+}
+
 /**
  * Approves photos for the gallery, or turns them down (their files are removed, so
- * that can't be undone). Only photos still waiting are changed. Returns how many.
+ * that can't be undone). Only photos still waiting are changed. Approving photos that
+ * name a new event creates it, or uses an existing one with the same name and date.
  */
-export async function reviewPhotos(idsValue: unknown, decision: unknown, actor: string): Promise<number> {
+export async function reviewPhotos(idsValue: unknown, decision: unknown, actor: string): Promise<ReviewResult> {
   if (!Array.isArray(idsValue) || !idsValue.length) throw new RecordError('Choose at least one photo.', 400);
   if (idsValue.length > 1000) throw new RecordError('Too many photos at once (at most 1000).', 400);
   const ids = Array.from(new Set(idsValue.map((v) => uuid(v, 'photo'))));
   if (decision === 'approve') {
-    const rows = await query<{ id: string }>(
-      `update gallery_photos set status = 'published', reviewed_by = $2, reviewed_at = now(), updated_at = now()
-       where id = any($1::uuid[]) and status = 'pending' and source = 'upload' and deleted_at is null returning id`,
-      [ids, actor],
+    const waiting = await query(
+      `select id, suggested_event_title as title, suggested_event_date::text as date from gallery_photos
+       where id = any($1::uuid[]) and status = 'pending' and source = 'upload' and deleted_at is null`,
+      [ids],
     );
+    if (!waiting.length) throw new RecordError('Those photos were already reviewed. Reload the page.', 409);
+    // Create (or find) the new events first, so the photos appear in them straight away.
+    const eventFor = new Map<string, { id: string; name: string; created: boolean }>();
+    for (const w of waiting) {
+      const key = w.title ? `${w.title.toLowerCase()}|${w.date}` : '';
+      if (key && !eventFor.has(key)) eventFor.set(key, await findOrCreateEvent(w.title, w.date, actor));
+    }
+    const rows = await withTransaction(async (client) => {
+      const done = await client.query(
+        `update gallery_photos set status = 'published', reviewed_by = $2, reviewed_at = now(), updated_at = now()
+         where id = any($1::uuid[]) and status = 'pending' and source = 'upload' and deleted_at is null returning id, suggested_event_title, suggested_event_date::text as date`,
+        [waiting.map((w) => w.id), actor],
+      );
+      for (const r of done.rows) {
+        const e = r.suggested_event_title ? eventFor.get(`${r.suggested_event_title.toLowerCase()}|${r.date}`) : undefined;
+        if (e) {
+          await client.query(
+            'update gallery_photos set event_id = coalesce(event_id, $2), suggested_event_title = null, suggested_event_date = null where id = $1',
+            [r.id, e.id],
+          );
+        }
+      }
+      return done.rows as { id: string }[];
+    });
     if (!rows.length) throw new RecordError('Those photos were already reviewed. Reload the page.', 409);
-    await recordAudit(null, actor, 'gallery', { what: 'review', decision: 'approved', count: rows.length, ids: rows.map((r) => r.id).slice(0, 50) });
-    return rows.length;
+    const events = Array.from(eventFor.values()).map((e) => e.name);
+    await recordAudit(null, actor, 'gallery', {
+      what: 'review',
+      decision: 'approved',
+      count: rows.length,
+      ids: rows.map((r) => r.id).slice(0, 50),
+      ...(events.length ? { events } : {}),
+    });
+    return { reviewed: rows.length, events };
   }
   if (decision !== 'turn_down') throw new RecordError('Unknown decision.', 400);
   const rows = await query(
@@ -433,7 +530,7 @@ export async function reviewPhotos(idsValue: unknown, decision: unknown, actor: 
     ids: rows.map((r) => r.id).slice(0, 50),
     files: rows.map((r) => r.original_name).slice(0, 50),
   });
-  return rows.length;
+  return { reviewed: rows.length, events: [] };
 }
 
 // --- Daily job --------------------------------------------------------------------------

@@ -153,9 +153,15 @@ function putFile(url: string, file: File, contentType: string, onProgress: (p: n
   });
 }
 
+/** Today on this phone or computer, YYYY-MM-DD. */
+const today = () => new Date().toLocaleDateString('en-CA');
+
 function Uploader(props: SignedIn) {
   const [items, setItems] = useState<Item[]>([]);
+  const [events, setEvents] = useState(props.events);
+  /** '' no event, 'new' a new event (named below), or an event's ID. */
   const [eventId, setEventId] = useState('');
+  const [newEvent, setNewEvent] = useState({ title: '', date: today() });
   const [caption, setCaption] = useState('');
   const [phase, setPhase] = useState<'choose' | 'sending' | 'done'>('choose');
   const batchId = useRef(newId());
@@ -216,9 +222,16 @@ function Uploader(props: SignedIn) {
           size: item.file.size,
           type: item.file.type,
           batchId: batchId.current,
-          eventId: eventId || null,
+          eventId: eventId && eventId !== 'new' ? eventId : null,
+          ...(eventId === 'new' ? { newEvent: { title: newEvent.title.trim(), date: newEvent.date } } : {}),
           caption,
         });
+        // The office and leaders: the new event now exists, so list it and choose it.
+        if (start.event) {
+          const created = start.event as { id: string; name: string };
+          setEvents((all) => (all.some((e) => e.id === created.id) ? all : [created, ...all]));
+          setEventId(created.id);
+        }
         await putFile(start.url, item.file, start.contentType, (p) => update(item.key, { progress: p }));
         update(item.key, { state: 'preparing', progress: 1 });
         for (let f = 1; ; f++) {
@@ -270,6 +283,7 @@ function Uploader(props: SignedIn) {
   const failed = items.filter((i) => i.state === 'failed');
   const sending = phase === 'sending';
   const firstName = props.name.split(' ')[0];
+  const eventMissing = eventId === 'new' && (!newEvent.title.trim() || !newEvent.date);
 
   return (
     <OfficeLayout title='Share photos' email={props.email} areas={props.areas}>
@@ -327,11 +341,44 @@ function Uploader(props: SignedIn) {
                 className='mt-1 w-full border border-gray-300 rounded-lg px-3 py-3 bg-white text-base'
               >
                 <option value=''>Not sure, or no particular event</option>
-                {props.events.map((e) => (
+                <option value='new'>+ A new event (not in this list)</option>
+                {events.map((e) => (
                   <option key={e.id} value={e.id}>{e.name}</option>
                 ))}
               </select>
             </label>
+            {eventId === 'new' && (
+              <div className='rounded-xl border border-gray-200 bg-white p-4 space-y-3'>
+                <label className='block'>
+                  <span className='font-medium text-gray-900'>Event name</span>
+                  <span className='text-gray-500'> (no need to add the year)</span>
+                  <input
+                    value={newEvent.title}
+                    disabled={sending}
+                    maxLength={100}
+                    onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
+                    className='mt-1 w-full border border-gray-300 rounded-lg px-3 py-3 text-base'
+                    placeholder='e.g. Vartavar Picnic'
+                  />
+                </label>
+                <label className='block'>
+                  <span className='font-medium text-gray-900'>Date of the event</span>
+                  <input
+                    type='date'
+                    value={newEvent.date}
+                    max={today()}
+                    disabled={sending}
+                    onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })}
+                    className='mt-1 block w-full border border-gray-300 rounded-lg px-3 py-3 text-base bg-white'
+                  />
+                </label>
+                <p className='text-sm text-gray-600'>
+                  {props.reviewed
+                    ? 'The parish adds this event to the gallery when they approve your photos.'
+                    : 'This event is added to the gallery with your photos.'}
+                </p>
+              </div>
+            )}
             <label className='block'>
               <span className='font-medium text-gray-900'>Caption</span>
               <span className='text-gray-500'> (optional; for all these photos; please don’t name children)</span>
@@ -392,9 +439,10 @@ function Uploader(props: SignedIn) {
 
         {phase !== 'done' && items.length > 0 && (
           <div className='sticky bottom-0 -mx-4 bg-gray-50/95 px-4 py-3 border-t border-gray-200'>
+            {eventMissing && !sending && <p className='mb-2 text-center text-sm text-gray-600'>Enter the new event’s name and date first.</p>}
             <button
               onClick={() => send(ready)}
-              disabled={sending || !ready.length}
+              disabled={sending || !ready.length || eventMissing}
               className='w-full min-h-[52px] rounded-xl bg-primary px-4 text-lg font-semibold text-white disabled:opacity-60'
             >
               {sending

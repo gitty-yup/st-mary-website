@@ -291,44 +291,47 @@ export async function deleteTag(id: unknown, actor: string): Promise<void> {
 
 /** Adds an event (no `id`) or edits one. Editing keeps its web address. */
 export async function saveEvent(input: Record<string, unknown>, actor: string): Promise<GalleryEvent> {
+  return withTransaction((client) => saveEventWith(client, input, actor));
+}
+
+/** saveEvent, inside a transaction the caller already has open (on `client`). */
+export async function saveEventWith(client: PoolClient, input: Record<string, unknown>, actor: string): Promise<GalleryEvent> {
   const title = text(input.title, MAX_TITLE, 'a title', true);
   const description = typeof input.description === 'string' ? input.description.trim() : '';
   if (description.length > MAX_DESCRIPTION) throw new RecordError(`The description is too long (at most ${MAX_DESCRIPTION} characters).`, 400);
   const eventDate = input.eventDate ? String(input.eventDate) : null;
   if (eventDate && !isIsoDate(eventDate)) throw new RecordError('Enter the date as YYYY-MM-DD.', 400);
-  return withTransaction(async (client) => {
-    const dup = await client.query(
-      `select 1 from gallery_events where lower(title) = lower($1) and event_date is not distinct from $2::date
-       and ($3::uuid is null or id <> $3::uuid)`,
-      [title, eventDate, input.id && UUID.test(String(input.id)) ? input.id : null],
-    );
-    if (dup.rowCount) throw new RecordError(`There's already an event called “${title}” on that date.`, 409);
-    let row;
-    if (input.id) {
-      if (!UUID.test(String(input.id))) throw new RecordError('Unknown event.', 400);
-      row = (
-        await client.query(
-          `update gallery_events set title = $2, event_date = $3, description = $4, updated_at = now()
-           where id = $1 returning id, slug, title, event_date::text as event_date, description, cover_photo_id`,
-          [input.id, title, eventDate, description],
-        )
-      ).rows[0];
-      if (!row) throw new RecordError('That event no longer exists. Reload the page.', 409);
-    } else {
-      const year = eventDate?.slice(0, 4);
-      const base = slugify(year && !title.includes(year) ? `${title} ${year}` : title);
-      const slug = nextSlug(base, await slugsIn(client, 'select slug from gallery_events'));
-      row = (
-        await client.query(
-          `insert into gallery_events (slug, title, event_date, description) values ($1, $2, $3, $4)
-           returning id, slug, title, event_date::text as event_date, description, cover_photo_id`,
-          [slug, title, eventDate, description],
-        )
-      ).rows[0];
-    }
-    await recordAudit(null, actor, 'gallery', { what: 'event', id: row.id, title, eventDate, created: !input.id }, client);
-    return toEvent(row);
-  });
+  const dup = await client.query(
+    `select 1 from gallery_events where lower(title) = lower($1) and event_date is not distinct from $2::date
+     and ($3::uuid is null or id <> $3::uuid)`,
+    [title, eventDate, input.id && UUID.test(String(input.id)) ? input.id : null],
+  );
+  if (dup.rowCount) throw new RecordError(`There's already an event called “${title}” on that date.`, 409);
+  let row;
+  if (input.id) {
+    if (!UUID.test(String(input.id))) throw new RecordError('Unknown event.', 400);
+    row = (
+      await client.query(
+        `update gallery_events set title = $2, event_date = $3, description = $4, updated_at = now()
+         where id = $1 returning id, slug, title, event_date::text as event_date, description, cover_photo_id`,
+        [input.id, title, eventDate, description],
+      )
+    ).rows[0];
+    if (!row) throw new RecordError('That event no longer exists. Reload the page.', 409);
+  } else {
+    const year = eventDate?.slice(0, 4);
+    const base = slugify(year && !title.includes(year) ? `${title} ${year}` : title);
+    const slug = nextSlug(base, await slugsIn(client, 'select slug from gallery_events'));
+    row = (
+      await client.query(
+        `insert into gallery_events (slug, title, event_date, description) values ($1, $2, $3, $4)
+         returning id, slug, title, event_date::text as event_date, description, cover_photo_id`,
+        [slug, title, eventDate, description],
+      )
+    ).rows[0];
+  }
+  await recordAudit(null, actor, 'gallery', { what: 'event', id: row.id, title, eventDate, created: !input.id }, client);
+  return toEvent(row);
 }
 
 /** Sets (or clears, with null) the photo shown for an event. */

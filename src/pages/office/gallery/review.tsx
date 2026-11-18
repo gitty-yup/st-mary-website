@@ -67,7 +67,7 @@ export default function ReviewPhotos(props: Props) {
     if (!ids.length) return;
     setBusy(true);
     try {
-      const res = await sendJson<{ reviewed: number }>('/api/office/gallery/review', { ids, decision });
+      const res = await sendJson<{ reviewed: number; events: string[] }>('/api/office/gallery/review', { ids, decision });
       const gone = new Set(ids);
       const left = photos.filter((p) => !gone.has(p.id));
       setPhotos(left);
@@ -80,7 +80,9 @@ export default function ReviewPhotos(props: Props) {
       setNotice({
         message:
           decision === 'approve'
-            ? `${res.reviewed === 1 ? 'The photo is' : `${res.reviewed} photos are`} in the gallery now.`
+            ? `${res.reviewed === 1 ? 'The photo is' : `${res.reviewed} photos are`} in the gallery now${
+                res.events.length ? `, in ${res.events.map((e) => `“${e}”`).join(' and ')}` : ''
+              }.`
             : `Turned down ${photosWord(res.reviewed)}.`,
         error: false,
       });
@@ -126,11 +128,18 @@ export default function ReviewPhotos(props: Props) {
                 <span className='text-sm text-gray-600'>
                   {photosWord(b.photos.length)} · sent {sentFormat.format(new Date(first.sentAt))} ·{' '}
                   {first.eventName ? <>for <strong>{first.eventName}</strong></> : 'no event chosen'}
+                  {first.newEvent && <NewEventBadge />}
                 </span>
                 <button onClick={() => setSelected((prev) => new Set([...Array.from(prev), ...b.photos.map((p) => p.id)]))} className='text-sm text-primary hover:underline'>
                   Select these {b.photos.length}
                 </button>
               </div>
+              {first.newEvent && (
+                <p className='text-sm text-gray-600 mb-2'>
+                  {first.from} named a new event. Approving creates it (or uses one with the same name and date)
+                  {office ? '; you can rename it later on Events.' : '; the office can rename it later.'}
+                </p>
+              )}
               {first.caption && <p className='text-sm text-gray-700 mb-2'>Caption: “{first.caption}”</p>}
               <div className='grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-1.5'>
                 {b.photos.map((p) => {
@@ -214,6 +223,7 @@ export default function ReviewPhotos(props: Props) {
             <p className='mt-3 text-sm text-gray-700'>
               From <strong>{current.from}</strong> · taken {monthYear(current.takenOn)} ·{' '}
               {current.eventName ? <>for {current.eventName}</> : 'no event chosen'}
+              {current.newEvent && <NewEventBadge />}
               {current.fileName && <span className='text-gray-500'> · {current.fileName}</span>}
             </p>
             {current.caption && <p className='text-sm text-gray-700'>Caption: “{current.caption}”</p>}
@@ -242,6 +252,10 @@ export default function ReviewPhotos(props: Props) {
       <Notice message={notice.message} error={notice.error} onDone={clearNotice} />
     </OfficeLayout>
   );
+}
+
+function NewEventBadge() {
+  return <span className='ml-1.5 inline-block rounded bg-secondary/15 px-1.5 text-xs font-medium text-secondary align-middle'>new event</span>;
 }
 
 function TurnDownMessage({ photos }: { photos: PendingPhoto[] }) {

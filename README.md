@@ -189,13 +189,19 @@ removing them signs them out at once (`gallery_people`; areas in `src/lib/office
 How a photo travels (`src/lib/gallery/sharing.ts`, `src/pages/api/office/gallery/upload.ts`):
 
 1. The page asks for a link (`start`): checks type (JPEG, PNG, WebP; HEIC is refused with
-   how to convert it), size (30 MB), the event, and 300 photos a day per person.
+   how to convert it), size (30 MB), the event, and 300 photos a day per person. Instead of
+   an event, the sender can name a new one (`newEvent`: name and a date not in the future).
+   For those who publish (office, `GALLERY_EDITORS`, leaders) it's created at once, or an
+   existing event with the same name and date is used (`findOrCreateEvent`, an advisory lock
+   so simultaneous photos can't create it twice). For uploaders it's kept with the photo
+   (`suggested_event_title`/`_date`) and created when the photo is approved.
 2. The browser PUTs the file straight to R2 with that signed link (15 minutes; it fixes the
    Content-Type). This needs the bucket's CORS policy (below); nothing passes through Vercel,
    whose functions take at most 4.5 MB.
 3. `finish`: the site reads the original, makes the web copy (JPEG, at most 2000 px) and
    thumbnail (WebP, 480 px short side), both turned upright and without camera details
-   (location included), takes the date from the camera (else the day it was sent), and adds
+   (location included), takes the date from the camera (else the day it was sent, Pacific
+   time), and adds
    the photo to `gallery_photos` (`source` `upload`, status `pending` or `published`).
 
 R2 layout: `uploads/originals|web|thumbs/YYYY/MM/<photo id>.*` on the live site,
@@ -204,7 +210,8 @@ R2 layout: `uploads/originals|web|thumbs/YYYY/MM/<photo id>.*` on the live site,
 gallery; while waiting, hidden or deleted, only to the office, reviewers and the sender.
 **Download original** gives the file exactly as sent.
 
-Review (`/office/gallery/review`): approve (published at once) or turn down (status
+Review (`/office/gallery/review`): approve (published at once, creating any new event the
+photos named) or turn down (status
 `rejected`; its three files are removed straight away, so it can't be undone). A deleted
 shared photo can be undone for 30 days; then the daily job removes its files, original
 included.
