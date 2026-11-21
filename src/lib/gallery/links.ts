@@ -101,10 +101,19 @@ export async function listLinks(): Promise<PhotoLink[]> {
   return rows.map(toLink);
 }
 
-async function linkById(id: string): Promise<PhotoLink> {
+export async function linkById(id: string): Promise<PhotoLink> {
+  if (!UUID.test(id)) throw new RecordError('Unknown link.', 400);
   const [row] = await query(`${SELECT} where l.id = $1`, [id]);
   if (!row) throw new RecordError('That link no longer exists. Reload the page.', 404);
   return toLink(row);
+}
+
+/** This website's address as the visitor sees it, e.g. https://www.stmaryarmenianchurch.com (for whole links). */
+export function siteOrigin(headers: Record<string, string | string[] | undefined>): string {
+  const first = (v: string | string[] | undefined) => String(Array.isArray(v) ? v[0] : (v ?? '')).split(',')[0].trim();
+  const host = first(headers['x-forwarded-host']) || first(headers.host);
+  const proto = first(headers['x-forwarded-proto']) || (/^(localhost|127\.)/.test(host) ? 'http' : 'https');
+  return `${proto}://${host}`;
 }
 
 function newCode(): string {

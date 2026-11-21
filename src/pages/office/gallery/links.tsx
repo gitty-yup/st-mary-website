@@ -1,10 +1,11 @@
 import type { GetServerSideProps } from 'next';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
+import { QrCode, downloadQrPng } from '@/components/gallery/QrCode';
 import OfficeLayout from '@/components/office/OfficeLayout';
 import { ConfirmDelete, GalleryTabs, Notice, sendJson } from '@/components/office/gallery/shared';
 import { requireOfficePage, type OfficeArea } from '@/lib/office/auth';
 import type { PhotoLink } from '@/lib/gallery/links';
-import { LINK_DAYS_DEFAULT, LINK_PHOTOS, LINK_PHOTOS_DEFAULT, linkLastDay } from '@/lib/gallery/types';
+import { LINK_DAYS_DEFAULT, LINK_PHOTOS, LINK_PHOTOS_DEFAULT, linkLastDay, slugify } from '@/lib/gallery/types';
 
 interface Props {
   email: string;
@@ -159,6 +160,7 @@ export default function GalleryLinks(props: Props) {
                   <button onClick={() => copy(l)} className='rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white'>
                     Copy link
                   </button>
+                  {l.state === 'open' && <QrButton link={l} url={url(l)} />}
                   <a href={l.path} target='_blank' rel='noreferrer' className='text-sm text-primary underline hover:no-underline'>
                     Open ↗
                   </a>
@@ -200,16 +202,60 @@ export default function GalleryLinks(props: Props) {
   );
 }
 
+/** Shows a link's QR code, to download as an image or print on a sign for the event. */
+function QrButton({ link, url }: { link: PhotoLink; url: string }) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  const titleId = React.useId();
+  const close = () => dialog.current?.close();
+  return (
+    <>
+      <button onClick={() => dialog.current?.showModal()} className='rounded-lg border border-primary px-4 py-2 text-sm font-semibold text-primary'>
+        QR code
+      </button>
+      <dialog
+        ref={dialog}
+        aria-labelledby={titleId}
+        onClick={(e) => e.target === dialog.current && close()}
+        className='w-[min(92vw,26rem)] rounded-xl p-0 backdrop:bg-black/50'
+      >
+        <div className='p-5'>
+          <h2 id={titleId} className='font-semibold text-gray-900'>QR code for {link.eventName}</h2>
+          <p className='mt-1 text-sm text-gray-600'>People point their phone’s camera at it to open the link.</p>
+          <QrCode text={url} className='mx-auto my-4 h-64 w-64' title={`QR code for the ${link.eventName} link`} />
+          <p className='break-all text-center text-xs text-gray-500'>{url}</p>
+          <div className='mt-5 flex flex-wrap justify-end gap-2'>
+            <button
+              onClick={() => downloadQrPng(url, `st-mary-photos-${slugify(link.eventName)}.png`)}
+              className='rounded-lg border border-primary px-4 py-2 text-sm font-semibold text-primary'
+            >
+              Download image
+            </button>
+            <a
+              href={`/office/gallery/links/sign?id=${link.id}`}
+              target='_blank'
+              rel='noreferrer'
+              className='rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white'
+            >
+              Print a sign
+            </a>
+            <button onClick={close} className='rounded-lg px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100'>
+              Close
+            </button>
+          </div>
+        </div>
+      </dialog>
+    </>
+  );
+}
+
 export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
   const auth = await requireOfficePage(ctx, 'people');
   if ('redirect' in auth) return auth;
-  const { listLinks } = await import('@/lib/gallery/links');
+  const { listLinks, siteOrigin } = await import('@/lib/gallery/links');
   const { query } = await import('@/lib/db');
   const { parishToday } = await import('@/lib/office/records');
   const { LINK_DAYS, eventName } = await import('@/lib/gallery/types');
   const events = await query('select id, title, event_date::text as event_date from gallery_events order by event_date desc nulls last, title');
-  const host = String(ctx.req.headers['x-forwarded-host'] ?? ctx.req.headers.host ?? '').split(',')[0].trim();
-  const proto = String(ctx.req.headers['x-forwarded-proto'] ?? '').split(',')[0].trim() || (/^(localhost|127\.)/.test(host) ? 'http' : 'https');
   const [y, m, d] = parishToday().split('-').map(Number);
   const lastDay = new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' });
   return {
@@ -218,7 +264,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
       areas: auth.session.areas,
       links: await listLinks(),
       events: events.map((e) => ({ id: e.id, name: eventName({ title: e.title, eventDate: e.event_date }) })),
-      origin: `${proto}://${host}`,
+      origin: siteOrigin(ctx.req.headers),
       dayOptions: LINK_DAYS.map((days) => ({
         days,
         label: `${days === 1 ? '1 day' : `${days} days`}, through ${lastDay.format(new Date(Date.UTC(y, m - 1, d + days)))}`,

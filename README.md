@@ -240,6 +240,11 @@ Uploads in progress count toward the link's number. Ending a link lets photos al
 their way finish for 15 minutes. Review and the Photos panel show these senders as
 "Name (event link)".
 
+Each working link has a **QR code** (Links → QR code): shown on screen, saved as a PNG about
+1200 pixels square, or printed on a one-page sign (`/office/gallery/links/sign?id=…`, US
+Letter). `src/components/gallery/QrCode.tsx` draws it from `qrcode-generator` (no
+dependencies) at error-correction level Q, so a creased or smudged sign still scans.
+
 **R2 CORS policy** (bucket → Settings → CORS policy), so browsers may send files to it:
 
     [
