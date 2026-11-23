@@ -27,6 +27,9 @@ yarn-error.log*
 # Vercel
 .vercel
 
+# WebP copies of uploaded images, made at build time (scripts/upload-webp.js)
+/public/media/uploads/**/*.*.webp
+
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts

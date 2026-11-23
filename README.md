@@ -28,8 +28,14 @@ document for Hayr Eremia and the parish office, kept outside this repository).
   use their own copy of the database (a Neon branch) and send certificate emails only
   to info@, with `[TEST]` in the subject.
 - `npm run build` runs, in order: pending database migrations (`scripts/db-migrate.js`),
-  the gallery sync (`scripts/gallery-sync.js`), then `next build`. A production build with
-  no `DATABASE_URL` fails on purpose.
+  the gallery sync (`scripts/gallery-sync.js`), WebP copies of uploaded images
+  (`scripts/upload-webp.js`, below), then `next build`. A production build with no
+  `DATABASE_URL` fails on purpose.
+- Images added in `/admin` or by the Mailchimp import (`public/media/uploads`) are kept as
+  they are. Each build makes a smaller WebP copy beside each one (`<name>.<ext>.webp`, at
+  most 1600 px wide, only when it saves 10% or more; not committed, cached in
+  `.next/cache`), and blog posts offer browsers that copy with the original as the fallback
+  and full-size link. Images after a post's first load as the reader scrolls.
 - Settings (below) are changed in Vercel → Project → Settings → Environment Variables,
   and take effect on the **next deployment** (redeploy after changing one).
 

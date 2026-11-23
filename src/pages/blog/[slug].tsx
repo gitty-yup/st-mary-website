@@ -53,7 +53,7 @@ export default function BlogPost({ title, date, author, content }: PostProps) {
           `}</style>
           <article
             className='prose prose-lg max-w-none text-gray-700 leading-relaxed
-              [&_img]:rounded-xl [&_img]:my-4 [&_img]:max-w-full
+              [&_picture]:contents [&_img]:rounded-xl [&_img]:my-4 [&_img]:max-w-full
               [&_a]:text-secondary [&_a]:underline
               [&_h2]:text-primary [&_h2]:font-secondary [&_h2]:text-2xl [&_h2]:mt-8 [&_h2]:mb-4
               [&_h3]:text-primary [&_h3]:font-secondary
@@ -78,6 +78,31 @@ export default function BlogPost({ title, date, author, content }: PostProps) {
   );
 }
 
+/**
+ * Images added through the blog editor or the newsletter import (/media/uploads) have a
+ * smaller WebP copy made at build time (scripts/upload-webp.js): browsers are offered it,
+ * with the original as the fallback (and still the full-size link). Images after the
+ * first load as the reader scrolls to them.
+ */
+function smallerImages(html: string): string {
+  let seen = 0;
+  return html.replace(/<img\b[^>]*>/gi, (tag) => {
+    const first = seen++ === 0;
+    let img = tag;
+    if (!first && !/\sloading=/i.test(img)) img = img.replace(/^<img\b/i, '<img loading="lazy" decoding="async"');
+    const src = /\ssrc=(["'])(\/media\/uploads\/[^"'?#]+\.(?:png|jpe?g))\1/i.exec(img)?.[2];
+    if (!src) return img;
+    let file: string;
+    try {
+      file = decodeURI(src);
+    } catch {
+      return img;
+    }
+    if (!fs.existsSync(path.join(process.cwd(), 'public', `${file}.webp`))) return img;
+    return `<picture><source type="image/webp" srcset="${encodeURI(file)}.webp">${img}</picture>`;
+  });
+}
+
 export const getStaticPaths: GetStaticPaths = async () => {
   const postsDir = path.join(process.cwd(), 'content', 'blog');
   const files = fs.readdirSync(postsDir).filter((f) => f.endsWith('.md'));
@@ -99,7 +124,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       title: data.title || slug,
       date: data.date instanceof Date ? data.date.toISOString().slice(0, 10) : (data.date ? String(data.date) : ''),
       author: data.author || '',
-      content: renderedContent,
+      content: smallerImages(renderedContent),
     },
   };
 };
