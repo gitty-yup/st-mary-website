@@ -127,11 +127,11 @@ export async function deleteObject(key: string): Promise<void> {
   if (!res.ok && res.status !== 404) throw new Error(`R2 answered ${res.status} for a removal.`);
 }
 
-/** A link that downloads a stored file as `filename`, for the next few minutes. */
-export async function downloadLink(key: string, filename: string): Promise<string> {
+/** A link that downloads a stored file as `filename`, for the next few minutes (or `seconds`). */
+export async function downloadLink(key: string, filename: string, seconds = LINK_SECONDS): Promise<string> {
   const s = required();
   const url = new URL(objectUrl(s, key));
-  url.searchParams.set('X-Amz-Expires', String(LINK_SECONDS));
+  url.searchParams.set('X-Amz-Expires', String(seconds));
   url.searchParams.set('response-content-disposition', `attachment; filename="${filename.replace(/["\\\r\n]/g, '')}"`);
   const signed = await s.client.sign(url.toString(), { method: 'GET', aws: { signQuery: true } });
   return signed.url;

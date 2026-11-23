@@ -26,6 +26,10 @@ interface Filter {
 
 const isPublic = (p: OfficePhoto) => p.status === 'published' && !p.fileMissing && !p.deleted;
 
+/** One zip of originals is built in the browser's memory, so it's kept to this size. */
+const MAX_ZIP_MB = 500;
+const sizeText = (bytes: number) => (bytes >= 1e6 ? `${(bytes / 1e6).toFixed(bytes >= 1e8 ? 0 : 1)} MB` : `${Math.max(1, Math.round(bytes / 1e3))} KB`);
+
 export default function GalleryPhotos(props: Props) {
   const [photos, setPhotos] = useState(props.photos);
   const [events, setEvents] = useState(props.events);
@@ -33,6 +37,8 @@ export default function GalleryPhotos(props: Props) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [anchor, setAnchor] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
+  /** While a zip of originals is being made: how far it has got. */
+  const [zipStatus, setZipStatus] = useState<string | null>(null);
   const [notice, setNotice] = useState({ message: '', error: false });
   const clearNotice = useCallback(() => setNotice({ message: '', error: false }), []);
 
@@ -162,6 +168,64 @@ export default function GalleryPhotos(props: Props) {
     }
   }
 
+  /**
+   * Downloads the full-size originals of several photos as one zip: the browser fetches
+   * each straight from the private storage (R2; its CORS setting must allow GET from this
+   * website) and puts them together.
+   */
+  async function downloadOriginals(list: OfficePhoto[]) {
+    setBusy(true);
+    try {
+      const { files, missing } = await sendJson<{ files: { name: string; url: string; size: number }[]; missing: number }>(
+        '/api/office/gallery/originals',
+        { ids: list.map((p) => p.id) },
+      );
+      if (!files.length) throw new Error(list.length === 1 ? 'This photo has no full-size original in storage.' : 'None of these photos has a full-size original in storage.');
+      const total = files.reduce((sum, f) => sum + (f.size || 0), 0);
+      if (total > MAX_ZIP_MB * 1e6) {
+        throw new Error(`These originals come to ${sizeText(total)}, more than one download can hold (${MAX_ZIP_MB} MB). Select fewer photos and download them in parts.`);
+      }
+      const { downloadZip } = await import('client-zip');
+      let done = 0;
+      setZipStatus(`Getting the originals… 0 of ${files.length}`);
+      const entries = async function* () {
+        for (const f of files) {
+          let res: Response;
+          try {
+            res = await fetch(f.url);
+          } catch {
+            throw new Error('The photo storage didn’t allow the download from this website. Please ask the website maintainer to check its settings.');
+          }
+          if (!res.ok) throw new Error(`Couldn’t get ${f.name} from the photo storage (${res.status}). Please try again.`);
+          const lastModified = new Date(res.headers.get('last-modified') || Date.now());
+          yield { name: f.name, input: res, lastModified };
+          done++;
+          setZipStatus(`Getting the originals… ${done} of ${files.length} (${sizeText(total)} in all)`);
+        }
+      };
+      const blob = await downloadZip(entries()).blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `st-mary-photo-originals-${new Date().toLocaleDateString('en-CA')}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      setNotice({
+        message: `Saved ${files.length === 1 ? '1 original' : `${files.length} originals`} as one zip (${sizeText(blob.size)}).${
+          missing ? ` ${missing === 1 ? '1 photo has' : `${missing} photos have`} no original in storage.` : ''
+        }`,
+        error: false,
+      });
+    } catch (err) {
+      setNotice({ message: (err as Error).message, error: true });
+    } finally {
+      setZipStatus(null);
+      setBusy(false);
+    }
+  }
+
   const byYear: { year: string; items: { photo: OfficePhoto; index: number }[] }[] = [];
   shown.forEach((photo, index) => {
     const year = photo.takenOn.slice(0, 4);
@@ -275,6 +339,8 @@ export default function GalleryPhotos(props: Props) {
           onApply={apply}
           onCover={makeCover}
           onOriginal={downloadOriginal}
+          onOriginals={downloadOriginals}
+          zipStatus={zipStatus}
           onClear={() => setSelected(new Set())}
         />
       )}
@@ -309,6 +375,9 @@ function SelectionPanel(props: {
   onApply: (change: PhotoChange, message: string, only?: string[]) => Promise<void>;
   onCover: (photo: OfficePhoto) => void;
   onOriginal: (photo: OfficePhoto) => void;
+  onOriginals: (photos: OfficePhoto[]) => void;
+  /** While a zip of originals is being made. */
+  zipStatus: string | null;
   onClear: () => void;
 }) {
   const { chosen, busy, onApply } = props;
@@ -344,7 +413,15 @@ function SelectionPanel(props: {
         <div className='flex flex-wrap items-center gap-3 mb-3'>
           <strong className='text-gray-800'>{n} selected</strong>
           <button onClick={props.onClear} className='text-sm text-primary hover:underline'>Clear selection</button>
+          {props.zipStatus && <span className='text-sm text-gray-700' role='status'>{props.zipStatus}</span>}
           <span className='ml-auto flex flex-wrap items-center justify-end gap-x-3 gap-y-2'>
+            {n > 1 && (
+              <button disabled={busy} onClick={() => props.onOriginals(chosen)}
+                title='The full-size photos as they were taken, from the private storage, in one zip'
+                className='border border-primary text-primary rounded-lg px-3 py-1 text-sm hover:bg-primary hover:text-white disabled:opacity-50'>
+                Download originals ({n})
+              </button>
+            )}
             {anyDeleted && (
               <button disabled={busy} onClick={() => onApply({ deleted: false }, `Undid the delete for ${what}.`)}
                 className='border border-primary text-primary rounded-lg px-3 py-1 text-sm hover:bg-primary hover:text-white disabled:opacity-50'>

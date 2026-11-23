@@ -259,13 +259,16 @@ dependencies) at error-correction level Q, so a creased or smudged sign still sc
           "https://www.stmaryarmenianchurch.com",
           "https://st-mary-website-git-gallery-gitty-yups-projects.vercel.app"
         ],
-        "AllowedMethods": ["PUT"],
+        "AllowedMethods": ["PUT", "GET"],
         "AllowedHeaders": ["content-type"],
         "MaxAgeSeconds": 3600
       }
     ]
 
-The bare domain redirects to www, so it isn't needed. The second origin is the `gallery`
+PUT lets phones send shared photos; GET lets the office's browser fetch originals for
+**Download originals** (several photos as one zip, made in the browser with `client-zip`
+from hour-long links given by `/api/office/gallery/originals`; at most 500 photos and
+500 MB at a time). The bare domain redirects to www, so it isn't needed. The second origin is the `gallery`
 branch's preview; add others to test from another branch (a commit's own preview address
 won't work).
 

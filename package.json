@@ -22,6 +22,7 @@
     "@types/turndown": "^5.0.6",
     "autoprefixer": "10.6.2",
     "aws4fetch": "^1.0.20",
+    "client-zip": "^2.5.1",
     "googleapis": "^176.0.0",
     "gray-matter": "^4.0.3",
     "jsonwebtoken": "^9.0.3",
