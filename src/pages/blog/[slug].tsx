@@ -54,6 +54,7 @@ export default function BlogPost({ title, date, author, content }: PostProps) {
           <article
             className='prose prose-lg max-w-none text-gray-700 leading-relaxed
               [&_picture]:contents [&_img]:rounded-xl [&_img]:my-4 [&_img]:max-w-full
+              [&_a.tap-to-open]:block [&_a.tap-to-open]:cursor-zoom-in
               [&_a]:text-secondary [&_a]:underline
               [&_h2]:text-primary [&_h2]:font-secondary [&_h2]:text-2xl [&_h2]:mt-8 [&_h2]:mb-4
               [&_h3]:text-primary [&_h3]:font-secondary
@@ -81,25 +82,40 @@ export default function BlogPost({ title, date, author, content }: PostProps) {
 /**
  * Images added through the blog editor or the newsletter import (/media/uploads) have a
  * smaller WebP copy made at build time (scripts/upload-webp.js): browsers are offered it,
- * with the original as the fallback (and still the full-size link). Images after the
- * first load as the reader scrolls to them.
+ * with the original as the fallback. An image that isn't already a link opens the full
+ * original when tapped (to read a flyer's small print). Images after the first load as
+ * the reader scrolls to them.
  */
 function smallerImages(html: string): string {
   let seen = 0;
-  return html.replace(/<img\b[^>]*>/gi, (tag) => {
+  let inLink = 0;
+  return html.replace(/<a\b[^>]*>|<\/a\s*>|<img\b[^>]*>/gi, (tag) => {
+    if (/^<a\b/i.test(tag)) {
+      inLink++;
+      return tag;
+    }
+    if (/^<\/a/i.test(tag)) {
+      inLink = Math.max(0, inLink - 1);
+      return tag;
+    }
     const first = seen++ === 0;
     let img = tag;
     if (!first && !/\sloading=/i.test(img)) img = img.replace(/^<img\b/i, '<img loading="lazy" decoding="async"');
-    const src = /\ssrc=(["'])(\/media\/uploads\/[^"'?#]+\.(?:png|jpe?g))\1/i.exec(img)?.[2];
-    if (!src) return img;
-    let file: string;
-    try {
-      file = decodeURI(src);
-    } catch {
-      return img;
+    const original = /\ssrc=(["'])([^"']+)\1/i.exec(img)?.[2];
+    const upload = original && /^\/media\/uploads\/[^?#]+\.(?:png|jpe?g)$/i.test(original) ? original : null;
+    let shown = img;
+    if (upload) {
+      try {
+        const file = decodeURI(upload);
+        if (fs.existsSync(path.join(process.cwd(), 'public', `${file}.webp`))) {
+          shown = `<picture><source type="image/webp" srcset="${encodeURI(file)}.webp">${img}</picture>`;
+        }
+      } catch {
+        // A malformed address: show the image as it is.
+      }
     }
-    if (!fs.existsSync(path.join(process.cwd(), 'public', `${file}.webp`))) return img;
-    return `<picture><source type="image/webp" srcset="${encodeURI(file)}.webp">${img}</picture>`;
+    if (inLink || !original) return shown;
+    return `<a href="${original.replace(/"/g, '&quot;')}" target="_blank" rel="noopener" class="tap-to-open">${shown}</a>`;
   });
 }
 
