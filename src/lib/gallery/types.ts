@@ -10,6 +10,28 @@ export const TAG_GROUPS: { key: TagGroup; label: string; param: string }[] = [
   { key: 'collection', label: 'Collection', param: 'collection' },
 ];
 
+/**
+ * Organizations with their own page, by their Organization tag's web name (which stays
+ * the same when the tag is renamed). The page shows the tag's photos; the gallery, filtered
+ * to the tag, links back to the page.
+ */
+export const ORG_PAGES: Record<string, string> = {
+  acyo: '/organizations/acyo',
+  'hovsepian-choir': '/organizations/hovsepian-choir',
+  'cultural-committee': '/organizations/cultural-entertainment-committees',
+};
+
+/** The gallery, filtered to one organization's photos. */
+export const orgGalleryHref = (slug: string) => `/gallery?org=${encodeURIComponent(slug)}`;
+
+/** An organization's photos, for its page: the newest few and how many there are in all. */
+export interface OrgPhotos {
+  slug: string;
+  label: string;
+  count: number;
+  photos: { id: string; thumb: string; caption: string; takenOn: string }[];
+}
+
 export type PhotoStatus = 'pending' | 'published' | 'hidden' | 'rejected';
 
 export interface GalleryTag {

@@ -1,5 +1,9 @@
 import OrganizationPage from '@/components/OrganizationPage';
+import { orgPageProps, type OrgPageProps } from '@/lib/gallery/orgPageProps';
 import React from 'react';
+
+/** Photos tagged ACYO in the gallery. */
+export const getStaticProps = orgPageProps('acyo');
 
 const officers = [
   { role: 'Chairman', name: 'Talia Saharyildizi' },
@@ -12,9 +16,10 @@ const officers = [
   { role: 'Youth Director', name: 'Alen Ashikian' },
 ];
 
-export default function AcyoPage() {
+export default function AcyoPage({ orgPhotos }: OrgPageProps) {
   return (
     <OrganizationPage
+      photos={orgPhotos}
       name='ACYO'
       fullName='Armenian Church Youth Organization'
       tagline='Love One Another. — John 15:17'

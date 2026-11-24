@@ -184,6 +184,24 @@ folder. Running it again is safe.
 To remove an original (for example, for a takedown request), delete it in the Cloudflare
 dashboard: R2 → `st-mary-photos` → find the file by its path → Delete.
 
+### Organization photos
+
+Organization pages and Parish Life show photos by their **Organization** tag (set on
+Photos), matched by the tag's web name, which stays the same when a tag is renamed:
+
+- The pages in `ORG_PAGES` (`src/lib/gallery/types.ts`: ACYO, Hovsepian Choir, Cultural
+  Committee) show a **Photos** section with the 6 newest and "See all N … photos in the
+  gallery", which opens `/gallery?org=<tag>`. The gallery, filtered to one of these, links
+  back ("About the ACYO →").
+- Parish Life cards without a page of their own (each with a `tag`) get "Photos (N) →".
+- Counts match the gallery: published, not deleted, and not tucked behind another
+  "only when chosen" tag (such as Flyers & posters). Nothing shows until a tag has photos.
+- `refreshGallery` rebuilds these pages along with `/gallery` after every office change.
+
+To give another organization page photos, add its tag's web name and page to `ORG_PAGES`
+and `export const getStaticProps = orgPageProps('<tag>')` to the page, passing `photos`
+to `OrganizationPage`.
+
 ### Shared photos (/share-photos)
 
 People the office adds under **Photos → People** can send photos from a phone or computer at

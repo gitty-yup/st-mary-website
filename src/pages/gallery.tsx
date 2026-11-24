@@ -1,8 +1,10 @@
 import AppLayout from '@/components/layout/AppLayout';
 import type { GetStaticProps } from 'next';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
+  ORG_PAGES,
   TAG_GROUPS,
   eventName,
   inMainView,
@@ -110,6 +112,10 @@ export default function Gallery({ photos, events, tags }: GalleryProps) {
     [poolEvents, pool],
   );
 
+  // Filtered to an organization that has its own page: a link back to it.
+  const orgTag = filters.organization ? tags.find((t) => t.group === 'organization' && t.slug === filters.organization) : undefined;
+  const orgPage = orgTag && ORG_PAGES[orgTag.slug] ? { href: ORG_PAGES[orgTag.slug], label: orgTag.label } : null;
+
   return (
     <AppLayout>
       <header className='gallery-header-bg px-primary h-[205px] md:h-[305px] flex flex-col items-center justify-center text-center gap-3 text-white'>
@@ -159,6 +165,14 @@ export default function Gallery({ photos, events, tags }: GalleryProps) {
                 <button onClick={() => update(NO_FILTERS)} className='text-primary underline hover:no-underline'>
                   Show all photos
                 </button>
+              </>
+            )}
+            {orgPage && (
+              <>
+                {' · '}
+                <Link href={orgPage.href} className='text-primary underline hover:no-underline'>
+                  About the {orgPage.label} →
+                </Link>
               </>
             )}
           </p>

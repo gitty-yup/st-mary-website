@@ -1,5 +1,7 @@
 import AppLayout from '@/components/layout/AppLayout';
 import Button from '@/common/Button';
+import OrgPhotoStrip from '@/components/gallery/OrgPhotoStrip';
+import type { OrgPhotos } from '@/lib/gallery/types';
 import Link from 'next/link';
 import React from 'react';
 
@@ -28,6 +30,8 @@ export interface OrganizationPageProps {
   sections: OrgSection[];
   contact?: OrgContact;
   social?: OrgSocial;
+  /** The organization's newest gallery photos (none: no Photos section). */
+  photos?: OrgPhotos | null;
 }
 
 export default function OrganizationPage({
@@ -38,7 +42,11 @@ export default function OrganizationPage({
   sections,
   contact,
   social,
+  photos,
 }: OrganizationPageProps) {
+  // Sections alternate white and pink; the Photos section (when there is one) takes the next turn.
+  const shade = (idx: number) => (idx % 2 === 0 ? 'bg-white' : 'bg-[#FFF5F2]');
+  const contactIdx = sections.length + (photos?.photos.length ? 1 : 0);
   return (
     <AppLayout>
       <header
@@ -67,8 +75,10 @@ export default function OrganizationPage({
         </section>
       ))}
 
+      <OrgPhotoStrip data={photos ?? null} className={shade(sections.length)} />
+
       {(contact || social) && (
-        <section className={`px-primary py-12 ${sections.length % 2 === 0 ? 'bg-white' : 'bg-[#FFF5F2]'}`}>
+        <section className={`px-primary py-12 ${shade(contactIdx)}`}>
           <div className='max-w-3xl mx-auto'>
             <h2 className='text-primary font-secondary font-bold text-2xl mb-4'>Connect With Us</h2>
             <div className='text-gray-700 leading-relaxed space-y-2'>

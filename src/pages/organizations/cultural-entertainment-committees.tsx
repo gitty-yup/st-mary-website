@@ -1,5 +1,9 @@
 import OrganizationPage from '@/components/OrganizationPage';
+import { orgPageProps, type OrgPageProps } from '@/lib/gallery/orgPageProps';
 import React from 'react';
+
+/** Photos tagged Cultural Committee in the gallery. */
+export const getStaticProps = orgPageProps('cultural-committee');
 
 const officers = [
   { role: 'Chair', name: 'Dr. Nazeli Daphne Saharyildizi' },
@@ -9,9 +13,10 @@ const officers = [
 
 const members = ['Jim Yogurtian', 'Haig Altunian'];
 
-export default function CulturalEntertainmentCommitteesPage() {
+export default function CulturalEntertainmentCommitteesPage({ orgPhotos }: OrgPageProps) {
   return (
     <OrganizationPage
+      photos={orgPhotos}
       name='Cultural and Entertainment Committees'
       tagline='Celebrating Armenian heritage and bringing our community together'
       sections={[

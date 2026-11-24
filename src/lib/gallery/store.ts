@@ -21,6 +21,7 @@ import {
   type GalleryPhoto,
   type GalleryTag,
   type OfficePhoto,
+  type OrgPhotos,
   type PhotoChange,
   type TagGroup,
 } from '@/lib/gallery/types';
@@ -79,6 +80,44 @@ export async function publicGallery(): Promise<{ photos: GalleryPhoto[]; events:
     .filter((e) => eventIds.has(e.id));
   const tags = (await query('select id, tag_group, slug, label, filter_only from gallery_tags order by label')).map(toTag).filter((t) => tagIds.has(t.id));
   return { photos, events, tags };
+}
+
+/**
+ * The photos an Organization tag `t` has in the public gallery: published, not deleted,
+ * and not tucked behind another "only when chosen" tag (such as flyers), so the numbers
+ * match what the gallery shows when filtered to the organization.
+ */
+const ORG_PHOTOS_FROM = `
+  from gallery_tags t
+  join gallery_photo_tags pt on pt.tag_id = t.id
+  join gallery_photos p on p.id = pt.photo_id
+  where t.tag_group = 'organization' and p.status = 'published' and not p.file_missing and p.deleted_at is null
+    and not exists (
+      select 1 from gallery_photo_tags x join gallery_tags xt on xt.id = x.tag_id
+      where x.photo_id = p.id and xt.filter_only and xt.id <> t.id
+    )`;
+
+/** How many gallery photos each organization has, by its tag's web name (only those with any). */
+export async function orgPhotoCounts(): Promise<Record<string, number>> {
+  const rows = await query(`select t.slug, count(*)::int as n ${ORG_PHOTOS_FROM} group by t.slug`);
+  return Object.fromEntries(rows.map((r) => [r.slug, r.n]));
+}
+
+/** An organization's newest gallery photos and how many it has, or null if none (or no such tag). */
+export async function orgPhotos(slug: string, limit = 6): Promise<OrgPhotos | null> {
+  const rows = await query(
+    `select t.label, p.id, p.thumb_src, p.caption, p.taken_on::text as taken_on, count(*) over ()::int as n
+     ${ORG_PHOTOS_FROM} and t.slug = $1
+     order by p.taken_on desc, p.src limit $2`,
+    [slug, limit],
+  );
+  if (!rows.length) return null;
+  return {
+    slug,
+    label: rows[0].label,
+    count: rows[0].n,
+    photos: rows.map((r) => ({ id: r.id, thumb: r.thumb_src, caption: r.caption, takenOn: r.taken_on })),
+  };
 }
 
 /**

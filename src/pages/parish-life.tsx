@@ -1,9 +1,34 @@
 import AppLayout from '@/components/layout/AppLayout';
 import Button from '@/common/Button';
+import { noDatabase } from '@/lib/gallery/orgPageProps';
+import { orgGalleryHref } from '@/lib/gallery/types';
+import type { GetStaticProps } from 'next';
 import Link from 'next/link';
 import React from 'react';
 
-const ministries = [
+/**
+ * Each card's `tag` is the web name of its Organization tag in the photo gallery. A card
+ * without a page of its own links to the gallery's photos with that tag, once there are
+ * any (an organization's own page shows its photos instead).
+ */
+interface Props {
+  /** Gallery photos per Organization tag (only tags that have some). */
+  photoCounts: Record<string, number>;
+}
+
+function PhotosLink({ tag, counts }: { tag?: string; counts: Record<string, number> }) {
+  const n = tag ? counts[tag] : 0;
+  if (!tag || !n) return null;
+  return (
+    <p className='mt-3'>
+      <Link href={orgGalleryHref(tag)} className='text-secondary text-sm font-semibold hover:underline'>
+        Photos ({n}) →
+      </Link>
+    </p>
+  );
+}
+
+const ministries: { name: string; description: string; href?: string; tag?: string }[] = [
   {
     name: 'Hovsepian Choir',
     description:
@@ -18,14 +43,16 @@ const ministries = [
   },
   {
     name: 'Ladies Society',
+    tag: 'ladies-society',
     description:
       'The St. Mary Ladies Society is a cornerstone of parish life. Their mission is to study and propagate the teachings of the Armenian Apostolic Church, cultivate Christian virtues, and support the parish through events, charitable work, and beautification of the church. Annual events include the Armenian Christmas Banquet, Mother\'s Day Luncheon, April 24th Walkathon, and the Church Food Festival.',
   },
 ];
 
-const youthPrograms: { name: string; description: React.ReactNode }[] = [
+const youthPrograms: { name: string; description: React.ReactNode; tag?: string }[] = [
   {
     name: 'Sunday School',
+    tag: 'sunday-school',
     description: (
       <>
         <p className='font-semibold text-primary mb-2'>Discover Faith, Grow in Christ at St. Mary Sunday School!</p>
@@ -53,11 +80,13 @@ const youthPrograms: { name: string; description: React.ReactNode }[] = [
   },
   {
     name: 'AGBU Saturday Armenian School',
+    tag: 'agbu-saturday-school',
     description:
       'The AGBU Saturday Armenian School meets at St. Mary Church and offers instruction in the Armenian language (Eastern and Western dialects), history, religion, music, and arts and crafts. Classes run from 10:00 AM to 1:00 PM. Contact: 714-898-9053.',
   },
   {
     name: 'Hye Camp & Diocesan Retreats',
+    tag: 'hye-camp',
     description: (
       <>
         St. Mary youth participate in the Western Diocese&apos;s annual{' '}
@@ -70,14 +99,16 @@ const youthPrograms: { name: string; description: React.ReactNode }[] = [
   },
 ];
 
-const organizations = [
+const organizations: { name: string; description: string; href?: string; tag?: string }[] = [
   {
     name: 'Parish Assembly',
+    tag: 'parish-assembly',
     description:
       'The governing body of voting parish members, meeting annually to review the parish budget, elect council members, and vote on major decisions.',
   },
   {
     name: 'St. Mary Trust Fund',
+    tag: 'trust-fund',
     description:
       'Established in 2000, the Trust Fund is responsible for the financial stability and long-term investment of parish assets, reporting to the Parish Assembly.',
   },
@@ -89,12 +120,26 @@ const organizations = [
   },
   {
     name: 'Mommy & Me',
+    tag: 'mommy-and-me',
     description:
       'A program for young mothers and their toddlers to connect in a church atmosphere, with outings and monthly gatherings throughout the year.',
   },
 ];
 
-export default function ParishLife() {
+export const getStaticProps: GetStaticProps<Props> = async () => {
+  if (noDatabase()) return { props: { photoCounts: {} }, revalidate: 60 };
+  try {
+    const { orgPhotoCounts } = await import('@/lib/gallery/store');
+    // Office changes refresh the page straight away; the hour is only a fallback.
+    return { props: { photoCounts: await orgPhotoCounts() }, revalidate: 3600 };
+  } catch (err) {
+    // The page is still built, without photo links, and tries again in a few minutes.
+    console.error('[gallery] photo counts for Parish Life:', err instanceof Error ? err.message : err);
+    return { props: { photoCounts: {} }, revalidate: 300 };
+  }
+};
+
+export default function ParishLife({ photoCounts }: Props) {
   return (
     <AppLayout>
       <header className='parish-life-header-bg px-primary h-[205px] md:h-[305px] flex flex-col items-center justify-center text-center gap-3 text-white'>
@@ -116,7 +161,7 @@ export default function ParishLife() {
                 <div className={`bg-[#FFF5F2] rounded-2xl p-6 ${m.href ? 'hover:shadow-md transition-shadow cursor-pointer' : ''}`}>
                   <h3 className='font-secondary font-bold text-primary text-lg mb-2'>{m.name}</h3>
                   <p className='text-gray-700 leading-relaxed'>{m.description}</p>
-                  {m.href && <p className='text-secondary text-sm mt-3 font-semibold'>Learn more →</p>}
+                  {m.href ? <p className='text-secondary text-sm mt-3 font-semibold'>Learn more →</p> : <PhotosLink tag={m.tag} counts={photoCounts} />}
                 </div>
               );
               return m.href ? (
@@ -138,7 +183,8 @@ export default function ParishLife() {
             {youthPrograms.map((p) => (
               <div key={p.name} className='bg-white rounded-2xl p-6 shadow-sm'>
                 <h3 className='font-secondary font-bold text-primary text-lg mb-2'>{p.name}</h3>
-                <p className='text-gray-700 leading-relaxed'>{p.description}</p>
+                <div className='text-gray-700 leading-relaxed'>{p.description}</div>
+                <PhotosLink tag={p.tag} counts={photoCounts} />
               </div>
             ))}
           </div>
@@ -156,7 +202,7 @@ export default function ParishLife() {
                 <div className={`bg-[#FFF5F2] rounded-2xl p-6 h-full ${o.href ? 'hover:shadow-md transition-shadow cursor-pointer' : ''}`}>
                   <h3 className='font-secondary font-bold text-primary text-lg mb-2'>{o.name}</h3>
                   <p className='text-gray-700 text-sm leading-relaxed'>{o.description}</p>
-                  {o.href && <p className='text-secondary text-sm mt-3 font-semibold'>Learn more →</p>}
+                  {o.href ? <p className='text-secondary text-sm mt-3 font-semibold'>Learn more →</p> : <PhotosLink tag={o.tag} counts={photoCounts} />}
                 </div>
               );
               return o.href ? (

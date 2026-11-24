@@ -1,5 +1,9 @@
 import OrganizationPage from '@/components/OrganizationPage';
+import { orgPageProps, type OrgPageProps } from '@/lib/gallery/orgPageProps';
 import React from 'react';
+
+/** Photos tagged Hovsepian Choir in the gallery. */
+export const getStaticProps = orgPageProps('hovsepian-choir');
 
 const officers = [
   { role: 'Chairman', name: 'Hirant Rakijian' },
@@ -22,9 +26,10 @@ const advisors = [
   'Annie Vas',
 ];
 
-export default function HovsepianChoirPage() {
+export default function HovsepianChoirPage({ orgPhotos }: OrgPageProps) {
   return (
     <OrganizationPage
+      photos={orgPhotos}
       name='Hovsepian Choir'
       tagline='Sacred music of the Armenian Apostolic Church since 1992'
       sections={[
