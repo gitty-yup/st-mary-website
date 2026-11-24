@@ -564,6 +564,7 @@ export const getStaticProps: GetStaticProps<GalleryProps> = async () => {
     return { props: { photos: [], events: [], tags: [] }, revalidate: 60 };
   }
   const { publicGallery } = await import('@/lib/gallery/store');
-  // Office changes refresh the page straight away; this is only a fallback.
-  return { props: await publicGallery(), revalidate: 3600 };
+  // Office changes refresh the page straight away; every few minutes is a backstop in case
+  // one is missed (on Vercel that happened). Each rebuild is one database read, only when visited.
+  return { props: await publicGallery(), revalidate: 300 };
 };

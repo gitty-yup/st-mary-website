@@ -21,6 +21,14 @@ export const ORG_PAGES: Record<string, string> = {
   'cultural-committee': '/organizations/cultural-entertainment-committees',
 };
 
+/**
+ * Pages that show gallery photos and are kept up to date by refreshing them after office
+ * changes. Links to them load the whole page (see FullLoadLinks): on Vercel, the refresh
+ * reliably updates the page itself but not always the separate data file that an in-site
+ * click would use, which could then show old photos.
+ */
+export const PHOTO_PAGES: string[] = ['/gallery', '/parish-life', ...Object.values(ORG_PAGES)];
+
 /** The gallery, filtered to one organization's photos. */
 export const orgGalleryHref = (slug: string) => `/gallery?org=${encodeURIComponent(slug)}`;
 
