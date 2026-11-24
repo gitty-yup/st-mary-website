@@ -196,7 +196,10 @@ Photos), matched by the tag's web name, which stays the same when a tag is renam
 - Parish Life cards without a page of their own (each with a `tag`) get "Photos (N) →".
 - Counts match the gallery: published, not deleted, and not tucked behind another
   "only when chosen" tag (such as Flyers & posters). Nothing shows until a tag has photos.
-- `refreshGallery` rebuilds these pages along with `/gallery` after every office change.
+- `refreshGallery` rebuilds these pages along with `/gallery` after every office change,
+  one at a time. On the Vercel preview, rebuilds started all at once didn't all take, so
+  these pages also rebuild themselves at most once a minute when visited
+  (`ORG_PAGE_REFRESH_SECONDS`).
 
 To give another organization page photos, add its tag's web name and page to `ORG_PAGES`
 and `export const getStaticProps = orgPageProps('<tag>')` to the page, passing `photos`

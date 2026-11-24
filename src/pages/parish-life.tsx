@@ -1,6 +1,6 @@
 import AppLayout from '@/components/layout/AppLayout';
 import Button from '@/common/Button';
-import { noDatabase } from '@/lib/gallery/orgPageProps';
+import { ORG_PAGE_REFRESH_SECONDS, noDatabase } from '@/lib/gallery/orgPageProps';
 import { orgGalleryHref } from '@/lib/gallery/types';
 import type { GetStaticProps } from 'next';
 import Link from 'next/link';
@@ -130,8 +130,8 @@ export const getStaticProps: GetStaticProps<Props> = async () => {
   if (noDatabase()) return { props: { photoCounts: {} }, revalidate: 60 };
   try {
     const { orgPhotoCounts } = await import('@/lib/gallery/store');
-    // Office changes refresh the page straight away; the hour is only a fallback.
-    return { props: { photoCounts: await orgPhotoCounts() }, revalidate: 3600 };
+    // Office changes refresh the page straight away; the minute is a backstop.
+    return { props: { photoCounts: await orgPhotoCounts() }, revalidate: ORG_PAGE_REFRESH_SECONDS };
   } catch (err) {
     // The page is still built, without photo links, and tries again in a few minutes.
     console.error('[gallery] photo counts for Parish Life:', err instanceof Error ? err.message : err);
