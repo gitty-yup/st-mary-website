@@ -8,8 +8,8 @@ import React from 'react';
 
 /**
  * Each card's `tag` is the web name of its Organization tag in the photo gallery. A card
- * without a page of its own links to the gallery's photos with that tag, once there are
- * any (an organization's own page shows its photos instead).
+ * without a page of its own links to the gallery's photos with that tag ("Photos →"),
+ * once there are any (an organization's own page shows its photos instead).
  */
 interface Props {
   /** Gallery photos per Organization tag (only tags that have some). */
@@ -22,7 +22,7 @@ function PhotosLink({ tag, counts }: { tag?: string; counts: Record<string, numb
   return (
     <p className='mt-3'>
       <Link href={orgGalleryHref(tag)} className='text-secondary text-sm font-semibold hover:underline'>
-        Photos ({n}) →
+        Photos →
       </Link>
     </p>
   );

@@ -29,7 +29,7 @@ export default function OrgPhotoStrip({ data, className = '' }: { data: OrgPhoto
         </div>
         <p className='mt-5'>
           <Link href={href} className='inline-block text-secondary font-semibold hover:underline'>
-            {data.count === 1 ? 'See it in the photo gallery →' : `See all ${data.count} ${data.label} photos in the gallery →`}
+            {data.count === 1 ? 'See it in the photo gallery →' : `See all ${data.label} photos in the gallery →`}
           </Link>
         </p>
       </div>

@@ -190,10 +190,10 @@ Organization pages and Parish Life show photos by their **Organization** tag (se
 Photos), matched by the tag's web name, which stays the same when a tag is renamed:
 
 - The pages in `ORG_PAGES` (`src/lib/gallery/types.ts`: ACYO, Hovsepian Choir, Cultural
-  Committee) show a **Photos** section with the 6 newest and "See all N … photos in the
+  Committee) show a **Photos** section with the 6 newest and "See all … photos in the
   gallery", which opens `/gallery?org=<tag>`. The gallery, filtered to one of these, links
   back ("About the ACYO →").
-- Parish Life cards without a page of their own (each with a `tag`) get "Photos (N) →".
+- Parish Life cards without a page of their own (each with a `tag`) get "Photos →".
 - Counts match the gallery: published, not deleted, and not tucked behind another
   "only when chosen" tag (such as Flyers & posters). Nothing shows until a tag has photos.
 - `refreshGallery` rebuilds these pages along with `/gallery` after every office change,
