@@ -51,7 +51,7 @@ export default function RequiemPage() {
         description='Hokihankist, the Requiem Service of the Armenian Apostolic Church: why we pray for the departed, when it is observed, and how to request one at St. Mary in Costa Mesa.'
       />
       <header className='worship-header-bg px-primary h-[205px] md:h-[305px] flex flex-col items-center justify-center text-center gap-3 text-white'>
-        <p className='font-cursive text-secondary text-2xl'>Prayers for the Departed</p>
+        <p className='font-cursive text-secondary text-2xl'>Faith &amp; Traditions</p>
         <h1 className='font-secondary font-bold text-2xl md:text-[32px] lg:text-[40px]'>
           Hokihankist <Hy>(Հոգեհանգիստ)</Hy>
         </h1>
@@ -357,9 +357,9 @@ export default function RequiemPage() {
           <Link href='/contact'>
             <Button className='!w-[200px] !bg-secondary !border-secondary hover:!brightness-90'>Contact Us</Button>
           </Link>
-          <Link href='/worship'>
+          <Link href='/worship#traditions'>
             <Button className='!w-[200px] !bg-transparent !border-white !border-2 hover:!bg-white hover:!text-primary'>
-              Back to Worship
+              Faith &amp; Traditions
             </Button>
           </Link>
         </div>

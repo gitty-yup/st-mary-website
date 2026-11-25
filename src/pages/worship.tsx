@@ -48,6 +48,21 @@ const sacraments = [
   },
 ];
 
+/**
+ * Faith & Traditions: prayers, blessings and customs beyond the sacraments. Each topic is a
+ * card linking to its own page; add more here (e.g. Home Blessings, Madagh) as pages are written.
+ */
+const traditions: { name: string; armenian?: string; description: string; href: string; link: string }[] = [
+  {
+    name: 'Hokihankist (Requiem Service)',
+    armenian: 'Հոգեհանգիստ',
+    description:
+      'Through the Hokihankist, we remember our departed loved ones, pray for the repose of their souls, and reaffirm our faith in the Resurrection and the promise of eternal life. Families traditionally request it for the fortieth day, the first anniversary, and later anniversaries.',
+    href: '/requiem',
+    link: 'About Hokihankist and how to request one →',
+  },
+];
+
 export default function Worship() {
   return (
     <AppLayout>
@@ -137,29 +152,44 @@ export default function Worship() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
 
-          {/* Prayers for the Departed (not a sacrament, so set apart below them) */}
-          <div id='requiem' className='mt-10 bg-white rounded-2xl p-6 md:p-8 shadow-sm border-l-4 border-secondary'>
-            <p className='text-secondary font-cursive text-xl mb-1'>Prayers for the Departed</p>
-            <h3 className='font-secondary font-bold text-primary text-xl mb-3'>
-              <Link href='/requiem' className='hover:text-secondary transition-colors'>
-                Hokihankist (Requiem Service)
-              </Link>
-            </h3>
-            <p className='text-gray-600 leading-relaxed mb-4'>
-              Through the Hokihankist, we remember our departed loved ones, pray for the repose of their souls, and
-              reaffirm our faith in the Resurrection and the promise of eternal life. Families traditionally request it
-              for the fortieth day, the first anniversary, and later anniversaries.
-            </p>
-            <Link href='/requiem' className='text-secondary font-semibold hover:underline'>
-              About Hokihankist and how to request one →
-            </Link>
+      {/* Faith & Traditions */}
+      <section id='traditions' className='px-primary py-16 bg-white'>
+        <div className='max-w-4xl mx-auto'>
+          <p className='text-secondary font-cursive text-2xl mb-2'>Living Our Faith</p>
+          <h2 className='text-primary font-secondary font-bold text-3xl mb-8'>Faith &amp; Traditions</h2>
+          <p className='text-gray-700 mb-10 leading-relaxed'>
+            Beyond the sacraments, the Armenian Church has a rich treasury of prayers, blessings, and customs that carry
+            our faith into family life and the remembrance of our loved ones. Contact the parish office with any
+            questions.
+          </p>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+            {traditions.map((t) => (
+              <div key={t.href} className='bg-[#FFF5F2] rounded-2xl p-6 flex flex-col'>
+                <h3 className='font-secondary font-bold text-primary text-lg mb-2'>
+                  <Link href={t.href} className='hover:text-secondary transition-colors'>
+                    {t.name}
+                  </Link>
+                </h3>
+                {t.armenian && (
+                  <p lang='hy' className='text-gray-500 text-sm -mt-1 mb-2'>
+                    {t.armenian}
+                  </p>
+                )}
+                <p className='text-gray-600 text-sm leading-relaxed mb-4'>{t.description}</p>
+                <Link href={t.href} className='mt-auto text-secondary text-sm font-semibold hover:underline'>
+                  {t.link}
+                </Link>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Liturgical Calendar */}
-      <section className='px-primary py-16 bg-white'>
+      <section className='px-primary py-16 bg-[#FFF5F2]'>
         <div className='max-w-4xl mx-auto'>
           <p className='text-secondary font-cursive text-2xl mb-2'>The Sacred Year</p>
           <h2 className='text-primary font-secondary font-bold text-3xl mb-8'>Liturgical Calendar</h2>
@@ -170,7 +200,7 @@ export default function Worship() {
               { season: 'Feast Days', desc: 'Celebrating the Nativity, Epiphany, Transfiguration, Assumption of Holy Mother of God, and more.', icon: '🌟' },
               { season: 'Fasting Periods', desc: 'The Armenian Church observes several fasting periods throughout the year as spiritual disciplines.', icon: '🙏' },
             ].map((item) => (
-              <div key={item.season} className='bg-[#FFF2EE] rounded-2xl p-6 text-center'>
+              <div key={item.season} className='bg-white rounded-2xl p-6 text-center shadow-sm'>
                 <div className='text-3xl mb-3'>{item.icon}</div>
                 <h3 className='font-secondary font-bold text-primary text-lg mb-2'>{item.season}</h3>
                 <p className='text-gray-600 text-sm leading-relaxed'>{item.desc}</p>
@@ -186,7 +216,7 @@ export default function Worship() {
       </section>
 
       {/* Plan Your Visit */}
-      <section className='px-primary py-16 bg-[#FFF5F2]'>
+      <section className='px-primary py-16 bg-white'>
         <div className='max-w-4xl mx-auto'>
           <p className='text-secondary font-cursive text-2xl mb-2'>First Time Visiting?</p>
           <h2 className='text-primary font-secondary font-bold text-3xl mb-8'>Plan Your Visit</h2>
@@ -199,7 +229,7 @@ export default function Worship() {
               { q: 'Are children welcome?', a: 'Absolutely. Children are a blessing to our parish family. Sunday School runs during the Liturgy from 11am until the conclusion of Badarak, every Sunday during the school year.' },
               { q: 'What happens after the service?', a: 'A fellowship hour (coffee hour) follows every Sunday Badarak. Everyone is invited to stay and connect.' },
             ].map((item) => (
-              <div key={item.q} className='bg-white rounded-2xl p-6 shadow-sm'>
+              <div key={item.q} className='bg-[#FFF5F2] rounded-2xl p-6'>
                 <h3 className='font-secondary font-semibold text-primary text-base mb-2'>{item.q}</h3>
                 <p className='text-gray-600 text-sm leading-relaxed'>{item.a}</p>
               </div>
