@@ -121,9 +121,11 @@ export default function RequiemPage() {
             </div>
             <nav aria-label='On this page' className='rounded-2xl border-l-4 border-primary bg-[#EEF3FA] p-6'>
               <p className='font-secondary font-bold text-primary text-xl mb-3'>On this page</p>
-              <ol className='sm:columns-2 sm:gap-x-10'>
+              {/* Two columns on a computer (1–4, 5–8): the left as wide as its longest heading, the right gets the rest.
+                  Narrower than that, one column, so no heading is squeezed onto two lines. */}
+              <ol className='lg:grid lg:grid-flow-col lg:grid-rows-4 lg:grid-cols-[auto_1fr] lg:gap-x-10'>
                 {ON_THIS_PAGE.map(([id, label], i) => (
-                  <li key={id} className='flex gap-3 py-1 break-inside-avoid'>
+                  <li key={id} className='flex gap-3 py-1'>
                     <span className='text-primary/50 tabular-nums w-5 text-right shrink-0'>{i + 1}.</span>
                     <a href={`#${id}`} className='text-primary hover:text-secondary hover:underline'>
                       {label}
