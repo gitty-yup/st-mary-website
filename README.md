@@ -302,19 +302,32 @@ won't work).
 `/requiem` explains the service (linked from Worship → Faith & Traditions); its request
 buttons open the form at `/requiem/request`.
 
-- Rules (`src/lib/requiem/rules.ts`, used by the form and the server): a Sunday, at least one
-  day ahead (Pacific time), within a year, and not one of the five major feasts — January 6,
-  Easter, Vartavar (Easter + 98 days), the Assumption (Sunday nearest August 15) and the
-  Exaltation of the Holy Cross (Sunday nearest September 14). Contact details are required;
-  up to 10 names, each with a relationship and occasion (Yotnorek, Karasoonk, Darelits,
-  other).
+- Rules (`src/lib/requiem/rules.ts`, used by the form and the server): a Sunday or a Merelots
+  day (the day after a major feast), at least one day ahead (Pacific time), within a year, and
+  not one of the five major feasts — January 6, Easter, Vartavar (Easter + 98 days), the
+  Assumption (Sunday nearest August 15) and the Exaltation of the Holy Cross (Sunday nearest
+  September 14). Contact details are required; up to 10 names, each with a relationship and
+  occasion (Yotnorek, Karasoonk, Darelits with which anniversary, other with what), plus
+  optional Hokijash / fellowship-hour wishes and how they'll make the memorial offering.
 - `POST /api/forms/requiem`: the same protection as the baptism/marriage forms (Turnstile,
-  hidden trap field, 5 an hour per connection). Saved in `requiem_requests` (migration 013),
-  then emailed to Hayr Eremia (freremia@gmail.com) and info@ (`REQUIEM_NOTIFY_TO` overrides;
-  outside production only info@, marked [TEST]), with a receipt to the family.
-- Office → **Requiem** (`/office/requiem`, office only): requests by Sunday, upcoming first,
-  "Print names" for each Sunday, and Delete (with confirmation). Requests and deletes are
-  in the history (`audit_events`, action `requiem`).
+  hidden trap field, 5 an hour per connection). Saved in `requiem_requests` (migrations
+  013–015), then emailed to Hayr Eremia (freremia@gmail.com) and info@ (`REQUIEM_NOTIFY_TO`
+  overrides; outside production only info@, marked [TEST]), with a receipt to the family.
+- **Same-day requests:** the office's permanent QR code / link
+  (`/requiem/request?sameday=<secret>`, secret in `requiem_settings`) also lets the form
+  choose today, on a Sunday (not a feast) or Merelots day before 1:00 pm, and allows 20 an
+  hour per connection (church Wi-Fi). Those emails start with [SAME DAY]. The office can
+  replace the secret, which retires printed signs and shared links.
+- Office → **Requiem** (`/office/requiem`, office only): requests by service day, upcoming
+  first; "Print names" for each day (requests that arrive after the names sheet was last
+  opened are pointed out); Delete (with confirmation); **Add a paper request**
+  (`/office/requiem/new`: today allowed, a phone number or email is enough, no receipt without
+  an email, marked Paper); **Print blank form** and **Print QR sign** (PDFs, `src/lib/requiem/pdf.ts`);
+  and the same-day QR code with Open on this device / Copy link / Replace QR code. Requests,
+  paper entries, deletes and QR replacements are in the history (`audit_events`, action
+  `requiem`).
+- Tests can pretend it's another time with an `x-requiem-now` header, honoured only when
+  `REQUIEM_FAKE_NOW_ALLOWED=1` and not on Vercel.
 - The newsletter checkbox is only recorded; nothing is sent to Mailchimp yet.
 
 ## Restoring from the backup

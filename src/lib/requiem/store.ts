@@ -19,6 +19,10 @@ export interface RequiemRequest {
   fellowship: boolean;
   arrangements: string;
   offering: string;
+  /** 'online' (the website form) or 'paper' (typed in by the office). */
+  source: 'online' | 'paper';
+  /** Made on the day of the service. */
+  sameDay: boolean;
 }
 
 function toRequest(r: any): RequiemRequest {
@@ -41,21 +45,41 @@ function toRequest(r: any): RequiemRequest {
     fellowship: r.fellowship,
     arrangements: r.arrangements,
     offering: r.offering,
+    source: r.source === 'paper' ? 'paper' : 'online',
+    sameDay: r.same_day,
   };
 }
 
 const COLUMNS =
-  'id, created_at, service_date::text as service_date, name, address, city, state, zip, phone, email, others, names, newsletter, hokijash, fellowship, arrangements, offering';
+  'id, created_at, service_date::text as service_date, name, address, city, state, zip, phone, email, others, names, newsletter, hokijash, fellowship, arrangements, offering, source, same_day';
 
-export async function createRequiemRequest(d: RequiemInput, ipHash: string | null): Promise<RequiemRequest> {
+export async function createRequiemRequest(
+  d: RequiemInput,
+  ipHash: string | null,
+  how: { source: 'online' | 'paper'; sameDay: boolean } = { source: 'online', sameDay: false },
+): Promise<RequiemRequest> {
   const rows = await query(
     `insert into requiem_requests (service_date, name, address, city, state, zip, phone, email, others, names, newsletter,
-                                   hokijash, fellowship, arrangements, offering, client_ip_hash)
-     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16) returning ${COLUMNS}`,
+                                   hokijash, fellowship, arrangements, offering, client_ip_hash, source, same_day)
+     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18) returning ${COLUMNS}`,
     [d.serviceDate, d.name, d.address, d.city, d.state, d.zip, d.phone, d.email, d.others, JSON.stringify(d.names), d.newsletter,
-      d.hokijash, d.fellowship, d.arrangements, d.offering, ipHash],
+      d.hokijash, d.fellowship, d.arrangements, d.offering, ipHash, how.source, how.sameDay],
   );
   return toRequest(rows[0]);
+}
+
+/** Records that a day's names sheet was opened for printing (the latest time is kept). */
+export async function markNamesPrinted(serviceDate: string): Promise<void> {
+  await query(
+    'insert into requiem_prints (service_date, printed_at) values ($1, now()) on conflict (service_date) do update set printed_at = now()',
+    [serviceDate],
+  );
+}
+
+/** When each day's names sheet was last opened for printing: { 'YYYY-MM-DD': ISO time }. */
+export async function namesPrintedTimes(): Promise<Record<string, string>> {
+  const rows = await query('select service_date::text as d, printed_at from requiem_prints');
+  return Object.fromEntries(rows.map((r: any) => [r.d, new Date(r.printed_at).toISOString()]));
 }
 
 /** How many requests this connection sent in the last hour. */

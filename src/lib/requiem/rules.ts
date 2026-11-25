@@ -19,7 +19,12 @@ export const OFFERINGS = [
   { value: 'online', label: 'Online', help: 'We’ll show you the link to our secure giving page once your request is sent.' },
   { value: 'church', label: 'At church on Sunday', help: '' },
 ] as const;
-export type Offering = '' | (typeof OFFERINGS)[number]['value'];
+/** 'enclosed' only on paper forms (entered by the office). */
+export type Offering = '' | (typeof OFFERINGS)[number]['value'] | 'enclosed';
+
+export function offeringLabel(v: string): string {
+  return v === 'online' ? 'Online' : v === 'church' ? 'At church' : v === 'enclosed' ? 'Enclosed with the paper form' : '';
+}
 
 export const GIVE_ONLINE_URL = 'https://give.tithe.ly/?formId=2b4b2f59-428d-46ab-9cd4-b151b1f12dab';
 
@@ -121,27 +126,68 @@ export function majorFeasts(year: number): { date: string; name: string }[] {
   ];
 }
 
+/** Merelots: the day after each of the five major feasts, a day of remembrance of the departed. */
+export function isMerelots(date: string): boolean {
+  const d = new Date(`${date}T00:00:00Z`);
+  if (Number.isNaN(d.getTime())) return false;
+  const eve = iso(addDays(d, -1));
+  return majorFeasts(Number(eve.slice(0, 4))).some((f) => f.date === eve);
+}
+
+/** "Sunday, November 29, 2026", or "Monday, March 29, 2027 (Merelots)". */
+export function serviceDateLabel(date: string): string {
+  return isMerelots(date) ? `${longDate(date)} (Merelots)` : longDate(date);
+}
+
+/** Same-day requests (from the parish office's QR code or link) close at this hour, parish time. */
+export const SAME_DAY_CUTOFF_HOUR = 13;
+export const SAME_DAY_CUTOFF_LABEL = '1:00 pm';
+
+export interface DateRules {
+  /** The office's same-day QR code or link was used, and same-day requests are open (`sameDayOpen`). */
+  sameDay?: boolean;
+  /** Entered by the parish office (a paper form): today is always allowed. */
+  office?: boolean;
+}
+
 /** Why a date can't be chosen for the service, or null if it can. */
-export function serviceDateProblem(date: string, today: string = parishToday()): string | null {
+export function serviceDateProblem(date: string, today: string = parishToday(), rules: DateRules = {}): string | null {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return 'Choose the date of the service.';
   const d = new Date(`${date}T00:00:00Z`);
   if (Number.isNaN(d.getTime()) || iso(d) !== date) return 'Choose the date of the service.';
-  if (d.getUTCDay() !== 0) return 'Hokihankist is offered on Sundays. Please choose a Sunday.';
-  if (date <= today) return 'Please send your request at least one day before the service.';
-  if (date > iso(addDays(new Date(`${today}T00:00:00Z`), 366))) return 'Please choose a Sunday within the next year.';
+  const merelots = isMerelots(date);
+  if (d.getUTCDay() !== 0 && !merelots) return 'Hokihankist is offered on Sundays and on Merelots days. Please choose a Sunday.';
+  if (date < today) return 'That date has passed. Please choose an upcoming Sunday.';
   const feast = majorFeasts(d.getUTCFullYear()).find((f) => f.date === date);
-  if (feast) return `Hokihankist isn’t offered on the Feast of ${feast.name}. Please choose another Sunday.`;
+  if (feast && !merelots) return `Hokihankist isn’t offered on the Feast of ${feast.name}. Please choose another Sunday.`;
+  if (date === today && !rules.sameDay && !rules.office) {
+    return 'Requests need to be made at least one day before the service. For a request today, please stop by the parish office.';
+  }
+  if (date > iso(addDays(new Date(`${today}T00:00:00Z`), 366))) return 'Please choose a Sunday within the next year.';
   return null;
 }
 
-/** The next Sundays a request can be made for (for the date picker's suggestions). */
-export function nextServiceSundays(count: number, today: string = parishToday()): string[] {
+/** The hour (0–23) in Costa Mesa. */
+function parishHour(now: Date): number {
+  return Number(new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', hour: 'numeric', hourCycle: 'h23' }).format(now));
+}
+
+/**
+ * Today's date if a same-day request can be made right now: today is a Sunday (not a major
+ * feast) or a Merelots day, and it's before the cutoff. Otherwise null.
+ */
+export function sameDayOpen(now: Date = new Date()): string | null {
+  const today = parishToday(now);
+  if (parishHour(now) >= SAME_DAY_CUTOFF_HOUR) return null;
+  return serviceDateProblem(today, today, { sameDay: true }) ? null : today;
+}
+
+/** The next days a request can be made for (for the date picker's suggestions): Sundays and Merelots days. */
+export function nextServiceDays(count: number, today: string = parishToday()): string[] {
   const out: string[] = [];
   let d = addDays(new Date(`${today}T00:00:00Z`), 1);
-  d = addDays(d, (7 - d.getUTCDay()) % 7);
-  while (out.length < count) {
+  for (let i = 0; i < 400 && out.length < count; i++, d = addDays(d, 1)) {
     if (!serviceDateProblem(iso(d), today)) out.push(iso(d));
-    d = addDays(d, 7);
   }
   return out;
 }
@@ -153,8 +199,14 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 /**
  * Tidies and checks a request. `errors` is keyed by field (`names.0.name` for a row),
  * empty when the request can be sent. Rows left completely blank are dropped.
+ * Office entries (paper forms) need only a phone number or an email, and may say the
+ * offering was enclosed.
  */
-export function cleanRequiem(raw: unknown, today: string = parishToday()): { data: RequiemInput; errors: Record<string, string> } {
+export function cleanRequiem(
+  raw: unknown,
+  today: string = parishToday(),
+  rules: DateRules = {},
+): { data: RequiemInput; errors: Record<string, string> } {
   const r = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
   const rows = Array.isArray(r.names) ? r.names.slice(0, MAX_NAMES + 5) : [];
   const data: RequiemInput = {
@@ -185,19 +237,30 @@ export function cleanRequiem(raw: unknown, today: string = parishToday()): { dat
     hokijash: r.hokijash === true,
     fellowship: r.fellowship === true,
     arrangements: '',
-    offering: OFFERINGS.some((o) => o.value === r.offering) ? (r.offering as Offering) : '',
+    offering:
+      OFFERINGS.some((o) => o.value === r.offering) || (rules.office && r.offering === 'enclosed') ? (r.offering as Offering) : '',
   };
   if (data.hokijash || data.fellowship) data.arrangements = typeof r.arrangements === 'string' ? r.arrangements.trim().slice(0, LIMITS.arrangements) : '';
   const errors: Record<string, string> = {};
-  const dateProblem = serviceDateProblem(data.serviceDate, today);
+  const dateProblem = serviceDateProblem(data.serviceDate, today, rules);
   if (dateProblem) errors.serviceDate = dateProblem;
-  if (!data.name) errors.name = 'Enter your name.';
-  if (!data.address) errors.address = 'Enter your street address.';
-  if (!data.city) errors.city = 'Enter your city.';
-  if (!data.state) errors.state = 'Enter your state.';
-  if (!/^\d{5}(-\d{4})?$/.test(data.zip)) errors.zip = 'Enter a 5-digit ZIP code.';
-  if (data.phone.replace(/\D/g, '').length < 10) errors.phone = 'Enter a phone number, including the area code.';
-  if (!EMAIL.test(data.email)) errors.email = 'Enter an email address.';
+  if (!data.name) errors.name = rules.office ? 'Enter the name of the person requesting.' : 'Enter your name.';
+  const badPhone = data.phone.replace(/\D/g, '').length < 10;
+  const badZip = !/^\d{5}(-\d{4})?$/.test(data.zip);
+  if (rules.office) {
+    // A paper form may be incomplete: what's given must be valid, and the family must be reachable.
+    if (data.phone && badPhone) errors.phone = 'Enter a phone number, including the area code.';
+    if (data.email && !EMAIL.test(data.email)) errors.email = 'Enter a valid email address.';
+    if (!data.phone && !data.email) errors.phone = 'Enter a phone number or an email address, so we can reach the family.';
+    if (data.zip && badZip) errors.zip = 'Enter a 5-digit ZIP code.';
+  } else {
+    if (!data.address) errors.address = 'Enter your street address.';
+    if (!data.city) errors.city = 'Enter your city.';
+    if (!data.state) errors.state = 'Enter your state.';
+    if (badZip) errors.zip = 'Enter a 5-digit ZIP code.';
+    if (badPhone) errors.phone = 'Enter a phone number, including the area code.';
+    if (!EMAIL.test(data.email)) errors.email = 'Enter an email address.';
+  }
   if (!data.names.length) errors['names.0.name'] = 'Enter the name of your departed loved one.';
   if (data.names.length > MAX_NAMES) errors.names = `Please list at most ${MAX_NAMES} names in one request.`;
   data.names.forEach((n, i) => {

@@ -113,7 +113,7 @@ export default function RequiemPage() {
               <div className='flex-1'>
                 <p className='font-secondary font-bold text-primary text-xl mb-1'>Requesting a Hokihankist?</p>
                 <p className='text-gray-700'>
-                  Offered on Sundays at the conclusion of the Divine Liturgy. Please send your request at least one day
+                  Offered on Sundays and Merelots days at the conclusion of the Divine Liturgy. Please send your request at least one day
                   before the service, or call the parish office at 949.650.8367.
                 </p>
               </div>
@@ -402,7 +402,7 @@ export default function RequiemPage() {
         <Sub>How to Request</Sub>
         <p>
           Please send your request at least one day before the service using our online form, which asks for the
-          names of your departed loved ones, the occasion, and the Sunday you would like. You can also let us know if
+          names of your departed loved ones, the occasion, and the Sunday or Merelots day you would like. You can also let us know if
           you would like to arrange a Hokijash or sponsor the fellowship hour, and someone from the church will contact
           you. You may also call the parish office at 949.650.8367.
         </p>

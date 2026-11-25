@@ -9,7 +9,7 @@ export default function RequiemRequestPage() {
     <AppLayout>
       <HeadElement
         pageTitle='Request a Hokihankist (Requiem Service) — St. Mary Armenian Apostolic Church'
-        description='Request a Hokihankist (Requiem Service) at St. Mary Armenian Apostolic Church in Costa Mesa, offered on Sundays at the conclusion of the Divine Liturgy.'
+        description='Request a Hokihankist (Requiem Service) at St. Mary Armenian Apostolic Church in Costa Mesa, offered on Sundays and Merelots days at the conclusion of the Divine Liturgy.'
       />
       <header className='worship-header-bg px-primary h-[205px] md:h-[255px] flex flex-col items-center justify-center text-center gap-3 text-white'>
         <p className='font-cursive text-secondary text-2xl'>Faith &amp; Traditions</p>
@@ -19,8 +19,8 @@ export default function RequiemRequestPage() {
       <section className='px-4 sm:px-primary py-10 bg-[#FFF5F2]'>
         <div className='max-w-3xl mx-auto space-y-6'>
           <p className='text-gray-700 leading-relaxed'>
-            Hokihankist is offered on Sundays at the conclusion of the Divine Liturgy (Soorp Badarak). Please send your
-            request at least one day before the service. Fields marked <span className='text-secondary'>*</span> are
+            Hokihankist is offered on Sundays and on Merelots days at the conclusion of the Divine Liturgy (Soorp
+            Badarak). Please send your request at least one day before the service. Fields marked <span className='text-secondary'>*</span> are
             required.
           </p>
           <RequiemForm />

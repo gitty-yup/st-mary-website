@@ -311,6 +311,10 @@ export interface RequiemSummary {
   fellowship: boolean;
   arrangements: string;
   offering: string;
+  /** 'paper': typed in by the office from a paper form. */
+  source?: 'online' | 'paper';
+  /** For the same day it was made, so it may have missed the printed names sheet. */
+  sameDay?: boolean;
 }
 
 /** "a Hokijash (memorial meal) and sponsoring the fellowship hour", or '' if neither. */
@@ -339,22 +343,41 @@ export async function sendRequiemNotice(
   const first = r.names[0]?.name ?? '';
   const more = r.names.length > 1 ? ` and ${r.names.length - 1} more` : '';
   const arrange = requiemArrangements(r);
-  const subject = `${test ? '[TEST] ' : ''}Hokihankist request for ${when}: ${first}${more}${arrange ? ' (arrangements requested)' : ''}`;
+  const paper = r.source === 'paper';
+  const subject = `${test ? '[TEST] ' : ''}${r.sameDay ? '[SAME DAY] ' : ''}Hokihankist request for ${when}: ${first}${more}${
+    arrange ? ' (arrangements requested)' : ''
+  }`;
   const url = `${siteBaseUrl()}/office/requiem`;
   const td = (v: string, style = '') => `<td style="padding:4px 12px 4px 0;vertical-align:top;${style}">${escapeHtml(v)}</td>`;
   const names = r.names
     .map((n) => `<tr>${td(n.name, 'font-weight:600;')}${td(n.relationship)}${td(occasion(n), 'color:#666;')}</tr>`)
     .join('');
-  const offering = r.offering === 'online' ? 'Online (shown the giving link)' : r.offering === 'church' ? 'At church on Sunday' : 'Not mentioned';
+  const offering =
+    r.offering === 'online'
+      ? paper
+        ? 'Online'
+        : 'Online (shown the giving link)'
+      : r.offering === 'church'
+        ? 'At church on Sunday'
+        : r.offering === 'enclosed'
+          ? 'Enclosed with the paper form'
+          : 'Not mentioned';
+  const address = [r.address, r.city, [r.state, r.zip].filter(Boolean).join(' ')].filter(Boolean).join(', ');
   const rows: [string, string][] = [
     ['Requested by', r.name],
-    ['Phone', r.phone],
-    ['Email', r.email],
-    ['Address', `${r.address}, ${r.city}, ${r.state} ${r.zip}`],
+    ['Phone', r.phone || 'Not given'],
+    ['Email', r.email || 'Not given'],
+    ['Address', address || 'Not given'],
     ...(r.others ? ([['Others requesting', r.others]] as [string, string][]) : []),
     ['Memorial offering', offering],
     ['Newsletter', r.newsletter ? 'Yes, please add them' : 'No'],
+    ...(paper ? ([['Received', 'On a paper form, entered by the parish office']] as [string, string][]) : []),
   ];
+  const how = paper ? 'on a paper form at the parish office' : 'through the website';
+  const sameDayHtml = r.sameDay
+    ? `<div style="margin:0 0 16px;padding:12px 16px;background:#FFF8E1;border-left:4px solid #E0A100;"><strong>Same-day request:</strong> this is for today, so it may not be on a names sheet printed earlier.</div>`
+    : '';
+  const sameDayText = r.sameDay ? 'SAME-DAY REQUEST: this is for today, so it may not be on a names sheet printed earlier.\n\n' : '';
   const arrangeHtml = arrange
     ? `<div style="margin:0 0 20px;padding:12px 16px;background:#FFF5F2;border-left:4px solid #C84B2F;">
          <p style="margin:0;"><strong>Please contact the family</strong> to arrange ${escapeHtml(arrange)}.</p>
@@ -365,22 +388,23 @@ export async function sendRequiemNotice(
   const table = rows
     .map(([k, v]) => `<tr><td style="padding:4px 16px 4px 0;color:#888;white-space:nowrap;vertical-align:top;">${escapeHtml(k)}</td><td style="padding:4px 0;">${escapeHtml(v)}</td></tr>`)
     .join('');
+  const replyLine = r.email ? `Reply to this email to write to ${r.name}.` : `${r.name} gave no email address; please call them.`;
   await send({
     to,
-    replyTo: r.email,
+    ...(r.email ? { replyTo: r.email } : {}),
     subject,
     html: layout(
       'Hokihankist request',
-      `<p style="margin:0 0 8px;">A Hokihankist was requested through the website for <strong>${escapeHtml(when)}</strong>, in memory of:</p>
+      `${sameDayHtml}<p style="margin:0 0 8px;">A Hokihankist was requested ${how} for <strong>${escapeHtml(when)}</strong>, in memory of:</p>
        <table cellpadding="0" cellspacing="0" style="margin:0 0 20px;font-size:15px;">${names}</table>
        ${arrangeHtml}
        <table cellpadding="0" cellspacing="0" style="margin:0 0 24px;font-size:15px;">${table}</table>
        ${button(url, 'See all requests')}
-       <p style="margin:0;font-size:13px;color:#888;">Reply to this email to write to ${escapeHtml(r.name)}.</p>`,
+       <p style="margin:0;font-size:13px;color:#888;">${escapeHtml(replyLine)}</p>`,
     ),
-    text: `A Hokihankist was requested through the website for ${when}, in memory of:\n\n${r.names
+    text: `${sameDayText}A Hokihankist was requested ${how} for ${when}, in memory of:\n\n${r.names
       .map((n) => `- ${n.name} (${n.relationship}), ${occasion(n)}`)
-      .join('\n')}\n\n${arrangeText}${rows.map(([k, v]) => `${k}: ${v}`).join('\n')}\n\nSee all requests (sign-in required):\n${url}\n\nReply to this email to write to ${r.name}.`,
+      .join('\n')}\n\n${arrangeText}${rows.map(([k, v]) => `${k}: ${v}`).join('\n')}\n\nSee all requests (sign-in required):\n${url}\n\n${replyLine}`,
   });
   return to;
 }
