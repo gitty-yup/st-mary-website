@@ -57,6 +57,7 @@ export default function OfficeLayout({
                   <Link href='/office/new?type=baptism' className='hover:underline'>New baptism</Link>
                   <Link href='/office/new?type=marriage' className='hover:underline'>New marriage</Link>
                   <Link href='/office/backup' className='hover:underline'>Export &amp; backup</Link>
+                  <Link href='/office/requiem' className='hover:underline'>Requiem</Link>
                 </>
               )}
               {areas.includes('gallery') && (

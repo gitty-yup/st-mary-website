@@ -292,3 +292,88 @@ export async function sendSubmissionConfirmation(s: SubmissionSummary): Promise<
     text: `We received the ${kind} information you submitted${when}. Hayr Eremia and the parish office will use it to prepare the church records and certificate.\n\nIf anything needs to change, or if you have questions, reply to this email or call the parish office at ${OFFICE_PHONE}.\n\nIf you didn't submit this, please let us know by replying to this email.`,
   });
 }
+
+// --- Hokihankist (Requiem Service) requests ---------------------------------------------
+
+export interface RequiemSummary {
+  serviceDate: string;
+  name: string;
+  address: string;
+  city: string;
+  state: string;
+  zip: string;
+  phone: string;
+  email: string;
+  others: string;
+  names: { name: string; relationship: string; occasion: string }[];
+  newsletter: boolean;
+}
+
+/**
+ * Who hears about a new request: Hayr Eremia and the parish office. Outside production only
+ * the office address (marked [TEST]), so trying the form on a preview never emails Hayr Eremia.
+ */
+function requiemRecipients(): { to: string[]; test: boolean } {
+  const production = process.env.VERCEL_ENV === 'production';
+  const fallback = production ? `freremia@gmail.com,${OFFICE_ADDRESS}` : OFFICE_ADDRESS;
+  return { to: (process.env.REQUIEM_NOTIFY_TO ?? fallback).split(',').map((s) => s.trim()).filter(Boolean), test: !production };
+}
+
+/** To Hayr Eremia and the office: the whole request (replying writes to the family). Returns who it went to. */
+export async function sendRequiemNotice(r: RequiemSummary, when: string, occasion: (v: string) => string): Promise<string[]> {
+  const { to, test } = requiemRecipients();
+  const first = r.names[0]?.name ?? '';
+  const more = r.names.length > 1 ? ` and ${r.names.length - 1} more` : '';
+  const subject = `${test ? '[TEST] ' : ''}Hokihankist request for ${when}: ${first}${more}`;
+  const url = `${siteBaseUrl()}/office/requiem`;
+  const td = (v: string, style = '') => `<td style="padding:4px 12px 4px 0;vertical-align:top;${style}">${escapeHtml(v)}</td>`;
+  const names = r.names
+    .map((n) => `<tr>${td(n.name, 'font-weight:600;')}${td(n.relationship)}${td(occasion(n.occasion), 'color:#666;')}</tr>`)
+    .join('');
+  const rows: [string, string][] = [
+    ['Requested by', r.name],
+    ['Phone', r.phone],
+    ['Email', r.email],
+    ['Address', `${r.address}, ${r.city}, ${r.state} ${r.zip}`],
+    ...(r.others ? ([['Others requesting', r.others]] as [string, string][]) : []),
+    ['Newsletter', r.newsletter ? 'Yes, please add them' : 'No'],
+  ];
+  const table = rows
+    .map(([k, v]) => `<tr><td style="padding:4px 16px 4px 0;color:#888;white-space:nowrap;vertical-align:top;">${escapeHtml(k)}</td><td style="padding:4px 0;">${escapeHtml(v)}</td></tr>`)
+    .join('');
+  await send({
+    to,
+    replyTo: r.email,
+    subject,
+    html: layout(
+      'Hokihankist request',
+      `<p style="margin:0 0 8px;">A Hokihankist was requested through the website for <strong>${escapeHtml(when)}</strong>, in memory of:</p>
+       <table cellpadding="0" cellspacing="0" style="margin:0 0 20px;font-size:15px;">${names}</table>
+       <table cellpadding="0" cellspacing="0" style="margin:0 0 24px;font-size:15px;">${table}</table>
+       ${button(url, 'See all requests')}
+       <p style="margin:0;font-size:13px;color:#888;">Reply to this email to write to ${escapeHtml(r.name)}.</p>`,
+    ),
+    text: `A Hokihankist was requested through the website for ${when}, in memory of:\n\n${r.names
+      .map((n) => `- ${n.name} (${n.relationship}), ${occasion(n.occasion)}`)
+      .join('\n')}\n\n${rows.map(([k, v]) => `${k}: ${v}`).join('\n')}\n\nSee all requests (sign-in required):\n${url}\n\nReply to this email to write to ${r.name}.`,
+  });
+  return to;
+}
+
+/** To the family: we received it. */
+export async function sendRequiemReceipt(r: RequiemSummary, when: string): Promise<void> {
+  const list = r.names.map((n) => n.name).join(', ');
+  await send({
+    to: [r.email],
+    replyTo: OFFICE_ADDRESS,
+    subject: `We received your Hokihankist request for ${when}`,
+    html: layout(
+      'Thank you',
+      `<p style="margin:0 0 16px;">We received your request for a Hokihankist (Requiem Service) on <strong>${escapeHtml(when)}</strong>, at the conclusion of the Divine Liturgy, in memory of ${escapeHtml(list)}.</p>
+       <p style="margin:0 0 16px;">If anything needs to change, reply to this email or call the parish office at ${OFFICE_PHONE}.</p>
+       <p style="margin:0 0 16px;font-style:italic;">May God grant light to their souls.</p>
+       <p style="margin:0;font-size:13px;color:#888;">If you didn't send this request, please let us know by replying to this email.</p>`,
+    ),
+    text: `We received your request for a Hokihankist (Requiem Service) on ${when}, at the conclusion of the Divine Liturgy, in memory of ${list}.\n\nIf anything needs to change, reply to this email or call the parish office at ${OFFICE_PHONE}.\n\nMay God grant light to their souls.\n\nIf you didn't send this request, please let us know by replying to this email.`,
+  });
+}

@@ -297,6 +297,26 @@ from hour-long links given by `/api/office/gallery/originals`; at most 500 photo
 branch's preview; add others to test from another branch (a commit's own preview address
 won't work).
 
+## Hokihankist (Requiem Service) requests
+
+`/requiem` explains the service (linked from Worship → Faith & Traditions); its request
+buttons open the form at `/requiem/request`.
+
+- Rules (`src/lib/requiem/rules.ts`, used by the form and the server): a Sunday, at least one
+  day ahead (Pacific time), within a year, and not one of the five major feasts — January 6,
+  Easter, Vartavar (Easter + 98 days), the Assumption (Sunday nearest August 15) and the
+  Exaltation of the Holy Cross (Sunday nearest September 14). Contact details are required;
+  up to 10 names, each with a relationship and occasion (Yotnorek, Karasoonk, Darelits,
+  other).
+- `POST /api/forms/requiem`: the same protection as the baptism/marriage forms (Turnstile,
+  hidden trap field, 5 an hour per connection). Saved in `requiem_requests` (migration 013),
+  then emailed to Hayr Eremia (freremia@gmail.com) and info@ (`REQUIEM_NOTIFY_TO` overrides;
+  outside production only info@, marked [TEST]), with a receipt to the family.
+- Office → **Requiem** (`/office/requiem`, office only): requests by Sunday, upcoming first,
+  "Print names" for each Sunday, and Delete (with confirmation). Requests and deletes are
+  in the history (`audit_events`, action `requiem`).
+- The newsletter checkbox is only recorded; nothing is sent to Mailchimp yet.
+
 ## Restoring from the backup
 
 Use this if the certificate database is lost or damaged. If the damage is recent, first

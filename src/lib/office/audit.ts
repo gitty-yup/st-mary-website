@@ -19,7 +19,8 @@ export type AuditAction =
   | 'export'
   | 'backup'
   | 'restore'
-  | 'gallery';
+  | 'gallery'
+  | 'requiem';
 
 export async function recordAudit(
   requestId: string | null,

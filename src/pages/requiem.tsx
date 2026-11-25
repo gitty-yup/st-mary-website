@@ -33,15 +33,28 @@ function Quote({ children, source }: { children: React.ReactNode; source: string
   );
 }
 
+/** The page's sections, in the order they appear. */
 const ON_THIS_PAGE: [string, string][] = [
-  ['why', 'Why we pray for the departed'],
-  ['when', 'When it is observed'],
-  ['service', 'The service'],
-  ['feasts', 'The five major feast days'],
-  ['merelots', 'Merelots'],
-  ['customs', 'Customs'],
-  ['request', 'Requesting a Hokihankist'],
+  ['why', 'Why Do We Pray for the Departed?'],
+  ['when', 'When Is Hokihankist Observed?'],
+  ['service', 'The Hokihankist Service'],
+  ['feasts', 'The Five Major Feast Days'],
+  ['merelots', 'Merelots – Remembrance of the Departed'],
+  ['customs', 'Customs Associated with Hokihankist'],
+  ['tradition', 'A Tradition of Faith, Love, and Hope'],
+  ['request', 'Requesting a Hokihankist at St. Mary'],
 ];
+
+const REQUEST_FORM = '/requiem/request';
+const GIVE_ONLINE = 'https://give.tithe.ly/?formId=2b4b2f59-428d-46ab-9cd4-b151b1f12dab';
+
+function RequestButton({ className = '' }: { className?: string }) {
+  return (
+    <Link href={REQUEST_FORM}>
+      <Button className={`!w-[240px] !bg-secondary !border-secondary hover:!brightness-90 ${className}`}>Request a Hokihankist</Button>
+    </Link>
+  );
+}
 
 export default function RequiemPage() {
   return (
@@ -93,17 +106,27 @@ export default function RequiemPage() {
             Together, they express our prayer that the souls of the departed may find eternal rest and peace in the
             presence of our Heavenly Father.
           </p>
-          <nav aria-label='On this page' className='bg-[#FFF5F2] rounded-xl p-5'>
+          <div className='rounded-xl border-l-4 border-secondary bg-[#FFF5F2] p-5 flex flex-col sm:flex-row sm:items-center gap-4'>
+            <div className='flex-1'>
+              <p className='font-secondary font-bold text-primary text-lg'>Requesting a Hokihankist?</p>
+              <p className='text-sm text-gray-700'>
+                Offered on Sundays at the conclusion of the Divine Liturgy. Please send your request at least one day
+                before the service, or call the parish office at 949.650.8367.
+              </p>
+            </div>
+            <RequestButton className='!w-full sm:!w-[240px]' />
+          </div>
+          <nav aria-label='On this page' className='border border-gray-200 rounded-xl p-5'>
             <p className='font-semibold text-primary mb-2'>On this page</p>
-            <ul className='grid sm:grid-cols-2 gap-x-6 gap-y-1 text-sm'>
+            <ol className='list-decimal pl-5 sm:columns-2 sm:gap-x-8 text-sm space-y-1'>
               {ON_THIS_PAGE.map(([id, label]) => (
-                <li key={id}>
+                <li key={id} className='break-inside-avoid'>
                   <a href={`#${id}`} className='text-secondary hover:underline'>
                     {label}
                   </a>
                 </li>
               ))}
-            </ul>
+            </ol>
           </nav>
         </div>
       </section>
@@ -306,7 +329,7 @@ export default function RequiemPage() {
         <p>These customs are most meaningful when accompanied by sincere prayer and faith.</p>
       </Section>
 
-      <Section title='A Tradition of Faith, Love, and Hope' shaded>
+      <Section id='tradition' title='A Tradition of Faith, Love, and Hope' shaded>
         <p>
           Hokihankist is far more than an Armenian cultural custom or a family obligation. It is a sacred expression
           of our Christian faith, rooted in the teachings of Holy Scripture and preserved through centuries of
@@ -327,16 +350,66 @@ export default function RequiemPage() {
           Parishioners and friends of St. Mary Armenian Apostolic Church are welcome to request a Hokihankist service
           in memory of their departed loved ones.
         </p>
-        <p>When requesting a service, please provide:</p>
-        <ul className='list-disc pl-6 space-y-1'>
-          <li>The full names of the departed to be remembered.</li>
-          <li>The occasion for the remembrance, if applicable.</li>
-          <li>The names of the family members requesting the service.</li>
-          <li>The preferred Sunday for the service.</li>
+        <p>
+          At St. Mary Armenian Apostolic Church, Hokihankist (<Hy>Հոգեհանգիստ</Hy>), or Requiem Service, is offered on
+          Sundays at the conclusion of the Divine Liturgy (Soorp Badarak).
+        </p>
+        <p>
+          In keeping with the sacred traditions of the Armenian Apostolic Church, families are encouraged to request
+          Hokihankist on the following occasions:
+        </p>
+        <ul className='list-disc pl-6 space-y-2'>
+          <li>
+            <strong>
+              Yotnorek (<Hy>Եօթնօրէք</Hy>):
+            </strong>{' '}
+            The seventh-day remembrance following the passing of a loved one.
+          </li>
+          <li>
+            <strong>
+              Karasoonk (<Hy>Քառասունք</Hy>):
+            </strong>{' '}
+            The fortieth-day remembrance following the passing of a loved one.
+          </li>
+          <li>
+            <strong>
+              Darelits (<Hy>Տարելից</Hy>):
+            </strong>{' '}
+            The first anniversary and subsequent annual anniversaries of a loved one&apos;s passing.
+          </li>
+          <li>
+            <strong>Other Remembrances:</strong> Any occasion on which a family wishes to honor the memory of a departed
+            loved one and pray for the repose of their soul.
+          </li>
         </ul>
         <p>
-          Please contact the St. Mary Church Office in advance to make arrangements and confirm that your requested
-          date is in accordance with the liturgical calendar of the Armenian Apostolic Church.
+          Hokihankist is not limited to these occasions. Families are welcome to request a Requiem Service throughout the
+          year in remembrance of their departed loved ones, regardless of how much time has passed.
+        </p>
+        <p>
+          In accordance with the canons of the Armenian Apostolic Church, Hokihankist is not performed on the five major
+          Tabernacle Feasts: Holy Nativity and Theophany, Holy Resurrection (Easter), Transfiguration, Assumption of the
+          Holy Mother of God, and Exaltation of the Holy Cross. The day following each of these feasts is traditionally
+          observed as Merelots (<Hy>Մեռելոց</Hy>), a day dedicated to the remembrance of the departed.
+        </p>
+        <Sub>How to Request</Sub>
+        <p>
+          Please send your request at least one day before the service using our online form, which asks for the
+          names of your departed loved ones, the occasion, and the Sunday you would like. You may also call the parish
+          office at 949.650.8367.
+        </p>
+        <div className='pt-1'>
+          <RequestButton />
+        </div>
+        <Sub>A Memorial Offering</Sub>
+        <p>
+          It is customary for families to make an offering to the Church when requesting a Hokihankist, in loving memory
+          of the departed. As with all memorial donations, it is an expression of Christian stewardship and gratitude,
+          not a payment for prayers. Offerings may be made at church on Sunday or{' '}
+          <a href={GIVE_ONLINE} target='_blank' rel='noreferrer' className='text-secondary underline'>
+            online
+          </a>
+          .
         </p>
       </Section>
 
@@ -351,14 +424,12 @@ export default function RequiemPage() {
           peace and consolation to all who mourn. Amen.
         </p>
         <p className='text-gray-200 max-w-xl mx-auto mb-6'>
-          To request a Hokihankist, call the parish office at 949.650.8367 or get in touch through our contact page.
+          To request a Hokihankist, use our online form or call the parish office at 949.650.8367.
         </p>
         <div className='flex gap-3 justify-center flex-wrap'>
-          <Link href='/contact'>
-            <Button className='!w-[200px] !bg-secondary !border-secondary hover:!brightness-90'>Contact Us</Button>
-          </Link>
+          <RequestButton />
           <Link href='/worship#traditions'>
-            <Button className='!w-[200px] !bg-transparent !border-white !border-2 hover:!bg-white hover:!text-primary'>
+            <Button className='!w-[240px] !bg-transparent !border-white !border-2 hover:!bg-white hover:!text-primary'>
               Faith &amp; Traditions
             </Button>
           </Link>
