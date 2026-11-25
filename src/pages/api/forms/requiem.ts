@@ -3,7 +3,7 @@ import { clientIpHash, verifyTurnstile } from '@/lib/forms/spam';
 import { sameOrigin } from '@/lib/office/auth';
 import { recordAudit } from '@/lib/office/audit';
 import { sendRequiemNotice, sendRequiemReceipt } from '@/lib/office/email';
-import { cleanRequiem, longDate, occasionLabel } from '@/lib/requiem/rules';
+import { GIVE_ONLINE_URL, cleanRequiem, longDate, remembranceLabel } from '@/lib/requiem/rules';
 import { createRequiemRequest, recentRequiemCount } from '@/lib/requiem/store';
 
 const MAX_PER_HOUR = 5;
@@ -38,7 +38,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const request = await createRequiemRequest(data, ipHash);
     const when = longDate(data.serviceDate);
-    const [notice, receipt] = await Promise.allSettled([sendRequiemNotice(data, when, occasionLabel), sendRequiemReceipt(data, when)]);
+    const [notice, receipt] = await Promise.allSettled([
+      sendRequiemNotice(data, when, remembranceLabel),
+      sendRequiemReceipt(data, when, GIVE_ONLINE_URL),
+    ]);
     for (const [label, r] of [['notice', notice], ['receipt', receipt]] as const) {
       if (r.status === 'rejected') console.error(`[requiem] ${label} email failed:`, r.reason instanceof Error ? r.reason.message : r.reason);
     }
@@ -47,6 +50,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       id: request.id,
       serviceDate: data.serviceDate,
       names: data.names.length,
+      hokijash: data.hokijash,
+      fellowship: data.fellowship,
+      offering: data.offering,
       notice: notice.status === 'fulfilled' ? { sent: true, to: notice.value } : { sent: false },
       receipt: { sent: receipt.status === 'fulfilled' },
     });

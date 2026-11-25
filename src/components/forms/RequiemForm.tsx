@@ -1,13 +1,17 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { TURNSTILE_SITE_KEY as SITE_KEY, useTurnstile } from '@/components/forms/useTurnstile';
 import {
+  GIVE_ONLINE_URL,
   MAX_NAMES,
   OCCASIONS,
+  OFFERINGS,
   cleanRequiem,
   emptyRemembrance,
   longDate,
   nextServiceSundays,
+  ordinal,
   parishToday,
+  type Offering,
   type RemembranceInput,
 } from '@/lib/requiem/rules';
 
@@ -26,6 +30,10 @@ export default function RequiemForm() {
   const [others, setOthers] = useState('');
   // Ticked to start with (the parish's choice); people can untick it.
   const [newsletter, setNewsletter] = useState(true);
+  const [hokijash, setHokijash] = useState(false);
+  const [fellowship, setFellowship] = useState(false);
+  const [arrangements, setArrangements] = useState('');
+  const [offering, setOffering] = useState<Offering>('');
   const [honeypot, setHoneypot] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState('');
@@ -52,7 +60,7 @@ export default function RequiemForm() {
   };
 
   function payload() {
-    return { serviceDate, ...contact, others, names, newsletter };
+    return { serviceDate, ...contact, others, names, newsletter, hokijash, fellowship, arrangements, offering };
   }
 
   function showErrors(errs: Record<string, string>, message: string) {
@@ -101,6 +109,26 @@ export default function RequiemForm() {
           Your request for a Hokihankist on <strong>{longDate(serviceDate)}</strong> was sent to Hayr Eremia and the
           parish office. We also emailed you a receipt.
         </p>
+        {(hokijash || fellowship) && (
+          <p className='text-gray-700'>
+            Someone from the church will contact you to arrange{' '}
+            {[hokijash && 'the Hokijash', fellowship && 'the fellowship hour'].filter(Boolean).join(' and ')}.
+          </p>
+        )}
+        {offering === 'online' && (
+          <div className='bg-[#FFF5F2] rounded-xl p-5 my-2 space-y-3'>
+            <p className='text-gray-700'>Thank you for remembering your loved ones with a memorial offering.</p>
+            <a
+              href={GIVE_ONLINE_URL}
+              target='_blank'
+              rel='noreferrer'
+              className='inline-block bg-secondary text-white rounded-xl px-8 py-3 font-semibold hover:brightness-90'
+            >
+              Give online ↗
+            </a>
+            <p className='text-xs text-gray-500'>Opens our secure giving page in a new tab.</p>
+          </div>
+        )}
         <p className='text-gray-700'>If anything changes, reply to that email or call the office at 949.650.8367.</p>
         <p lang='hy' className='text-primary font-semibold pt-2'>
           Աստուած հոգիները լուսաւորէ։
@@ -189,7 +217,7 @@ export default function RequiemForm() {
                   onChange={(v) => setRow(i, 'relationship', v)}
                 />
               </div>
-              <div className='sm:col-span-4'>
+              <div className='sm:col-span-3'>
                 <Label htmlFor={fieldId(`names.${i}.occasion`)} required>
                   Occasion
                 </Label>
@@ -209,15 +237,54 @@ export default function RequiemForm() {
                 </select>
                 {err(`names.${i}.occasion`) && <p className='text-xs text-error mt-1'>{err(`names.${i}.occasion`)}</p>}
               </div>
+              {row.occasion === 'darelits' && (
+                <div className='sm:col-span-3'>
+                  <Label htmlFor={fieldId(`names.${i}.anniversary`)} required>
+                    Which anniversary of their passing?
+                  </Label>
+                  <div className='flex items-center gap-3'>
+                    <input
+                      id={fieldId(`names.${i}.anniversary`)}
+                      type='number'
+                      inputMode='numeric'
+                      min={1}
+                      max={150}
+                      value={row.anniversary}
+                      placeholder='1'
+                      aria-invalid={!!err(`names.${i}.anniversary`)}
+                      onChange={(e) => setRow(i, 'anniversary', e.target.value)}
+                      className={`${inputClass} !w-24${err(`names.${i}.anniversary`) ? ' !border-error' : ''}`}
+                    />
+                    <span className='text-gray-600'>
+                      {/^\d+$/.test(row.anniversary) && Number(row.anniversary) > 0 ? `${ordinal(Number(row.anniversary))} anniversary` : 'anniversary'}
+                    </span>
+                  </div>
+                  {err(`names.${i}.anniversary`) && <p className='text-xs text-error mt-1'>{err(`names.${i}.anniversary`)}</p>}
+                </div>
+              )}
+              {row.occasion === 'other' && (
+                <div className='sm:col-span-3'>
+                  <Label htmlFor={fieldId(`names.${i}.details`)} required>
+                    What is the occasion?
+                  </Label>
+                  <Input
+                    id={fieldId(`names.${i}.details`)}
+                    value={row.details}
+                    placeholder='e.g. her birthday'
+                    error={err(`names.${i}.details`)}
+                    onChange={(v) => setRow(i, 'details', v)}
+                  />
+                </div>
+              )}
               {names.length > 1 && (
-                <div className='sm:col-span-2 flex sm:items-end'>
+                <div className='sm:col-span-6'>
                   <button
                     type='button'
                     onClick={() => {
                       setNames((rows) => rows.filter((_, k) => k !== i));
                       setErrors({});
                     }}
-                    className='text-sm text-gray-600 underline hover:text-error sm:mb-3'
+                    className='text-sm text-gray-600 underline hover:text-error'
                   >
                     Remove this name
                   </button>
@@ -238,6 +305,93 @@ export default function RequiemForm() {
       </fieldset>
 
       <fieldset className='bg-white rounded-2xl shadow-sm p-6'>
+        <legend className='sr-only'>Others requesting the same service</legend>
+        <h2 className='font-secondary font-bold text-xl text-primary' aria-hidden>
+          Others requesting the same service <Optional />
+        </h2>
+        <p className='text-sm text-gray-600 mt-1'>Other family members or friends joining in this request.</p>
+        <textarea
+          id={fieldId('others')}
+          aria-label='Others requesting the same service'
+          rows={3}
+          maxLength={1000}
+          value={others}
+          onChange={(e) => setOthers(e.target.value)}
+          className={`${inputClass} mt-4`}
+        />
+      </fieldset>
+
+      <fieldset className='bg-white rounded-2xl shadow-sm p-6'>
+        <legend className='sr-only'>Hokijash and fellowship hour</legend>
+        <h2 className='font-secondary font-bold text-xl text-primary' aria-hidden>
+          Hokijash and fellowship hour <Optional />
+        </h2>
+        <p className='text-sm text-gray-600 mt-1'>
+          Families often honor a loved one with a Hokijash (memorial meal) or by sponsoring the fellowship hour (coffee
+          hour) after the Divine Liturgy. Tick any you would like, and someone from the church will contact you to make
+          the arrangements.
+        </p>
+        <div className='mt-4 space-y-3'>
+          <Check id='f-hokijash' checked={hokijash} onChange={setHokijash}>
+            I would like to arrange a <strong>Hokijash</strong> (memorial meal)
+          </Check>
+          <Check id='f-fellowship' checked={fellowship} onChange={setFellowship}>
+            I would like to <strong>sponsor the fellowship hour</strong> after the service
+          </Check>
+        </div>
+        {(hokijash || fellowship) && (
+          <div className='mt-4'>
+            <label htmlFor={fieldId('arrangements')} className='block text-sm font-semibold text-gray-700 mb-1'>
+              Anything we should know? <span className='text-gray-400 font-normal'>(optional)</span>
+            </label>
+            <textarea
+              id={fieldId('arrangements')}
+              rows={3}
+              maxLength={1000}
+              value={arrangements}
+              placeholder='e.g. about how many guests, or the best time to reach you'
+              onChange={(e) => setArrangements(e.target.value)}
+              className={inputClass}
+            />
+          </div>
+        )}
+      </fieldset>
+
+      <fieldset className='bg-white rounded-2xl shadow-sm p-6'>
+        <legend className='sr-only'>A memorial offering</legend>
+        <h2 className='font-secondary font-bold text-xl text-primary' aria-hidden>
+          A memorial offering <Optional />
+        </h2>
+        <p className='text-sm text-gray-600 mt-1'>
+          It is customary to make an offering to the Church in loving memory of the departed: an expression of
+          stewardship and gratitude, not a payment for prayers. If you plan to, how would you like to give?
+        </p>
+        <div className='mt-4 space-y-3' role='radiogroup' aria-label='How would you like to give?'>
+          {OFFERINGS.map((o) => (
+            <label key={o.value} className='flex items-start gap-3 text-gray-700 cursor-pointer'>
+              <input
+                type='radio'
+                name='offering'
+                value={o.value}
+                checked={offering === o.value}
+                onChange={() => setOffering(o.value)}
+                className='mt-1 h-4 w-4 accent-secondary'
+              />
+              <span>
+                {o.label}
+                {o.help && <span className='block text-xs text-gray-500'>{o.help}</span>}
+              </span>
+            </label>
+          ))}
+          {offering && (
+            <button type='button' onClick={() => setOffering('')} className='text-xs text-gray-500 underline'>
+              Clear my choice
+            </button>
+          )}
+        </div>
+      </fieldset>
+
+      <fieldset className='bg-white rounded-2xl shadow-sm p-6'>
         <legend className='sr-only'>Your contact information</legend>
         <h2 className='font-secondary font-bold text-xl text-primary' aria-hidden>
           Your contact information
@@ -255,26 +409,9 @@ export default function RequiemForm() {
           <ContactField k='zip' label='ZIP' width='sm:col-span-2' autoComplete='postal-code' inputMode='numeric' contact={contact} err={err} set={setField} />
         </div>
         <label className='flex items-start gap-3 mt-5 text-gray-700'>
-          <input type='checkbox' checked={newsletter} onChange={(e) => setNewsletter(e.target.checked)} className='mt-1 h-4 w-4 accent-secondary' />
+          <input id='f-newsletter' type='checkbox' checked={newsletter} onChange={(e) => setNewsletter(e.target.checked)} className='mt-1 h-4 w-4 accent-secondary' />
           <span>Send me St. Mary&apos;s email newsletter with parish news and events.</span>
         </label>
-      </fieldset>
-
-      <fieldset className='bg-white rounded-2xl shadow-sm p-6'>
-        <legend className='sr-only'>Others requesting the same service</legend>
-        <h2 className='font-secondary font-bold text-xl text-primary' aria-hidden>
-          Others requesting the same service <span className='text-gray-400 text-base font-normal'>(optional)</span>
-        </h2>
-        <p className='text-sm text-gray-600 mt-1'>Other family members or friends joining in this request.</p>
-        <textarea
-          id={fieldId('others')}
-          aria-label='Others requesting the same service'
-          rows={3}
-          maxLength={1000}
-          value={others}
-          onChange={(e) => setOthers(e.target.value)}
-          className={`${inputClass} mt-4`}
-        />
       </fieldset>
 
       {/* Honeypot: hidden from people and screen readers. */}
@@ -302,6 +439,19 @@ export default function RequiemForm() {
         </button>
       </div>
     </form>
+  );
+}
+
+function Optional() {
+  return <span className='text-gray-400 text-base font-normal'>(optional)</span>;
+}
+
+function Check({ id, checked, onChange, children }: { id: string; checked: boolean; onChange: (v: boolean) => void; children: React.ReactNode }) {
+  return (
+    <label htmlFor={id} className='flex items-start gap-3 text-gray-700 cursor-pointer'>
+      <input id={id} type='checkbox' checked={checked} onChange={(e) => onChange(e.target.checked)} className='mt-1 h-4 w-4 accent-secondary' />
+      <span>{children}</span>
+    </label>
   );
 }
 

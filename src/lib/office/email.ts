@@ -305,8 +305,18 @@ export interface RequiemSummary {
   phone: string;
   email: string;
   others: string;
-  names: { name: string; relationship: string; occasion: string }[];
+  names: { name: string; relationship: string; occasion: string; anniversary: string; details: string }[];
   newsletter: boolean;
+  hokijash: boolean;
+  fellowship: boolean;
+  arrangements: string;
+  offering: string;
+}
+
+/** "a Hokijash (memorial meal) and sponsoring the fellowship hour", or '' if neither. */
+function requiemArrangements(r: RequiemSummary): string {
+  const wanted = [r.hokijash && 'a Hokijash (memorial meal)', r.fellowship && 'sponsoring the Sunday fellowship hour'].filter(Boolean);
+  return wanted.join(' and ');
 }
 
 /**
@@ -320,24 +330,38 @@ function requiemRecipients(): { to: string[]; test: boolean } {
 }
 
 /** To Hayr Eremia and the office: the whole request (replying writes to the family). Returns who it went to. */
-export async function sendRequiemNotice(r: RequiemSummary, when: string, occasion: (v: string) => string): Promise<string[]> {
+export async function sendRequiemNotice(
+  r: RequiemSummary,
+  when: string,
+  occasion: (n: RequiemSummary['names'][number]) => string,
+): Promise<string[]> {
   const { to, test } = requiemRecipients();
   const first = r.names[0]?.name ?? '';
   const more = r.names.length > 1 ? ` and ${r.names.length - 1} more` : '';
-  const subject = `${test ? '[TEST] ' : ''}Hokihankist request for ${when}: ${first}${more}`;
+  const arrange = requiemArrangements(r);
+  const subject = `${test ? '[TEST] ' : ''}Hokihankist request for ${when}: ${first}${more}${arrange ? ' (arrangements requested)' : ''}`;
   const url = `${siteBaseUrl()}/office/requiem`;
   const td = (v: string, style = '') => `<td style="padding:4px 12px 4px 0;vertical-align:top;${style}">${escapeHtml(v)}</td>`;
   const names = r.names
-    .map((n) => `<tr>${td(n.name, 'font-weight:600;')}${td(n.relationship)}${td(occasion(n.occasion), 'color:#666;')}</tr>`)
+    .map((n) => `<tr>${td(n.name, 'font-weight:600;')}${td(n.relationship)}${td(occasion(n), 'color:#666;')}</tr>`)
     .join('');
+  const offering = r.offering === 'online' ? 'Online (shown the giving link)' : r.offering === 'church' ? 'At church on Sunday' : 'Not mentioned';
   const rows: [string, string][] = [
     ['Requested by', r.name],
     ['Phone', r.phone],
     ['Email', r.email],
     ['Address', `${r.address}, ${r.city}, ${r.state} ${r.zip}`],
     ...(r.others ? ([['Others requesting', r.others]] as [string, string][]) : []),
+    ['Memorial offering', offering],
     ['Newsletter', r.newsletter ? 'Yes, please add them' : 'No'],
   ];
+  const arrangeHtml = arrange
+    ? `<div style="margin:0 0 20px;padding:12px 16px;background:#FFF5F2;border-left:4px solid #C84B2F;">
+         <p style="margin:0;"><strong>Please contact the family</strong> to arrange ${escapeHtml(arrange)}.</p>
+         ${r.arrangements ? `<p style="margin:8px 0 0;color:#555;">“${escapeHtml(r.arrangements)}”</p>` : ''}
+       </div>`
+    : '';
+  const arrangeText = arrange ? `PLEASE CONTACT THE FAMILY to arrange ${arrange}.${r.arrangements ? `\nTheir note: ${r.arrangements}` : ''}\n\n` : '';
   const table = rows
     .map(([k, v]) => `<tr><td style="padding:4px 16px 4px 0;color:#888;white-space:nowrap;vertical-align:top;">${escapeHtml(k)}</td><td style="padding:4px 0;">${escapeHtml(v)}</td></tr>`)
     .join('');
@@ -349,20 +373,24 @@ export async function sendRequiemNotice(r: RequiemSummary, when: string, occasio
       'Hokihankist request',
       `<p style="margin:0 0 8px;">A Hokihankist was requested through the website for <strong>${escapeHtml(when)}</strong>, in memory of:</p>
        <table cellpadding="0" cellspacing="0" style="margin:0 0 20px;font-size:15px;">${names}</table>
+       ${arrangeHtml}
        <table cellpadding="0" cellspacing="0" style="margin:0 0 24px;font-size:15px;">${table}</table>
        ${button(url, 'See all requests')}
        <p style="margin:0;font-size:13px;color:#888;">Reply to this email to write to ${escapeHtml(r.name)}.</p>`,
     ),
     text: `A Hokihankist was requested through the website for ${when}, in memory of:\n\n${r.names
-      .map((n) => `- ${n.name} (${n.relationship}), ${occasion(n.occasion)}`)
-      .join('\n')}\n\n${rows.map(([k, v]) => `${k}: ${v}`).join('\n')}\n\nSee all requests (sign-in required):\n${url}\n\nReply to this email to write to ${r.name}.`,
+      .map((n) => `- ${n.name} (${n.relationship}), ${occasion(n)}`)
+      .join('\n')}\n\n${arrangeText}${rows.map(([k, v]) => `${k}: ${v}`).join('\n')}\n\nSee all requests (sign-in required):\n${url}\n\nReply to this email to write to ${r.name}.`,
   });
   return to;
 }
 
-/** To the family: we received it. */
-export async function sendRequiemReceipt(r: RequiemSummary, when: string): Promise<void> {
+/** To the family: we received it (and, if they chose to give online, the link). */
+export async function sendRequiemReceipt(r: RequiemSummary, when: string, giveUrl: string): Promise<void> {
   const list = r.names.map((n) => n.name).join(', ');
+  const arrange = requiemArrangements(r);
+  const arrangeLine = arrange ? `Someone from the church will contact you to arrange ${arrange}.` : '';
+  const giveLine = r.offering === 'online' ? 'If you haven’t yet, you can make your memorial offering online:' : '';
   await send({
     to: [r.email],
     replyTo: OFFICE_ADDRESS,
@@ -370,10 +398,14 @@ export async function sendRequiemReceipt(r: RequiemSummary, when: string): Promi
     html: layout(
       'Thank you',
       `<p style="margin:0 0 16px;">We received your request for a Hokihankist (Requiem Service) on <strong>${escapeHtml(when)}</strong>, at the conclusion of the Divine Liturgy, in memory of ${escapeHtml(list)}.</p>
+       ${arrangeLine ? `<p style="margin:0 0 16px;">${escapeHtml(arrangeLine)}</p>` : ''}
+       ${giveLine ? `<p style="margin:0 0 12px;">${escapeHtml(giveLine)}</p>${button(giveUrl, 'Give online')}` : ''}
        <p style="margin:0 0 16px;">If anything needs to change, reply to this email or call the parish office at ${OFFICE_PHONE}.</p>
        <p style="margin:0 0 16px;font-style:italic;">May God grant light to their souls.</p>
        <p style="margin:0;font-size:13px;color:#888;">If you didn't send this request, please let us know by replying to this email.</p>`,
     ),
-    text: `We received your request for a Hokihankist (Requiem Service) on ${when}, at the conclusion of the Divine Liturgy, in memory of ${list}.\n\nIf anything needs to change, reply to this email or call the parish office at ${OFFICE_PHONE}.\n\nMay God grant light to their souls.\n\nIf you didn't send this request, please let us know by replying to this email.`,
+    text: `We received your request for a Hokihankist (Requiem Service) on ${when}, at the conclusion of the Divine Liturgy, in memory of ${list}.\n\n${
+      arrangeLine ? `${arrangeLine}\n\n` : ''
+    }${giveLine ? `${giveLine} ${giveUrl}\n\n` : ''}If anything needs to change, reply to this email or call the parish office at ${OFFICE_PHONE}.\n\nMay God grant light to their souls.\n\nIf you didn't send this request, please let us know by replying to this email.`,
   });
 }

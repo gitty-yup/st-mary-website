@@ -14,10 +14,23 @@ export const occasionLabel = (v: string) => OCCASIONS.find((o) => o.value === v)
 /** At most this many departed loved ones in one request. */
 export const MAX_NAMES = 10;
 
+/** How a family would like to make the (optional) memorial offering. */
+export const OFFERINGS = [
+  { value: 'online', label: 'Online', help: 'We’ll show you the link to our secure giving page once your request is sent.' },
+  { value: 'church', label: 'At church on Sunday', help: '' },
+] as const;
+export type Offering = '' | (typeof OFFERINGS)[number]['value'];
+
+export const GIVE_ONLINE_URL = 'https://give.tithe.ly/?formId=2b4b2f59-428d-46ab-9cd4-b151b1f12dab';
+
 export interface RemembranceInput {
   name: string;
   relationship: string;
   occasion: string;
+  /** Darelits: which anniversary of the passing (1, 2, 3, …). */
+  anniversary: string;
+  /** Other remembrance: what the occasion is. */
+  details: string;
 }
 
 export interface RequiemInput {
@@ -32,9 +45,30 @@ export interface RequiemInput {
   others: string;
   names: RemembranceInput[];
   newsletter: boolean;
+  /** Someone from the church should contact them about a memorial meal… */
+  hokijash: boolean;
+  /** …or about sponsoring the Sunday fellowship (coffee) hour. */
+  fellowship: boolean;
+  /** Anything the family wants us to know about those arrangements. */
+  arrangements: string;
+  offering: Offering;
 }
 
-export const emptyRemembrance = (): RemembranceInput => ({ name: '', relationship: '', occasion: '' });
+export const emptyRemembrance = (): RemembranceInput => ({ name: '', relationship: '', occasion: '', anniversary: '', details: '' });
+
+/** 1 → "1st", 2 → "2nd", 11 → "11th", 22 → "22nd" */
+export function ordinal(n: number): string {
+  const s = ['th', 'st', 'nd', 'rd'];
+  const v = n % 100;
+  return `${n}${s[(v - 20) % 10] || s[v] || s[0]}`;
+}
+
+/** The occasion as people would say it: "Karasoonk – fortieth day", "Darelits – 5th anniversary", "Other – her birthday". */
+export function remembranceLabel(n: Pick<RemembranceInput, 'occasion' | 'anniversary' | 'details'>): string {
+  if (n.occasion === 'darelits' && n.anniversary) return `Darelits – ${ordinal(Number(n.anniversary))} anniversary`;
+  if (n.occasion === 'other' && n.details) return `Other – ${n.details}`;
+  return occasionLabel(n.occasion);
+}
 
 /** Today's date in Costa Mesa (YYYY-MM-DD), whatever the visitor's or server's time zone. */
 export function parishToday(now: Date = new Date()): string {
@@ -112,7 +146,7 @@ export function nextServiceSundays(count: number, today: string = parishToday())
   return out;
 }
 
-const LIMITS = { name: 120, address: 200, city: 80, state: 40, zip: 10, phone: 40, email: 200, others: 1000, relationship: 80 };
+const LIMITS = { name: 120, address: 200, city: 80, state: 40, zip: 10, phone: 40, email: 200, others: 1000, relationship: 80, details: 120, arrangements: 1000 };
 const clean = (v: unknown, max: number) => (typeof v === 'string' ? v.replace(/\s+/g, ' ').trim().slice(0, max) : '');
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -136,11 +170,24 @@ export function cleanRequiem(raw: unknown, today: string = parishToday()): { dat
     names: rows
       .map((x) => {
         const row = (x && typeof x === 'object' ? x : {}) as Record<string, unknown>;
-        return { name: clean(row.name, LIMITS.name), relationship: clean(row.relationship, LIMITS.relationship), occasion: clean(row.occasion, 20) };
+        const occasion = clean(row.occasion, 20);
+        return {
+          name: clean(row.name, LIMITS.name),
+          relationship: clean(row.relationship, LIMITS.relationship),
+          occasion,
+          // Kept only for the occasion it belongs to.
+          anniversary: occasion === 'darelits' ? clean(String(row.anniversary ?? ''), 3) : '',
+          details: occasion === 'other' ? clean(row.details, LIMITS.details) : '',
+        };
       })
       .filter((x) => x.name || x.relationship || x.occasion),
     newsletter: r.newsletter === true,
+    hokijash: r.hokijash === true,
+    fellowship: r.fellowship === true,
+    arrangements: '',
+    offering: OFFERINGS.some((o) => o.value === r.offering) ? (r.offering as Offering) : '',
   };
+  if (data.hokijash || data.fellowship) data.arrangements = typeof r.arrangements === 'string' ? r.arrangements.trim().slice(0, LIMITS.arrangements) : '';
   const errors: Record<string, string> = {};
   const dateProblem = serviceDateProblem(data.serviceDate, today);
   if (dateProblem) errors.serviceDate = dateProblem;
@@ -157,6 +204,10 @@ export function cleanRequiem(raw: unknown, today: string = parishToday()): { dat
     if (!n.name) errors[`names.${i}.name`] = 'Enter the name.';
     if (!n.relationship) errors[`names.${i}.relationship`] = 'Enter the relationship.';
     if (!OCCASIONS.some((o) => o.value === n.occasion)) errors[`names.${i}.occasion`] = 'Choose the occasion.';
+    if (n.occasion === 'darelits' && !(/^\d{1,3}$/.test(n.anniversary) && Number(n.anniversary) >= 1 && Number(n.anniversary) <= 150)) {
+      errors[`names.${i}.anniversary`] = 'Enter which anniversary (for example, 1 for the first).';
+    }
+    if (n.occasion === 'other' && !n.details) errors[`names.${i}.details`] = 'Tell us the occasion.';
   });
   return { data, errors };
 }

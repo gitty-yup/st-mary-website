@@ -3,7 +3,7 @@ import React, { useCallback, useState } from 'react';
 import OfficeLayout from '@/components/office/OfficeLayout';
 import { ConfirmDelete, Notice } from '@/components/office/gallery/shared';
 import { requireOfficePage, type OfficeArea } from '@/lib/office/auth';
-import { longDate, occasionLabel, parishToday } from '@/lib/requiem/rules';
+import { longDate, parishToday, remembranceLabel } from '@/lib/requiem/rules';
 import type { RequiemRequest } from '@/lib/requiem/store';
 
 interface Props {
@@ -82,12 +82,14 @@ export default function RequiemRequests(props: Props) {
 
 function SundayGroup({ date, items, busy, onDelete }: { date: string; items: RequiemRequest[]; busy: boolean; onDelete: (r: RequiemRequest) => void }) {
   const count = items.reduce((n, r) => n + r.names.length, 0);
+  const arrange = items.filter((r) => r.hokijash || r.fellowship).length;
   return (
     <section className='mb-8'>
       <div className='flex flex-wrap items-baseline gap-x-4 gap-y-1 mb-3'>
         <h2 className='font-secondary text-xl font-bold text-primary'>{longDate(date)}</h2>
         <span className='text-sm text-gray-600'>
           {count} {count === 1 ? 'name' : 'names'} · {items.length} {items.length === 1 ? 'request' : 'requests'}
+          {arrange > 0 && <strong className='text-secondary'> · {arrange} to arrange</strong>}
         </span>
         <a href={`/office/requiem?print=${date}`} target='_blank' rel='noreferrer' className='text-sm text-primary hover:underline'>
           Print names ↗
@@ -100,10 +102,19 @@ function SundayGroup({ date, items, busy, onDelete }: { date: string; items: Req
               {r.names.map((n, i) => (
                 <li key={i}>
                   <strong className='text-gray-900'>{n.name}</strong>
-                  <span className='text-gray-600'> · {n.relationship} · {occasionLabel(n.occasion)}</span>
+                  <span className='text-gray-600'> · {n.relationship} · {remembranceLabel(n)}</span>
                 </li>
               ))}
             </ul>
+            {(r.hokijash || r.fellowship) && (
+              <div className='mb-3 rounded-lg bg-[#FFF5F2] border-l-4 border-secondary px-3 py-2 text-sm'>
+                <p>
+                  <strong>Contact the family to arrange:</strong>{' '}
+                  {[r.hokijash && 'Hokijash (memorial meal)', r.fellowship && 'fellowship hour sponsorship'].filter(Boolean).join(' and ')}
+                </p>
+                {r.arrangements && <p className='text-gray-700 mt-1'>“{r.arrangements}”</p>}
+              </div>
+            )}
             <div className='text-sm text-gray-700 grid sm:grid-cols-2 gap-x-6 gap-y-1'>
               <p>
                 <span className='text-gray-500'>Requested by</span> {r.name}
@@ -123,6 +134,8 @@ function SundayGroup({ date, items, busy, onDelete }: { date: string; items: Req
               <p className='text-gray-500'>
                 Sent {new Date(r.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/Los_Angeles' })}
                 {r.newsletter && ' · wants the newsletter'}
+                {r.offering === 'online' && ' · offering: online'}
+                {r.offering === 'church' && ' · offering: at church'}
               </p>
               {r.others && (
                 <p className='sm:col-span-2'>
@@ -166,7 +179,7 @@ function PrintSunday({ date, requests }: { date: string; requests: RequiemReques
         <ol className='list-decimal pl-6 space-y-2 text-lg'>
           {names.map((n, i) => (
             <li key={i}>
-              {n.name} <span className='text-gray-600 text-base'>({occasionLabel(n.occasion).split(' – ')[1] ?? occasionLabel(n.occasion)})</span>
+              {n.name} <span className='text-gray-600 text-base'>({remembranceLabel(n).split(' – ')[1] ?? remembranceLabel(n)})</span>
             </li>
           ))}
         </ol>

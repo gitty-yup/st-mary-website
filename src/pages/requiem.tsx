@@ -1,6 +1,7 @@
 import AppLayout from '@/components/layout/AppLayout';
 import HeadElement from '@/components/layout/HeadElement';
 import Button from '@/common/Button';
+import { GIVE_ONLINE_URL } from '@/lib/requiem/rules';
 import Link from 'next/link';
 import React from 'react';
 
@@ -46,7 +47,7 @@ const ON_THIS_PAGE: [string, string][] = [
 ];
 
 const REQUEST_FORM = '/requiem/request';
-const GIVE_ONLINE = 'https://give.tithe.ly/?formId=2b4b2f59-428d-46ab-9cd4-b151b1f12dab';
+const GIVE_ONLINE = GIVE_ONLINE_URL;
 
 function RequestButton({ className = '' }: { className?: string }) {
   return (
@@ -106,28 +107,30 @@ export default function RequiemPage() {
             Together, they express our prayer that the souls of the departed may find eternal rest and peace in the
             presence of our Heavenly Father.
           </p>
-          <div className='rounded-xl border-l-4 border-secondary bg-[#FFF5F2] p-5 flex flex-col sm:flex-row sm:items-center gap-4'>
-            <div className='flex-1'>
-              <p className='font-secondary font-bold text-primary text-lg'>Requesting a Hokihankist?</p>
-              <p className='text-sm text-gray-700'>
+          {/* Request card and contents: side by side on a computer, stacked (request first) on a phone. */}
+          <div className='grid gap-4 md:grid-cols-5 pt-2'>
+            <div className='md:col-span-2 rounded-2xl bg-[#FFF5F2] border-t-4 border-secondary p-6 flex flex-col'>
+              <p className='font-secondary font-bold text-primary text-xl mb-2'>Requesting a Hokihankist?</p>
+              <p className='text-gray-700 text-[15px] mb-5'>
                 Offered on Sundays at the conclusion of the Divine Liturgy. Please send your request at least one day
                 before the service, or call the parish office at 949.650.8367.
               </p>
+              <RequestButton className='!w-full mt-auto' />
             </div>
-            <RequestButton className='!w-full sm:!w-[240px]' />
+            <nav aria-label='On this page' className='md:col-span-3 rounded-2xl border border-gray-200 border-t-4 border-t-primary p-6'>
+              <p className='font-secondary font-bold text-primary text-xl mb-3'>On this page</p>
+              <ol className='space-y-2 text-[15px]'>
+                {ON_THIS_PAGE.map(([id, label], i) => (
+                  <li key={id} className='flex gap-3'>
+                    <span className='text-gray-400 tabular-nums w-4 text-right shrink-0'>{i + 1}</span>
+                    <a href={`#${id}`} className='text-secondary hover:underline'>
+                      {label}
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </nav>
           </div>
-          <nav aria-label='On this page' className='border border-gray-200 rounded-xl p-5'>
-            <p className='font-semibold text-primary mb-2'>On this page</p>
-            <ol className='list-decimal pl-5 sm:columns-2 sm:gap-x-8 text-sm space-y-1'>
-              {ON_THIS_PAGE.map(([id, label]) => (
-                <li key={id} className='break-inside-avoid'>
-                  <a href={`#${id}`} className='text-secondary hover:underline'>
-                    {label}
-                  </a>
-                </li>
-              ))}
-            </ol>
-          </nav>
         </div>
       </section>
 
@@ -288,9 +291,9 @@ export default function RequiemPage() {
       <Section id='customs' title='Customs Associated with Hokihankist'>
         <p>Over the centuries, several meaningful Armenian Christian customs have developed around the remembrance of the departed.</p>
         <Sub>
-          Hokejash (<Hy>Հոգեճաշ</Hy>) – The Memorial Meal
+          Hokijash (<Hy>Հոգեճաշ</Hy>) – The Memorial Meal
         </Sub>
-        <p>Following a funeral or memorial service, families often gather for a memorial meal known as <em>Hokejash</em>.</p>
+        <p>Following a funeral or memorial service, families often gather for a memorial meal known as <em>Hokijash</em>.</p>
         <p>
           This tradition has its roots in the Christian practice of feeding the poor and providing for those in need
           in memory of the departed. Today, it also provides an opportunity for relatives and friends to gather in
@@ -395,8 +398,9 @@ export default function RequiemPage() {
         <Sub>How to Request</Sub>
         <p>
           Please send your request at least one day before the service using our online form, which asks for the
-          names of your departed loved ones, the occasion, and the Sunday you would like. You may also call the parish
-          office at 949.650.8367.
+          names of your departed loved ones, the occasion, and the Sunday you would like. You can also let us know if
+          you would like to arrange a Hokijash or sponsor the fellowship hour, and someone from the church will contact
+          you. You may also call the parish office at 949.650.8367.
         </p>
         <div className='pt-1'>
           <RequestButton />

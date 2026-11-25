@@ -15,6 +15,10 @@ export interface RequiemRequest {
   others: string;
   names: RemembranceInput[];
   newsletter: boolean;
+  hokijash: boolean;
+  fellowship: boolean;
+  arrangements: string;
+  offering: string;
 }
 
 function toRequest(r: any): RequiemRequest {
@@ -30,18 +34,26 @@ function toRequest(r: any): RequiemRequest {
     phone: r.phone,
     email: r.email,
     others: r.others,
-    names: r.names,
+    // Older entries may lack the anniversary/details fields.
+    names: (r.names as Partial<RemembranceInput>[]).map((n) => ({ name: '', relationship: '', occasion: '', anniversary: '', details: '', ...n })),
     newsletter: r.newsletter,
+    hokijash: r.hokijash,
+    fellowship: r.fellowship,
+    arrangements: r.arrangements,
+    offering: r.offering,
   };
 }
 
-const COLUMNS = 'id, created_at, service_date::text as service_date, name, address, city, state, zip, phone, email, others, names, newsletter';
+const COLUMNS =
+  'id, created_at, service_date::text as service_date, name, address, city, state, zip, phone, email, others, names, newsletter, hokijash, fellowship, arrangements, offering';
 
 export async function createRequiemRequest(d: RequiemInput, ipHash: string | null): Promise<RequiemRequest> {
   const rows = await query(
-    `insert into requiem_requests (service_date, name, address, city, state, zip, phone, email, others, names, newsletter, client_ip_hash)
-     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) returning ${COLUMNS}`,
-    [d.serviceDate, d.name, d.address, d.city, d.state, d.zip, d.phone, d.email, d.others, JSON.stringify(d.names), d.newsletter, ipHash],
+    `insert into requiem_requests (service_date, name, address, city, state, zip, phone, email, others, names, newsletter,
+                                   hokijash, fellowship, arrangements, offering, client_ip_hash)
+     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16) returning ${COLUMNS}`,
+    [d.serviceDate, d.name, d.address, d.city, d.state, d.zip, d.phone, d.email, d.others, JSON.stringify(d.names), d.newsletter,
+      d.hokijash, d.fellowship, d.arrangements, d.offering, ipHash],
   );
   return toRequest(rows[0]);
 }
