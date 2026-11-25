@@ -137,6 +137,24 @@ export default function Worship() {
               </div>
             ))}
           </div>
+
+          {/* Prayers for the Departed (not a sacrament, so set apart below them) */}
+          <div id='requiem' className='mt-10 bg-white rounded-2xl p-6 md:p-8 shadow-sm border-l-4 border-secondary'>
+            <p className='text-secondary font-cursive text-xl mb-1'>Prayers for the Departed</p>
+            <h3 className='font-secondary font-bold text-primary text-xl mb-3'>
+              <Link href='/requiem' className='hover:text-secondary transition-colors'>
+                Hokihankist (Requiem Service)
+              </Link>
+            </h3>
+            <p className='text-gray-600 leading-relaxed mb-4'>
+              Through the Hokihankist, we remember our departed loved ones, pray for the repose of their souls, and
+              reaffirm our faith in the Resurrection and the promise of eternal life. Families traditionally request it
+              for the fortieth day, the first anniversary, and later anniversaries.
+            </p>
+            <Link href='/requiem' className='text-secondary font-semibold hover:underline'>
+              About Hokihankist and how to request one →
+            </Link>
+          </div>
         </div>
       </section>
 
