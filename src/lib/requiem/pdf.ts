@@ -11,7 +11,7 @@ import { OCCASIONS, SAME_DAY_CUTOFF_LABEL } from '@/lib/requiem/rules';
 
 const W = 612;
 const H = 792;
-const M = 44;
+const M = 40;
 const NAVY = rgb(0, 47 / 255, 114 / 255);
 const ORANGE = rgb(254 / 255, 101 / 255, 52 / 255);
 const GREY = rgb(0.38, 0.38, 0.38);
@@ -84,15 +84,15 @@ export async function renderBlankRequiemForm(): Promise<Uint8Array> {
     return text(label, x + 14, at, size);
   };
   const section = (title: string, note?: string) => {
-    y -= 24;
+    y -= 22;
     const end = text(title.toUpperCase(), L, y, 10.5, f.bold, NAVY);
     if (note) text(note, end + 8, y, 8.5, f.reg, GREY);
     page.drawLine({ start: { x: L, y: y - 5 }, end: { x: R, y: y - 5 }, thickness: 1, color: ORANGE });
-    y -= 22;
+    y -= 21;
   };
 
   header(page, f, y);
-  y -= 40;
+  y -= 36;
   // English in Helvetica, the Armenian word in the certificates' Armenian font.
   const title: Run[] = [
     { text: 'Hokihankist (', font: f.bold },
@@ -105,7 +105,7 @@ export async function renderBlankRequiemForm(): Promise<Uint8Array> {
   y -= 12;
   centred(page, [{ text: 'Not offered on the five major feast days.  Please print clearly.', font: f.reg }], y, 9.5, GREY);
 
-  y -= 26;
+  y -= 22;
   field('Date of the service (a Sunday or Merelots day):', L, L + 380, y);
 
   section('In memory of', 'Please print the names as they should be read aloud.');
@@ -126,12 +126,19 @@ export async function renderBlankRequiemForm(): Promise<Uint8Array> {
     x = text('anniversary', x + 30, y, 9) + 12;
     x = box('Other:', x, y, 9) + 4;
     page.drawLine({ start: { x, y: y - 2 }, end: { x: R, y: y - 2 }, thickness: 0.6, color: RULE });
-    y -= 29;
+    y -= 25;
   }
-  y += 29;
+  y += 25;
 
-  y -= 26;
-  field('Others requesting the same service (optional):', L, R, y);
+  // Several family members or friends may join one request for the same loved one.
+  section('Others requesting the same service (optional)', 'Other family members or friends joining in this request.');
+  const mid = (L + R) / 2;
+  for (let i = 0; i < 3; i++) {
+    field('', L, mid - 12, y);
+    field('', mid + 12, R, y);
+    y -= 22;
+  }
+  y += 22;
 
   section('Hokijash and fellowship hour (optional)', 'Tick any you would like; someone from the church will contact you.');
   box('Hokijash (memorial meal)', L, y);
@@ -147,16 +154,16 @@ export async function renderBlankRequiemForm(): Promise<Uint8Array> {
 
   section('Your contact information', 'So we can reach you about the service.');
   field('Your name:', L, R, y);
-  y -= 24;
+  y -= 23;
   field('Phone:', L, L + 230, y);
   field('Email:', L + 245, R, y);
-  y -= 24;
+  y -= 23;
   field('Street address:', L, R, y);
-  y -= 24;
+  y -= 23;
   field('City:', L, L + 300, y);
   field('State:', L + 315, L + 400, y);
   field('ZIP:', L + 415, R, y);
-  y -= 22;
+  y -= 20;
   box("Send me St. Mary's email newsletter with parish news and events.", L, y);
 
   // Office use only, along the bottom.
